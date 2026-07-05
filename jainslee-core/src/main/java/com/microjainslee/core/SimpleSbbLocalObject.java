@@ -285,4 +285,27 @@ public final class SimpleSbbLocalObject implements SbbLocalObject {
     public boolean isReady() {
         return entityState.getLifecycleState() == SbbLifecycleManager.State.READY;
     }
+
+    /**
+     * Block until the entity reaches {@link SbbLifecycleManager.State#READY}
+     * or the timeout elapses. Entity activation runs asynchronously on the
+     * entity's virtual thread, so callers that need the SBB fully activated
+     * (e.g. before invoking business methods directly, outside the event
+     * path) should use this instead of hand-rolled sleep loops. Events
+     * routed through the container never need this — the entity's task
+     * queue already serializes activation before delivery.
+     *
+     * @return {@code true} when READY was reached within the timeout
+     */
+    public boolean awaitReady(long timeout, java.util.concurrent.TimeUnit unit)
+            throws InterruptedException {
+        long deadline = System.nanoTime() + unit.toNanos(timeout);
+        while (!isReady()) {
+            if (isRemoved() || System.nanoTime() >= deadline) {
+                return isReady();
+            }
+            Thread.sleep(1L);
+        }
+        return true;
+    }
 }

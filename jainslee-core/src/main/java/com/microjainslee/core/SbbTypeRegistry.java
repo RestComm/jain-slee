@@ -62,4 +62,22 @@ public final class SbbTypeRegistry {
     public boolean isRegistered(Sbb sbb) {
         return sbb != null && pools.containsKey(sbb.getClass());
     }
+
+    /**
+     * GOAL 2 — resolve a registered SBB type by name. Accepts either the
+     * fully-qualified class name or the simple class name (the form used
+     * by {@code MicroSleeContainer.mapEventToSbb}). Returns {@code null}
+     * when no registered type matches.
+     */
+    public Class<? extends Sbb> findTypeByName(String name) {
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        for (Class<? extends Sbb> type : pools.keySet()) {
+            if (name.equals(type.getName()) || name.equals(type.getSimpleName())) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

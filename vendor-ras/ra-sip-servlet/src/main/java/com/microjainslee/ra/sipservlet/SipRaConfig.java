@@ -39,6 +39,9 @@ public final class SipRaConfig {
     // ---- legacy (kept for backward compat, no longer drives Disruptor) ----
     private int ringBufferSize = 4096;
     private int virtualThreads = 0;
+    private String contactUser = "mjsl";
+    private long dialogIdleSecs = 300;
+    private long dialogSweepIntervalSecs = 30;
 
     // ---- accessors ----
 
@@ -109,4 +112,10 @@ public final class SipRaConfig {
 
     public int virtualThreads() { return virtualThreads; }
     public void setVirtualThreads(int v) { this.virtualThreads = v; }
+    public String contactUser() { return contactUser; }
+    public void setContactUser(String v) { this.contactUser = v; }
+    public long dialogIdleSecs() { return dialogIdleSecs; }
+    public void setDialogIdleSecs(long v) { this.dialogIdleSecs = v; }
+    public long dialogSweepIntervalSecs() { return dialogSweepIntervalSecs; }
+    public void setDialogSweepIntervalSecs(long v) { this.dialogSweepIntervalSecs = v; }
 }

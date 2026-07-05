@@ -212,6 +212,7 @@ public final class InMemoryProfileFacility implements ProfileTablePort {
     public void shutdown() {
         tables.clear();
         ProfileFieldStoreLocator.set(null);
+        ProfileFieldStoreLocator.clearGlobal(this);
         LOG.debug("InMemoryProfileFacility shut down");
     }
 }

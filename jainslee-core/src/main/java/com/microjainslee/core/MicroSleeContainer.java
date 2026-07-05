@@ -36,6 +36,7 @@ import com.microjainslee.api.TimerPort;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
 import com.microjainslee.core.removal.EntityRemovalBus;
 import com.microjainslee.core.removal.EntityRemovalEvent;
 import com.microjainslee.core.removal.EntityRemovalEvent.RemovalReason;
@@ -93,6 +94,24 @@ public final class MicroSleeContainer {
     private final SbbLifecycleManager sbbLifecycleManager = new SbbLifecycleManager();
     private final ConcurrentHashMap<String, SimpleSbbLocalObject> sbbs =
             new ConcurrentHashMap<String, SimpleSbbLocalObject>();
+    /**
+     * GOAL 2 — deterministic root-SBB fallback. {@link #sbbs} is a
+     * ConcurrentHashMap whose iteration order is undefined, so the legacy
+     * "first registered SBB" fallback used to pick an arbitrary entity.
+     * This list preserves registration order; stale ids (already removed
+     * from {@link #sbbs}) are skipped on read and pruned lazily.
+     */
+    private final java.util.concurrent.CopyOnWriteArrayList<String> sbbRegistrationOrder =
+            new java.util.concurrent.CopyOnWriteArrayList<String>();
+    /**
+     * GOAL 3 — programmatic registration takes priority over
+     * descriptor-based (classpath sbb-index) registration. Entities that
+     * were auto-deployed from the index are tracked here so the root-SBB
+     * fallback prefers explicitly registered SBBs.
+     */
+    private final Set<String> descriptorRegisteredIds = ConcurrentHashMap.newKeySet();
+    /** True only while {@link #autoDeployFromClasspathIndex()} runs (inside start()). */
+    private volatile boolean autoDeployInProgress;
     private final ConcurrentHashMap<String, RaBootstrapContextImpl> resourceAdaptors =
             new ConcurrentHashMap<String, RaBootstrapContextImpl>();
     /** GOAL 4 — registered RaCommandPort instances keyed by RA entity name. */
@@ -815,6 +834,10 @@ public final class MicroSleeContainer {
         entityTypesById.put(id, type);
         activateEntity(id, serviceID, sbbID, localObject, entity, sbb, pooledReuse);
         sbbs.put(id, localObject);
+        sbbRegistrationOrder.addIfAbsent(id);
+        if (autoDeployInProgress) {
+            descriptorRegisteredIds.add(id);
+        }
         return localObject;
     }
 
@@ -901,10 +924,15 @@ public final class MicroSleeContainer {
             }
         });
         sbbs.put(id, localObject);
+        sbbRegistrationOrder.addIfAbsent(id);
+        if (autoDeployInProgress) {
+            descriptorRegisteredIds.add(id);
+        }
         return localObject;
     }
 
     private void autoDeployFromClasspathIndex() {
+        autoDeployInProgress = true;
         try {
             SbbIndexLoader.SbbIndex index = SbbIndexLoader.load(deploymentClassLoader);
             if (index.isEmpty()) {
@@ -925,6 +953,8 @@ public final class MicroSleeContainer {
             }
         } catch (IOException ioe) {
             throw new IllegalStateException("Failed to load " + SbbIndexLoader.INDEX_RESOURCE, ioe);
+        } finally {
+            autoDeployInProgress = false;
         }
     }
 
@@ -933,7 +963,20 @@ public final class MicroSleeContainer {
             LOG.debug("SBB {} already registered — skipping", entry.getName());
             return;
         }
-        Sbb sbb = instantiateComponent(entry.getClassName(), Sbb.class);
+        // Descriptor-based auto-deploy is best-effort: APT indexes every
+        // @SbbAnnotation class, including abstract SBBs and SBBs whose
+        // constructors take collaborators — those can only be registered
+        // programmatically (registerSbbType with a factory). A failed
+        // auto-instantiation must not abort container start.
+        Sbb sbb;
+        try {
+            sbb = instantiateComponent(entry.getClassName(), Sbb.class);
+        } catch (RuntimeException e) {
+            LOG.warn("SBB {} ({}) cannot be auto-instantiated — register it "
+                    + "programmatically via registerSbbType(): {}",
+                    entry.getName(), entry.getClassName(), e.getMessage());
+            return;
+        }
         ServiceID serviceID = new ServiceID(entry.getName(), entry.getVendor(), entry.getVersion());
         registerSbb(entry.getName(), sbb, serviceID);
         LOG.info("Auto-registered SBB {} ({})", entry.getName(), entry.getClassName());
@@ -1498,6 +1541,55 @@ public final class MicroSleeContainer {
         }
     }
 
+    /**
+     * GOAL 2 — create an IES dispatcher whose entity pool is backed by
+     * this container: entities are created through {@link #acquireEntity}
+     * so they get the full lifecycle (SbbContext, sbbCreate/sbbActivate,
+     * CMP load, {@code @InjectRa} injection, removal-bus cleanup). The
+     * dispatcher is bound via {@link #setInitialEventSelectorDispatcher}
+     * before being returned.
+     *
+     * <p>Prefer this over hand-rolling a
+     * {@link InitialEventSelectorDispatcher.SbbEntityPool} adapter —
+     * adapters that allocate raw pool entities bypass the container
+     * lifecycle, so the resolved entity never appears in
+     * {@link #getSbbLocalObject(String)} and cannot be attached to an
+     * activity context.
+     */
+    public InitialEventSelectorDispatcher createIesDispatcher() {
+        InitialEventSelectorDispatcher dispatcher =
+                new InitialEventSelectorDispatcher(new ContainerBackedIesPool());
+        setInitialEventSelectorDispatcher(dispatcher);
+        return dispatcher;
+    }
+
+    /** Container-lifecycle-backed IES pool: {@code allocateNew → acquireEntity}. */
+    private final class ContainerBackedIesPool
+            implements InitialEventSelectorDispatcher.SbbEntityPool {
+        @Override
+        public String allocateNew(Class<?> sbbClass) {
+            Class<? extends Sbb> typed = sbbClass.asSubclass(Sbb.class);
+            String entityId = sbbClass.getSimpleName() + "#" + entityIdAllocator.allocate();
+            acquireEntity(entityId, typed);
+            return entityId;
+        }
+
+        @Override
+        public boolean contains(String entityId) {
+            SimpleSbbLocalObject localObject = sbbs.get(entityId);
+            return localObject != null && !localObject.isRemoved();
+        }
+
+        @Override
+        public void onEntityRemoved(String entityId, Consumer<String> callback) {
+            // Intentionally a no-op: setInitialEventSelectorDispatcher
+            // already subscribes an IesCleanupAdapter on the
+            // EntityRemovalBus, which calls removeConvergencesFor(entityId)
+            // on every removal. Registering per-entity callbacks here would
+            // double-clean and leak one subscriber per entity.
+        }
+    }
+
     // ───────────────────────────────────────────────────────────────
     // Sprint S6 — Observability & Removal Notification API
     // ───────────────────────────────────────────────────────────────
@@ -1589,11 +1681,107 @@ public final class MicroSleeContainer {
     public void routeEvent(SleeEvent event, ActivityContextInterface aci) {
         if (aci instanceof InMemoryActivityContext) {
             InMemoryActivityContext activityContext = (InMemoryActivityContext) aci;
-            if (activityContext.getAttachedSbbs().isEmpty()) {
+            // GOAL 2 — an explicit mapEventToSbb() mapping wins, and is
+            // honoured even when other SBBs already share this ACI (a
+            // dialog ACI may carry ProxySbb while an ICE event still has
+            // to reach IceNegotiationSbb).
+            boolean mappingHandled = ensureMappedSbbAttached(event, activityContext);
+            if (!mappingHandled && activityContext.getAttachedSbbs().isEmpty()) {
                 attachRootSbbViaInitialEventSelector(event, activityContext);
             }
         }
         eventRouter.routeEvent(event, aci);
+    }
+
+    /**
+     * GOAL 2 — consult {@link #eventToSbbMap} for this event type (walking
+     * up the event class hierarchy) and make sure the mapped SBB entity is
+     * attached to the activity context.
+     *
+     * <p>Resolution order for the mapped name:
+     * <ol>
+     *   <li>an already-registered entity with that exact id, else</li>
+     *   <li>a pooled SBB type registered via {@link #registerSbbType};
+     *       the target entity is then resolved through the IES dispatcher
+     *       (convergence-name routing) when one is bound, or a
+     *       deterministic per-activity entity id otherwise.</li>
+     * </ol>
+     *
+     * @return {@code true} when a mapping existed for this event type —
+     *         the legacy fallback must NOT run in that case, even if the
+     *         IES decided to drop the event (spec §7.5.5).
+     */
+    private boolean ensureMappedSbbAttached(SleeEvent event,
+            InMemoryActivityContext activityContext) {
+        String sbbName = resolveMappedSbbName(event.getClass());
+        if (sbbName == null) {
+            return false;
+        }
+        SimpleSbbLocalObject target = sbbs.get(sbbName);
+        if (target == null) {
+            Class<? extends Sbb> type = sbbTypeRegistry.findTypeByName(sbbName);
+            if (type == null) {
+                LOG.warn("mapEventToSbb points at [{}] but no entity or registered "
+                        + "SBB type matches — {} not routed via mapping",
+                        sbbName, event.getClass().getSimpleName());
+                return true;
+            }
+            // The mapping guarantees delivery to an SBB *of this type*. If
+            // the application already attached one (manual acquireEntity +
+            // attach — the pre-wiring style), the mapping is satisfied;
+            // creating a second entity here would double-deliver every event
+            // and bypass the app's own factory collaborators.
+            for (SbbLocalObject attached : activityContext.getAttachedSbbs()) {
+                if (attached instanceof SimpleSbbLocalObject simple
+                        && !simple.isRemoved()
+                        && simple.getSbb() != null
+                        && type.isInstance(simple.getSbb())) {
+                    return true;
+                }
+            }
+            String entityId = resolveMappedEntityId(event, activityContext, type);
+            if (entityId == null) {
+                // IES dropped the event (non-initial, no matching entity).
+                return true;
+            }
+            target = sbbs.get(entityId);
+            if (target == null) {
+                target = acquireEntity(entityId, type);
+            }
+        }
+        if (target != null && !target.isRemoved()) {
+            activityContext.attachImmediate(target);
+            timerPort.getBridge().bindActivityContext(target, activityContext);
+        }
+        return true;
+    }
+
+    /** Walk the event class hierarchy against {@link #eventToSbbMap}. */
+    private String resolveMappedSbbName(Class<?> eventType) {
+        if (eventToSbbMap.isEmpty()) {
+            return null;
+        }
+        for (Class<?> t = eventType; t != null && t != Object.class; t = t.getSuperclass()) {
+            String name = eventToSbbMap.get(t);
+            if (name != null) {
+                return name;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Resolve the target entity id for a mapped SBB type: IES dispatcher
+     * (convergence routing) when bound, else one deterministic entity per
+     * (SBB type, activity) pair.
+     */
+    private String resolveMappedEntityId(SleeEvent event,
+            InMemoryActivityContext activityContext, Class<? extends Sbb> type) {
+        Object dispatcher = this.iesDispatcher;
+        if (dispatcher instanceof InitialEventSelectorDispatcher ies) {
+            return ies.resolveTarget(event, activityContext, type);
+        }
+        return type.getSimpleName() + "/" + activityContext.getActivityContextName();
     }
 
     private void attachRootSbbViaInitialEventSelector(SleeEvent event,
@@ -1608,13 +1796,48 @@ public final class MicroSleeContainer {
         }
         String rootSbbId = selector.getRootSbbId();
         SimpleSbbLocalObject root = rootSbbId != null ? sbbs.get(rootSbbId) : null;
-        if (root == null && !sbbs.isEmpty()) {
-            root = sbbs.values().iterator().next();
+        if (root == null) {
+            // Deterministic fallback: first *registered* SBB whose event
+            // mask accepts this event (registration order — never the
+            // arbitrary ConcurrentHashMap iteration order).
+            root = firstMaskAcceptingSbb(event);
         }
         if (root != null) {
             activityContext.attachImmediate(root);
             timerPort.getBridge().bindActivityContext(root, activityContext);
+        } else if (!sbbs.isEmpty()) {
+            LOG.debug("No registered SBB accepts {} — event not attached to any root",
+                    event.getClass().getSimpleName());
         }
+    }
+
+    /**
+     * First registered, still-live SBB entity whose {@link EventMask}
+     * accepts {@code event}. Prunes stale registration-order entries as a
+     * side effect.
+     */
+    private SimpleSbbLocalObject firstMaskAcceptingSbb(SleeEvent event) {
+        SimpleSbbLocalObject descriptorFallback = null;
+        for (String id : sbbRegistrationOrder) {
+            SimpleSbbLocalObject candidate = sbbs.get(id);
+            if (candidate == null || candidate.isRemoved()) {
+                sbbRegistrationOrder.remove(id);
+                descriptorRegisteredIds.remove(id);
+                continue;
+            }
+            EventMask mask = candidate.getEntityState().getEventMask();
+            if (mask == EventMask.ACCEPT_ALL || (mask != null && mask.matches(event))) {
+                // GOAL 3 — programmatic registration outranks descriptor-based
+                // (classpath sbb-index) registration.
+                if (!descriptorRegisteredIds.contains(id)) {
+                    return candidate;
+                }
+                if (descriptorFallback == null) {
+                    descriptorFallback = candidate;
+                }
+            }
+        }
+        return descriptorFallback;
     }
 
     public ClassLoader createDeploymentClassLoader(File deploymentDirectory) throws MalformedURLException {
@@ -2289,6 +2512,17 @@ public final class MicroSleeContainer {
                     ? (ActivityContextHandle) handle
                     : new SimpleActivityContextHandle(handle.getId());
             endpoint.fireEvent(ach, event);
+        }
+
+        @Override
+        public void endActivity(ActivityHandle handle) {
+            if (handle == null) {
+                return;
+            }
+            ActivityContextHandle ach = (handle instanceof ActivityContextHandle)
+                    ? (ActivityContextHandle) handle
+                    : new SimpleActivityContextHandle(handle.getId());
+            endpoint.endActivity(ach);
         }
     }
 

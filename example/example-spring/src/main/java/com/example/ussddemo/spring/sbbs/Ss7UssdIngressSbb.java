@@ -11,7 +11,7 @@
 package com.example.ussddemo.spring.sbbs;
 
 import com.example.ussddemo.spring.UssdDemoRuntime;
-import com.example.ussddemo.spring.config.UssdDemoBootstrap;
+import com.example.ussddemo.spring.UssdDemoContext;
 import com.example.ussddemo.spring.events.GrpcMenuRequestEvent;
 import com.example.ussddemo.spring.events.GrpcMenuResponseEvent;
 import com.example.ussddemo.spring.events.Ss7UssdBeginEvent;
@@ -44,13 +44,13 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
     private static final long SESSION_TIMEOUT_MS = 30_000L;
 
     protected final MicroSleeContainer container;
-    protected final UssdDemoBootstrap bootstrap;
+    protected final UssdDemoContext bootstrap;
     protected final UssdDemoRuntime runtime;
 
     private volatile SbbLocalObject self;
     private volatile long sessionTimerId = -1L;
 
-    protected Ss7UssdIngressSbb(MicroSleeContainer container, UssdDemoBootstrap bootstrap, UssdDemoRuntime runtime) {
+    protected Ss7UssdIngressSbb(MicroSleeContainer container, UssdDemoContext bootstrap, UssdDemoRuntime runtime) {
         this.container = container;
         this.bootstrap = bootstrap;
         this.runtime = runtime;
@@ -161,7 +161,7 @@ public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEven
 
     public static final class $Concrete extends Ss7UssdIngressSbb {
         private final java.util.Map<String, Object> local = new java.util.concurrent.ConcurrentHashMap<>();
-        public $Concrete(MicroSleeContainer container, UssdDemoBootstrap bootstrap, UssdDemoRuntime runtime) {
+        public $Concrete(MicroSleeContainer container, UssdDemoContext bootstrap, UssdDemoRuntime runtime) {
             super(container, bootstrap, runtime);
         }
         @Override public String getSessionId() { Object v = local.get("sessionId"); return v instanceof String s ? s : (String) cmpRead(getter("getSessionId")); }

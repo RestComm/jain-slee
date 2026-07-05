@@ -1,1094 +1,241 @@
 # 🚀 Micro-JAINSLEE Junior Developer Guide
 
-> **Tài liệu onboarding cho developer mới làm việc với micro-jainslee**
+> **Tài liệu onboarding cho developer mới làm việc với micro-jainslee.**
 >
-> Last updated: 2026-07-04 | Maintainer: nhanth87
-> Nguồn dữ liệu: Supermemory API (sm_project_default) + codebase analysis
+> Last updated: 2026-07-06 | Maintainer: nhanth87
+>
+> Bộ tài liệu gồm 4 file — đọc theo thứ tự:
+> 1. **File này** — khái niệm, kiến trúc, build, event flow.
+> 2. [sbb-guide.md](sbb-guide.md) — viết SBB (service logic).
+> 3. [ra-guide.md](ra-guide.md) — viết Resource Adaptor (3-port contract).
+> 4. [app-guide.md](app-guide.md) — wire SBB + RA thành một app Quarkus hoàn chỉnh.
 
 ---
 
-## Mục lục
+## 1. micro-jainslee là gì?
 
-1. [Tổng quan dự án](#1-tổng-quan-dự-án)
-2. [Hai stack JAIN-SLEE](#2-hai-stack-jain-slee)
-3. [Kiến trúc micro-jainslee](#3-kiến-trúc-micro-jainslee)
-4. [PolyVoice & 3-Port Contract Pattern](#4-polyvoice--3-port-contract-pattern)
-5. [Cài đặt & Build](#5-cài-đặt--build)
-6. [Viết SBB đầu tiên](#6-viết-sbb-đầu-tiên)
-7. [Viết Resource Adaptor](#7-viết-resource-adaptor)
-8. [Event Flow & EventRouter](#8-event-flow--eventrouter)
-9. [Timer & Scheduler](#9-timer--scheduler)
-10. [Spring Boot Integration](#10-spring-boot-integration)
-11. [Các ràng buộc quan trọng](#11-các-ràng-buộc-quan-trọng)
-12. [Testing](#12-testing)
-13. [FAQ & Troubleshooting](#13-faq--troubleshooting)
+**micro-jainslee** là một **JAIN SLEE 1.1 runtime nhẹ, nhúng được (embeddable)** viết lại từ đầu trên Java 25:
 
----
+- Bỏ toàn bộ phần nặng của JSLEE cổ điển: JBoss/WildFly, JMX management, deployable-unit XML, profile management phức tạp.
+- Giữ lại phần lõi giá trị: **event-driven SBB model, Activity Context, event routing, timer facility, RA contract**.
+- Chạy được 3 chế độ: embedded thuần Java 25, **Quarkus (mục tiêu chính — để build GraalVM native)**, Spring Boot.
 
-## 1. Tổng quan dự án
+> ⚠️ **Định hướng hiện tại: chỉ tập trung Quarkus.** Spring/embedded được giữ compile-xanh nhưng không đầu tư thêm. Về dài hạn transport Netty sẽ được thay bằng DPDK datapath (C++/Rust) đẩy event vào app Java native — vì vậy **mọi transport phải nằm sau interface** (xem `SipTransport`).
 
-**micro-jainslee** là một **JAIN SLEE 1.1 runtime nhẹ, có thể nhúng (embeddable)**, được thiết kế cho mục đích **R&D**. Đây không phải là production container — production dùng **RestComm JAIN-SLEE v8** trên WildFly 10.
+### 4 khái niệm bắt buộc phải hiểu
 
-### Đặc điểm chính
-
-| Đặc điểm | Chi tiết |
-|----------|----------|
-| **Mục đích** | R&D, prototyping, testing |
-| **Java** | Java 25 (đã migrate từ Java 8) |
-| **Virtual Threads** | ✅ Mỗi SBB entity = 1 parked virtual thread |
-| **Concurrency** | 100K SBB entities ~14 OS threads |
-| **Test coverage** | 62+ tests passing |
-| **Build** | Maven multi-module (20 modules) |
-| **Milestone** | PRODUCTION-1 (đã đạt) |
-
-### Module structure
-
-```
-jain-slee/
-├── pom.xml                    # Root POM (restcomm-slee-core v8)
-├── api/                       # JAIN SLEE API specs
-│   ├── descriptors/           # Deployment descriptors
-│   ├── extensions/            # SLEE extensions
-│   └── jar/                   # API JAR
-├── container/                 # SLEE Container (production)
-│   ├── activities/            # Activity context management
-│   ├── common/                # Shared utilities
-│   ├── components/            # Container components
-│   ├── events/                # Event processing
-│   ├── profiles/              # Profile management
-│   ├── resource/              # RA management
-│   ├── router/                # EventRouter (LMAX Disruptor)
-│   ├── services/              # Service management
-│   ├── spi/                   # Container SPI
-│   ├── timers/                # FaultTolerantScheduler
-│   └── transaction/           # Transaction management
-├── jainslee-core/             # micro-jainslee core runtime
-├── jainslee-api/              # micro-jainslee API
-├── jainslee-scheduler/        # Slim TimerScheduler (jSS7-based)
-├── jainslee-adapter/          # Framework adapters
-│   ├── adapter-springboot/    # Spring Boot starter
-│   ├── adapter-quarkus/       # Quarkus adapter
-│   └── adapter-jakartaee/     # Jakarta EE adapter
-├── vendor-ras/                # Vendor Resource Adaptors
-│   ├── ra-grpc-client/        # gRPC client RA
-│   └── ra-http-ingress/       # HTTP ingress RA
-├── example/                   # Ví dụ mẫu
-│   ├── example-embedded-j25/  # Embedded Java 25 example
-│   ├── example-spring/        # Spring Boot example
-│   ├── example-quarkus/       # Quarkus example
-│   ├── grpc-simulator/        # gRPC simulator
-│   └── ussdgw-simulator/      # USSD GW simulator
-└── release/                   # Release packaging
-```
-
-### Non-Goals (micro-jainslee không làm)
-
-- ❌ TCK compliance
-- ❌ Cluster HA
-- ❌ JSR-77 MBean support
-- ❌ Production deployment
-
----
-
-## 2. Hai stack JAIN-SLEE
-
-Dự án duy trì **hai stack JAIN-SLEE riêng biệt**:
-
-| | micro-jainslee (R&D only) | RestComm JAIN-SLEE v8 (Production) |
+| Khái niệm | Là gì | Ví dụ |
 |---|---|---|
-| **Java** | Java 25 + Virtual Threads | Java 11+ |
-| **Runtime** | Embedded / Spring Boot | WildFly 10 container |
-| **SBB Pool** | VirtualThreadSbbEntityPool | Apache Commons Pool |
-| **EventRouter** | In-Memory | LMAX Disruptor (262K ring) |
-| **Timer** | jSS7 HashedWheelTimer | FaultTolerantScheduler |
-| **ActivityContext** | In-Memory | Distributed (Infinispan) |
-| **Cluster** | ❌ No | ✅ Full HA |
-| **Status** | PRODUCTION-1 | Production-grade |
+| **Event** | Một sự kiện bất biến (immutable) từ mạng hoặc nội bộ. Implement `SleeEvent`. | `SipInviteEvent`, `HttpUssdBeginEvent`, `TimerFiredEvent` |
+| **Activity / ACI** | Một "phiên" protocol (SIP dialog, USSD session…). SBB attach vào `ActivityContextInterface` để nhận event của phiên đó. | Call-ID của SIP dialog = 1 activity |
+| **SBB** | Service Building Block — logic nghiệp vụ, xử lý event. Implement `Sbb` + `SleeEventHandler`. | `ProxySbb` xử lý INVITE |
+| **RA** | Resource Adaptor — cầu nối protocol ↔ SLEE. Nhận bytes từ mạng → fire event; nhận command từ SBB → gửi ra mạng. | `ra-sip-servlet`, `ra-diameter` |
 
-> ⚠️ **Production Constraint:** micro-jainslee **Tuyệt đối không** được đóng gói vào production.
+### Luồng event một chiều (không bao giờ ngược)
+
+```
+   Network                RA                    Core                    SBB
+     │  bytes    ┌─────────────────┐   ┌──────────────────┐   ┌────────────────┐
+     ├──────────►│ parse + classify│──►│ EventRouter      │──►│ onEvent(e, aci)│
+     │           │ fireEvent(...)  │   │ (LMAX Disruptor) │   │  business logic│
+     │           └─────────────────┘   └──────────────────┘   └───────┬────────┘
+     │                    ▲                                           │
+     │  bytes    ┌────────┴────────┐          sendCommand(cmd)        │
+     ◄───────────│ OutboundSender  │◄──────────────────────────────────┘
+                 └─────────────────┘
+```
+
+Quy tắc vàng: **SBB không bao giờ tự mở socket, RA không bao giờ chứa business logic.**
 
 ---
 
-## 3. Kiến trúc micro-jainslee
-
-### Core Infrastructure Classes
-
-| Class | Vai trò |
-|-------|---------|
-| **MicroSleeContainer** | Bootstrap container, quản lý vòng đời |
-| **EventRouter** | Điều phối event từ RA → SBB, đảm bảo ordering |
-| **VirtualThreadSbbEntityPool** | Pool SBB dùng virtual thread |
-| **SleeTimerSchedulerBridge** | Cầu nối jSS7 HashedWheelTimer → EventRouter |
-| **SbbIndexLoader** | Quét classpath tìm SBB annotated class |
-| **ServiceRegistry** | Đăng ký và tra cứu SBB services |
-| **SbbTransactionContext** | Context giao dịch cho SBB execution |
-| **DefaultInitialEventSelector** | Chọn SBB phù hợp cho initial event |
-| **DefaultErrorHandlingPolicy** | Policy xử lý lỗi mặc định |
-
-### Spring Boot Starter Beans
-
-Module `jainslee-adapter/adapter-springboot` tự động đăng ký:
-`MicroSleeConfiguration`, `MicroSleeContainer`, `InMemoryActivityContextNamingFacility`,
-
-## 4. PolyVoice & 3-Port Contract Pattern (GOAL 1-5 ✅)
-
-### PolyVoice Pattern
-
-**PolyVoice** là pattern kiến trúc cho phép một SBB xử lý **nhiều loại voice/session** (USSD, SIP, gRPC) thông qua cùng một service logic. Pattern này tận dụng **Resource Adaptor abstraction** để tách biệt protocol khỏi business logic.
+## 2. Cấu trúc repo
 
 ```
-PolyVoice SBB:
-  Input Ports      │  Output Ports      │  Internal Ports
-  ─────────────────┼────────────────────┼───────────────────
-  USSD RA Port    │  USSD RA Port     │  TimerPort
-  (MAP/USSD events)│  (sendCommand)    │  ActivityContextInterface
-  SIP RA Port     │  SIP RA Port      │
-  gRPC RA Port    │  gRPC RA Port     │
+micro-jainslee/
+├── jainslee-api/        # API thuần Java 25 (Sbb, SleeEvent, ACI, 3-port contract…)
+├── jainslee-core/       # Engine: MicroSleeContainer, EventRouter, entity pool, IES
+├── jainslee-ra-spi/     # RA SPI kiểu JSLEE 1.1 cổ điển (AbstractResourceAdaptor…)
+├── jainslee-scheduler/  # HashedWheelTimer cho SLEE timer
+├── jainslee-apt/        # Annotation processor sinh sbb-index.properties
+├── jainslee-codegen/    # Javassist sinh concrete SBB cho CMP field
+├── jainslee-tx/         # Narayana JTA (tùy chọn)
+├── jainslee-cluster/    # Infinispan/JGroups (tùy chọn)
+├── jainslee-adapter/
+│   ├── adapter-quarkus/     # ★ Quarkus extension (runtime + deployment)
+│   ├── adapter-springboot/  # (low priority)
+│   └── adapter-jakartaee/   # (low priority)
+├── vendor-ras/          # RA có sẵn: ra-sip-servlet, ra-diameter, ra-http-*, ra-grpc-*
+└── example/             # App mẫu: example-quarkus (USSD), example-quarkus-sip (SIP GW)…
 ```
 
-### 3-Port Contract (GOAL 1-5 API)
+**Ràng buộc kiến trúc (không được vi phạm):**
+- `jainslee-api` và `jainslee-core`: **zero framework dependency** (không Spring/Quarkus import).
+- Hạn chế reflection trong core (mục tiêu GraalVM native).
+- App code chỉ phụ thuộc `jainslee-api` + `jainslee-core` + RA modules — không đụng internals.
 
-Mỗi SBB trong micro-jainslee tuân theo **3-Port Contract**. GOAL 1-5 đã hoàn thiện các interface chuẩn:
+---
 
-| Port | Interface | Mục đích (Purpose) |
-|------|-----------|---------------------|
-| **Port 1** | **Event Handler** `onXxxEvent(SleeEvent, ACI)` | Nhận event từ EventRouter |
-| **Port 2** | **`RaCommandPort`** `sendCommand(OutboundCommand)` | Gửi command ra RA (thay thế abstract RA accessor cũ) |
-| **Port 3** | **SLEE Facilities** `TimerPort`, `ACI`, `SbbLocalObject` | SLEE facilities |
-
-### New API interfaces (GOAL 1-5)
-
-| Interface | Vai trò | Package |
-|-----------|---------|---------|
-| **`RaEndpointPort`** | RA lifecycle: `activate(RaBootstrapPort)`, `deactivate()`, `getRaName()` | `com.microjainslee.api` |
-| **`RaCommandPort`** | SBB → RA: `sendCommand(OutboundCommand)` | `com.microjainslee.api` |
-| **`RaBootstrapPort`** | Container → RA: `createActivityHandle()`, `fireEvent()` | `com.microjainslee.api` |
-| **`OutboundCommand`** | Marker interface cho command gửi từ SBB → RA | `com.microjainslee.api` |
-| **`@InjectRa`** | Annotation inject `RaCommandPort` vào SBB field | `com.microjainslee.api.annotations` |
-
-### Ví dụ PolyVoice 3-Port SBB (GOAL 1-5 style)
-
-```java
-@Sbb(id = "PolyVoiceSBB", service = "PolyVoiceService")
-public class PolyVoiceSbb implements Sbb {
-
-    // === PORT 2: @InjectRa thay thế abstract getUssdRa() cũ ===
-    @InjectRa(name = "ussd-gateway")
-    private RaCommandPort ussdRa;
-
-    @InjectRa(name = "sip-gateway")
-    private RaCommandPort sipRa;
-
-    // === PORT 1: Event Handlers ===
-    public void onUssdRequest(UssdRequestEvent event, ActivityContextInterface aci) {
-        String response = processVoiceRequest(
-            aci.getActivity().toString(), event.getMsisdn(),
-            event.getUssdString(), "USSD");
-
-        // Gửi command qua RaCommandPort (thay vì getUssdRa().sendUssdResponse())
-        ussdRa.sendCommand(new SendUssdResponseCommand(sessionId, response));
-    }
-
-    public void onSipInvite(SipInviteEvent event, ActivityContextInterface aci) {
-        sipRa.sendCommand(new StartCallCommand(event.getCaller(), event.getCallee()));
-    }
-
-    // === PORT 3: SLEE Facilities ===
-    public abstract TimerFacility getTimerFacility();
-
-    public void onTimer(TimerEvent event, ActivityContextInterface aci) {
-        handleTimeout(event.getTimerID(), aci);
-    }
-
-    // Shared business logic (giữ nguyên)
-    private String processVoiceRequest(String sid, String msisdn,
-                                        String input, String proto) {
-        return "Welcome to PolyVoice [" + proto + "]";
-    }
-}
-```
-
-### Cách container wire RA (GOAL 1-5 style) — registerRa + mapEventToSbb
-
-```java
-// Trong bootstrap code (main hoặc CDI @Startup)
-MicroSleeContainer container = MicroSleeContainer.create(config);
-
-// 1. Tạo RA — cùng class implement cả RaEndpointPort và RaCommandPort
-UssdGatewayRa ussdRa = new UssdGatewayRa();
-
-// 2. Register RA qua 3-port contract
-container.registerRa(ussdRa, ussdRa);          // (endpoint, command)
-
-// 3. Map event type → SBB để convergent routing
-container.mapEventToSbb(UssdBeginEvent.class, "UssdSessionSbb");
-
-// 4. Container tự gọi ussdRa.activate(bootstrap) khi start()
-container.start();
-```
-
-### Một RA implement cả 3 port (RaEndpointPort + RaCommandPort)
-
-```java
-// RA implement cả RaEndpointPort (lifecycle) và RaCommandPort (nhận command từ SBB)
-public class UssdGatewayRa implements RaEndpointPort, RaCommandPort {
-
-    private RaBootstrapPort bootstrap;
-
-    // ── RaEndpointPort ──
-    @Override public String getRaName() { return "ussd-gateway"; }
-
-    @Override
-    public void activate(RaBootstrapPort bootstrap) {
-        this.bootstrap = bootstrap;
-        startSs7Stack();   // Mở SS7 connection, bắt đầu lắng nghe MAP dialog
-    }
-
-    @Override
-    public void deactivate() {
-        stopSs7Stack();
-        this.bootstrap = null;
-    }
-
-    // ── RaCommandPort ──
-    @Override
-    public void sendCommand(OutboundCommand command) {
-        switch (command) {
-            case SendUssdResponseCommand c ->
-                sendUssdOverMap(c.sessionId(), c.ussdText());
-            case StartCallCommand c ->
-                initiateSipCall(c.caller(), c.callee());
-            default -> log.warn("Unknown command: {}", command);
-        }
-    }
-
-    // ── RA tự fire event vào SLEE khi có incoming message ──
-    private void onIncomingUssd(MapDialog dialog, String msisdn, String ussdString) {
-        ActivityHandle handle = bootstrap.createActivityHandle(dialog.getDialogId());
-        SleeEvent event = new UssdBeginEvent(msisdn, ussdString, dialog.getDialogId());
-        bootstrap.fireEvent(event, handle, new Address(msisdn));
-    }
-}
-
-// Command types (implement OutboundCommand marker interface)
-record SendUssdResponseCommand(String sessionId, String ussdText) implements OutboundCommand {}
-record StartCallCommand(String caller, String callee) implements OutboundCommand {}
-```
-
-## 5. Cài đặt & Build
-
-### Yêu cầu
-
-| Thành phần | Minimum | Khuyến nghị |
-|------------|---------|-------------|
-| Java | JDK 25 | JDK 25 |
-| Maven | 3.8+ | 3.9+ |
-| RAM | 8GB | 16-64GB |
-
-### Build
+## 3. Build & chạy
 
 ```bash
-# Build toàn bộ (20 modules)
-cd jain-slee/jain-slee
-mvn clean install -DskipTests
+# Yêu cầu: JDK 25 (mise.toml đã khai báo zulu-25), Maven 3.9+
+mvn clean install              # build 24 module runtime
+mvn -Pexamples clean install   # build kèm 4 app mẫu
+mvn -Pexamples test            # chạy toàn bộ test (400+)
 
-# Build với tests
-mvn clean verify
-```
+# Chạy SIP gateway mẫu (Quarkus dev mode)
+cd example/example-quarkus-sip && mvn quarkus:dev
 
-### JVM Options
-
-```bash
-JAVA_OPTS="--enable-preview -Xms4g -Xmx8g -XX:+UseZGC
-  -XX:MaxGCPauseMillis=10
-  -Djainslee.eventrouter.threads=8
-  -Djainslee.eventrouter.ringsize=262144"
+# Chạy USSD demo
+cd example/example-quarkus && mvn quarkus:dev
 ```
 
 ---
 
-## 6. Viết SBB đầu tiên
+## 4. Event routing — SBB nhận event bằng cách nào?
 
-Một SBB (Service Building Block) trong micro-jainslee gồm: Abstract class với `@Sbb` annotation, event handler methods (Port 1), abstract RA accessors (Port 2), SLEE facility accessors (Port 3).
+Đây là phần quan trọng nhất của runtime. Khi RA fire một event lên ACI, `MicroSleeContainer.routeEvent()` quyết định SBB nào nhận, theo thứ tự:
 
-### Ví dụ: EchoSbb
+### 4.1. `mapEventToSbb()` — cách khai báo chính (khuyến nghị)
 
 ```java
-@Sbb(id = "EchoSbb", service = "EchoService",
-     initialEventSelectors = { EchoInitialEventSelector.class })
-public abstract class EchoSbb implements Sbb {
+container.registerSbbType(ProxySbb.class, ProxySbb::new); // đăng ký type + factory
+container.createIesDispatcher();                          // bật convergence routing
+container.mapEventToSbb(SipInviteEvent.class, "ProxySbb"); // event → SBB type
+```
 
-    public void sbbCreate() { /* Khởi tạo */ }
-    public void sbbActivate() { /* Activate */ }
-    public void sbbPassivate() { /* Passivate */ }
-    public void sbbRemove() { /* Cleanup - tránh leak! */ }
+Khi `SipInviteEvent` đến một ACI:
+1. Nếu ACI **đã có** một SBB đúng type attach rồi → xong (không tạo trùng).
+2. Nếu chưa → hỏi **IES dispatcher** (mục 4.2) để tìm/tạo entity theo convergence name, rồi attach.
+3. Nếu không bind IES → tạo entity định danh `Type/aciName` (1 entity / activity).
 
-    // PORT 1: Event Handler
-    public void onEchoRequest(EchoRequestEvent event, ActivityContextInterface aci) {
-        String response = "ECHO: " + event.getMessage();
-        getEchoRa().sendResponse(aci.getActivity(), response);
+Mapping match theo **cả class cha** — map `SipEvent.class` sẽ bắt mọi event con.
+
+### 4.2. Initial Event Selector (IES) — session convergence
+
+IES trả lời câu hỏi *"event này thuộc về session/entity nào?"* (JSLEE 1.1 §7.5). SBB khai báo bằng annotation:
+
+```java
+@InitialEventSelect(name = "ussd-session-convergence")
+public InitialEventSelectResult selectInitialEvent(InitialEventSelectCondition c) {
+    if (c.getEvent() instanceof Ss7UssdBeginEvent e) {
+        // Mọi event cùng msisdn hội tụ về CÙNG một SBB entity
+        return InitialEventSelectResult.forSession(e.getMsisdn(), true);
     }
-
-    // PORT 2: RA Accessor
-    public abstract EchoResourceAdaptor getEchoRa();
-
-    // PORT 3: SLEE Facilities
-    public abstract TimerFacility getTimerFacility();
-
-    public void onTimer(TimerEvent event, ActivityContextInterface aci) {
-        getEchoRa().sendResponse(aci.getActivity(), "TIMEOUT");
-    }
+    return InitialEventSelectResult.builder().initialEvent(false).build();
 }
 ```
 
-### Event Types
+- **Luôn dùng `container.createIesDispatcher()`** để bind. ❌ Đừng bao giờ tự viết `SbbEntityPool` adapter — adapter tự chế tạo raw entity bỏ qua lifecycle (không `@InjectRa`, không CMP, không cleanup) và là nguồn bug kinh điển của repo này.
+- SBB có `@InitialEventSelect` **bắt buộc có no-arg constructor** (IES chạy trên temp instance).
 
-```java
-@EventType(id = "EchoRequestEvent", vendor = "example.com", version = "1.0")
-public class EchoRequestEvent implements FireableEventType {
-    private final String message;
-    public EchoRequestEvent(String message) { this.message = message; }
-    public String getMessage() { return message; }
-}
-```
+### 4.3. Fallback
+
+Không có mapping, ACI trống → chọn SBB **đăng ký sớm nhất có `EventMask` chấp nhận event** (đăng ký programmatic ưu tiên hơn auto-deploy từ sbb-index). Fallback này chỉ hợp cho app 1 SBB — app thật hãy dùng 4.1.
+
+### 4.4. Những gì router bảo đảm
+
+- Event của **cùng một entity** chạy tuần tự trên **một virtual thread riêng** (không cần lock trong SBB).
+- SBB attach cùng ACI nhận event theo **priority giảm dần** (`localObject.setPriority(n)`).
+- SBB exception **không giết router** — được đưa vào `ErrorHandlingPolicy` + log; disruptor luôn sống.
+- Entity bị remove khi event còn trong queue → event bị drop an toàn (đếm vào `missingEntityCount`).
 
 ---
 
-## 7. Viết Resource Adaptor
+## 5. Lifecycle
 
-Resource Adaptor (RA) là cầu nối SLEE container ↔ thế giới bên ngoài.
-
+### SBB entity
 ```
-External World ←→ RA Interface (SBB gọi) ←→ RA Impl (fireEvent) ←→ EventRouter → SBB
+registerSbbType ──► acquireEntity/IES allocate ──► setSbbContext → sbbCreate
+   → sbbPostCreate → sbbActivate → READY ──(events)──► remove() → sbbRemove
 ```
+Activation chạy **async** trên entity thread. Nếu cần chắc chắn READY trước khi gọi method trực tiếp (ngoài event path): `localObject.awaitReady(5, SECONDS)`. Event qua router **không cần** chờ — queue của entity tự bảo đảm thứ tự.
 
-### Ví dụ: gRPC Resource Adaptor
-
-```java
-@ResourceAdaptor(id = "GrpcClientRA", vendor = "example.com", version = "1.0")
-public class GrpcClientResourceAdaptor implements ResourceAdaptor {
-
-    private ResourceAdaptorContext raContext;
-
-    public void raActive() { initGrpcChannel(); }
-    public void raStopping() { shutdownGrpcChannel(); }
-
-    // Interface cho SBB gọi (Port 2)
-    public void sendGrpcRequest(ActivityContextInterface aci, String request) {
-        grpcStub.send(request, new StreamObserver<Response>() {
-            @Override
-            public void onNext(Response response) {
-                // ⚠️ fireEvent từ RA thread, KHÔNG từ SBB/TimerCallback
-                try {
-                    aci.fireEvent(new GrpcResponseEvent(response.getData()));
-                } catch (Exception e) {
-                    raContext.getTracer().severe("Fire event failed", e);
-                }
-            }
-        });
-    }
-
-    public void setResourceAdaptorContext(ResourceAdaptorContext ctx) {
-        this.raContext = ctx;
-    }
-}
+### RA (3-port)
 ```
-
-### Ràng buộc RA
-
-| Rule | Giải thích |
-|------|-----------|
-| Fire event từ RA/SS7 thread | Không từ SBB qua TimerCallback |
-| Không block IO trong SBB | Luôn qua RA |
-| Thread safety | RA implementation phải thread-safe |
-| Cleanup trong raStopping() | Giải phóng tất cả resources |
-
-### Ví dụ: GOAL 1-5 RaEndpointPort RA (3-Port Contract)
-
-Từ micro-jainslee 1.2.0, RA có thể implement **`RaEndpointPort`** (thay vì `ResourceAdaptor`), sử dụng **`RaBootstrapPort`** để fire event và tạo activity handle:
-
-```java
-import com.microjainslee.api.*;
-
-public class HttpIngressRa implements RaEndpointPort, RaCommandPort {
-
-    private RaBootstrapPort bootstrap;
-    private HttpServer server;
-
-    @Override
-    public String getRaName() { return "http-ingress"; }
-
-    @Override
-    public void activate(RaBootstrapPort bootstrap) {
-        this.bootstrap = bootstrap;
-        // Mở HTTP server, bắt đầu nhận request
-        this.server = HttpServer.create(new InetSocketAddress(8080), 0);
-        server.createContext("/api/ussd", exchange -> {
-            String sessionId = UUID.randomUUID().toString();
-            // Tạo activity handle cho session này
-            ActivityHandle handle = bootstrap.createActivityHandle(sessionId);
-            // Fire event vào SLEE EventRouter
-            bootstrap.fireEvent(
-                new HttpUssdBeginEvent(sessionId, parseMsisdn(exchange)),
-                handle,
-                new Address(parseMsisdn(exchange))
-            );
-        });
-        server.start();
-    }
-
-    @Override
-    public void deactivate() {
-        server.stop(0);
-        this.bootstrap = null;
-    }
-
-    @Override
-    public void sendCommand(OutboundCommand command) {
-        // Xử lý outbound command từ SBB
-    }
-}
+container.registerRa(endpoint, commandPort)
+   → (container STARTED) endpoint.activate(bootstrapPort)   // RA mở transport
+   → ... hoạt động ...
+   → container.stop() → endpoint.deactivate()               // RA đóng transport
 ```
-
-**So sánh old vs new RA pattern:**
-
-| | Old (ResourceAdaptor) | New GOAL 1-5 (RaEndpointPort) |
-|---|---|---|
-| Interface | `javax.slee.resource.ResourceAdaptor` | `com.microjainslee.api.RaEndpointPort` |
-| Fire event | `raContext.getSleeEndpoint().fireEvent(...)` | `bootstrap.fireEvent(event, handle, address)` |
-| Activity handle | Custom ActivityHandle class | `bootstrap.createActivityHandle(id)` |
-| Lifecycle | `raActive()` / `raInactive()` / 5 methods | `activate(bootstrap)` / `deactivate()` |
-| SBB communication | Abstract `getXxxRa()` method | `RaCommandPort.sendCommand(OutboundCommand)` |
-| Discovery | JNDI / @ResourceAdaptor annotation | `container.registerRa(endpoint, command)` |
+Khi protocol session kết thúc (BYE, timeout…), RA **phải** gọi `bootstrapPort.endActivity(handle)` — SBB attach sẽ nhận `ActivityEndedEvent` và ACI được thu hồi. Quên bước này = memory leak.
 
 ---
 
-## 8. Event Flow & EventRouter
+## 6. Các lỗi kinh điển (đều từng xảy ra trong repo này)
 
-```
-External Event → ResourceAdaptor.fireEvent() → EventRouter (RingBuffer 262K)
-  → N Workers (1/CPU core) → SBB Virtual Thread (parked→unparked)
-```
-
-### Production: LMAX Disruptor
-
-| Tham số | Giá trị |
-|---------|---------|
-| Ring buffer | 262,144 slots |
-| Workers | N = CPU cores |
-| Throughput | 100K+ events/s |
-| 99th latency | <5ms |
-
-### micro-jainslee: In-Memory EventRouter
-
-Đơn giản hơn, phù hợp R&D. Hỗ trợ session recovery với automatic snapshot capture khi entity bị remove (trừ SBB_SELF_REMOVE), rehydration trong EventRouter.
+| # | Anti-pattern | Hậu quả | Cách đúng |
+|---|---|---|---|
+| 1 | SBB nhận event X rồi `container.routeEvent(X, aci)` lại chính event đó | **Vòng lặp vô hạn** (300k+ event/s) | Không bao giờ re-route event mình nhận. RA đã fire lên ACI, mọi SBB attach đều nhận rồi |
+| 2 | RA nhận command rồi publish lại request event lên cùng ACI | Vòng lặp SBB ↔ RA | Command là chiều đi ra — không mirror ngược thành event |
+| 3 | Tự viết IES `SbbEntityPool` adapter | Entity không có lifecycle/`@InjectRa`; convergence bị xóa ngay khi tạo | `container.createIesDispatcher()` |
+| 4 | `@InjectRa(name="grpcMenuRa")` nhưng RA đăng ký tên `grpc-menu-ra` | Port null, command bị drop im lặng | Tên trong `@InjectRa` = giá trị `RaEndpointPort.getRaName()` chính xác từng ký tự |
+| 5 | Map `dialogs`/`sessions` trong RA chỉ put không remove | OOM sau vài giờ chạy | Remove khi protocol kết thúc + idle sweeper (xem `DialogRegistry`) |
+| 6 | Transport callback chỉ nhận `byte[]` | Không biết trả lời về đâu (UDP) | Sink phải kèm peer address (`SipMessageSink`) |
+| 7 | Sleep/poll chờ entity READY | Flaky test, treo thread | `awaitReady(timeout)` hoặc để router tự xử lý |
+| 8 | Business logic gọi thẳng class RA (`ra.doSomething()`) | Không test được, gãy khi swap RA | SBB chỉ nói chuyện qua `RaCommandPort.sendCommand(cmd)` |
 
 ---
 
-## 9. Timer & Scheduler
+## 7. Testing
 
-```
-SBB.setTimer() → SleeTimerSchedulerBridge → jSS7 HashedWheelTimer (10ms tick)
-  → EventRouter → SBB.onTimer()
-```
-
-> ⚠️ **Critical:** SleeTimerSchedulerBridge fire events đến EventRouter — SBB **không bao giờ** execute trực tiếp trên wheel thread.
-
-### Sử dụng Timer
-
-```java
-public void onSomeEvent(SomeEvent event, ActivityContextInterface aci) {
-    TimerID timerId = getTimerFacility().setTimer(aci, 5000, this, null);
-    activeTimers.put(timerId, aci);
-}
-
-public void onTimer(TimerEvent event, ActivityContextInterface aci) {
-    activeTimers.remove(event.getTimerID());
-    handleTimeout(aci);
-}
-```
-
-### Phân biệt Timer Systems
-
-| Timer | Dùng cho | Scope |
-|-------|----------|-------|
-| jSS7 HashedWheelTimer | I/O dispatch | jSS7 internal |
-| SleeTimerSchedulerBridge | SLEE app timers | micro-jainslee |
-| FaultTolerantScheduler | SLEE app timers (HA) | Production only |
-| USSD adaptive gate (EWMA) | USSD timeout | ussdgateway |
-
-> Các hệ thống timer **orthogonal** — không thay thế lẫn nhau.
+- **Unit test SBB**: gọi thẳng `onEvent(event, aci)` với ACI thật từ `container.createActivityContext("test")` — SBB là POJO.
+- **Integration**: dựng `MicroSleeContainer` thật trong `@Before` (nhanh, <100ms), đăng ký type + RA, bắn event, assert bằng latch. Mẫu chuẩn: `SipEndToEndTest` (ra-sip-servlet) — UDP socket thật → SBB → response thật.
+- **Smoke E2E**: `UssdDemoSmokeTest` (example-quarkus) — HTTP begin → chuỗi 3 SBB → poll COMPLETED.
+- Chạy nhanh 1 test: `mvn -pl <module> test -Dtest='TenTest#tenMethod'`.
 
 ---
 
-## 10. Spring Boot Integration
+## 8. Đọc tiếp
 
-### Dependency
-
-```xml
-<dependency>
-    <groupId>com.example</groupId>
-    <artifactId>jainslee-adapter-springboot</artifactId>
-    <version>1.1.0</version>
-</dependency>
-```
-
-### Cấu hình application.yml
-
-```yaml
-micro-jainslee:
-  container:
-    event-router:
-      threads: 8
-      ring-size: 262144
-    timer:
-      threads: 4
-    sbb-pool:
-      min: 100
-      max: 5000
-```
-
-### Auto-configured Beans
-
-`MicroSleeConfiguration`, `MicroSleeContainer`, `InMemoryActivityContextNamingFacility`,
-`EventRouter`, `TimerPort`, `MicroJainsleeLifecycle`.
-
-### Khởi động
-
-```java
-@SpringBootApplication
-public class UssdApplication {
-    // ...
-}
-```
-
+- [sbb-guide.md](sbb-guide.md) — checklist + template viết SBB.
+- [ra-guide.md](ra-guide.md) — 3-port contract, transport, dialog lifecycle, lấy `ra-sip-servlet` làm mẫu.
+- [app-guide.md](app-guide.md) — bootstrap Quarkus từng bước, cấu hình, chạy thử bằng `sipexer`/`curl`.
+- `docs/microjainslee-design.md` — thiết kế runtime chi tiết.
+- JAIN SLEE 1.1 spec (JSR-240) — chương 6 (SBB), 7 (Activity/Event), 12 (RA) nếu muốn hiểu gốc.
 
 ---
 
-## 11. Các ràng buộc quan trọng
-
-### Production Constraints
-
-| # | Ràng buộc |
-|---|----------|
-| 1 | **micro-jainslee chỉ R&D** — không đóng gói vào production |
-| 2 | **Production build** — USSD 7.3 từ Mobicents SLEE master-era JARs |
-| 3 | **Không thay EventRouter** — jSS7 Scheduler cho I/O dispatch |
-| 4 | **RA fireEvent pattern** — từ RA threads, không từ SBB TimerCallback |
-| 5 | **Timer Bridge** — fire events đến EventRouter, không execute trên wheel |
-
-### Code Constraints
-
-- Không blocking IO trong SBB
-- Prefer immutable objects
-- Không break MAP/SIP dialog state machine
-- Maintain protocol compliance (3GPP)
-- Kiểm tra: race conditions, memory leaks, timer leaks, dialog leaks, deadlocks
-
-### Tech Debt Known
-
-| Item | Status |
-|------|--------|
-| Empty `jainslee-apt` module | Pending |
-| Empty `adapter-quarkus` module | Pending |
-| Missing consumer handler for EventRouter | Pending |
-| Duplicated `TimerPort` (api vs core) | Known |
-| `@Deprecated` `ProfileTablePort` shim | Retained |
-
-### GOAL Achievements ✅
-
-| GOAL | Mô tả | Status |
-|------|-------|--------|
-| **GOAL 1** | `RaEndpointPort` — RA lifecycle interface (`activate`, `deactivate`, `getRaName`) | ✅ DONE |
-| **GOAL 2** | `RaCommandPort` + `registerRa()` + `mapEventToSbb()` — 3-port RA registration & event routing | ✅ DONE |
-| **GOAL 3** | `RaBootstrapPort` — `createActivityHandle()` + `fireEvent()` primitives cho RA | ✅ DONE |
-| **GOAL 4** | `@InjectRa` annotation — inject `RaCommandPort` vào SBB field, thay thế abstract RA accessor | ✅ DONE |
-| **GOAL 5** | `OutboundCommand` marker interface — type-safe command gửi từ SBB → RA | ✅ DONE |
-
----
-
-## 12. Testing
-
-```bash
-# Chạy tất cả tests
-mvn test
-
-# Chạy test cụ thể
-mvn test -pl jainslee-core -Dtest=EventRouterTest
-```
-
-### Test structure cho SBB
-
-```java
-class EchoSbbTest {
-    private EchoSbb sbb;
-    private FakeEchoRa mockRa;
-
-    @BeforeEach
-    void setUp() {
-        mockRa = new FakeEchoRa();
-        sbb = new EchoSbb() {
-            public EchoResourceAdaptor getEchoRa() { return mockRa; }
-            public TimerFacility getTimerFacility() { return new FakeTimerFacility(); }
-        };
-        sbb.sbbCreate();
-    }
-
-    @Test
-    void shouldEchoMessage() {
-        sbb.onEchoRequest(new EchoRequestEvent("Hello"), mockAci());
-        assertEquals("ECHO: Hello", mockRa.getLastResponse());
-    }
-
-    @AfterEach
-    void tearDown() { sbb.sbbRemove(); }
-}
-```
-
-### Known Test Results
-
-- ✅ 62+ tests passing trên JDK 25
-- ✅ 100K SBB entities ~14 OS threads
-
----
-
-## 13. FAQ & Troubleshooting
-
-**Q: SBB không nhận được event?**
-→ Kiểm tra: SBB đã đăng ký? InitialEventSelector đúng SbbID? Event type match? RA fireEvent() đúng?
-
-**Q: Timer không fire?**
-→ Kiểm tra: SleeTimerSchedulerBridge khởi tạo? HashedWheelTimer chạy? Timer bị cancel sớm?
-
-**Q: Memory leak?**
-→ sbbRemove() cleanup timer? ActivityContext detach? RA đóng connections?
-
-**Q: Virtual Thread không hoạt động?**
-→ JDK 25+, dùng `--enable-preview` nếu cần.
-
-**Q: Production constraint?**
-→ micro-jainslee TUYỆT ĐỐI không cho production. Production = Mobicents SLEE JARs + WildFly 10.
-
----
-
-## Phụ lục A: Kiến trúc Production Stack
-
-```
-RestComm JAIN-SLEE v8 (WildFly 10):
-  └─ LMAX Disruptor EventRouter (N workers, 262K ring)
-  └─ Apache Commons Pool (minIdle=5000, maxActive=100000)
-  └─ FaultTolerantScheduler (4 threads, cluster-aware)
-  └─ Infinispan Distributed AC (HA)
-  └─ JGroups Cluster Membership
-```
-
-## Phụ lục B: Kiến trúc R&D Stack
-
-```
-micro-jainslee (Java 25):
-  └─ In-Memory EventRouter
-  └─ VirtualThreadSbbEntityPool (~14 OS threads for 100K SBBs)
-  └─ SleeTimerSchedulerBridge → jSS7 HashedWheelTimer (10ms)
-  └─ Embedded RAs: gRPC Client, HTTP Ingress, USSD GW Simulator
-```
-
----
-
-> **Remember:** micro-jainslee is for R&D only. Happy coding! 🚀
-
----
-
-## Phụ lục C: Cấu trúc JAIN SLEE Application (Pattern từ example/)
-
-### C.1 Tổ chức thư mục
-
-```
-my-ussd-app/
-├── pom.xml                         # depends on jainslee-core + vendor-ras
-└── src/main/java/com/example/ussd/
-    ├── events/                     ← SleeEvent classes
-    │   ├── HttpUssdBeginEvent.java
-    │   ├── GrpcMenuRequestEvent.java
-    │   └── UssdResponseEvent.java
-    ├── sbbs/                       ← SBB implementations
-    │   ├── HttpServerSbb.java
-    │   ├── GrpcClientSbb.java
-    │   └── Ss7UssdIngressSbb.java  ← CMP-backed
-    ├── MyAppBootstrap.java         ← Wires RAs, SBBs, event mappings
-    └── MyAppMain.java              ← Entry point
-```
-
-### C.2 Cách thiết kế SBB
-
-```java
-@SbbAnnotation(name = "Ss7UssdIngress", vendor = "com.example", version = "1.0")
-public abstract class Ss7UssdIngressSbb extends CmpBackedSbb implements SleeEventHandler {
-
-    @CmpField("sessionId")  public abstract String getSessionId();
-    @CmpField("sessionId")  public abstract void setSessionId(String v);
-
-    @InitialEventSelect(name = "ussd-convergence")
-    public InitialEventSelectResult select(InitialEventSelectCondition c) { /* ... */ }
-
-    @Override
-    public void onEvent(SleeEvent event, ActivityContextInterface aci) { /* ... */ }
-
-    // $Concrete — hand-written (production: auto-generated)
-    public static final class $Concrete extends Ss7UssdIngressSbb {
-        private final Map<String, Object> local = new ConcurrentHashMap<>();
-        @Override public String getSessionId() { return (String) local.get("sessionId"); }
-    }
-}
-```
-
-### C.3 Cách SBB gọi Resource Adaptor
-
-Dùng `@InjectRa` để container inject `RaCommandPort`:
-
-```java
-public final class GrpcClientSbb implements Sbb, SleeEventHandler {
-
-    @InjectRa(name = "grpc-menu-ra")          // ← match với getRaName()
-    private volatile RaCommandPort grpcPort;
-
-    public void sendMenu(String sid, String msisdn, String ussd, ActivityContextInterface aci) {
-        grpcPort.sendCommand(new GrpcMenuCommand(sid, msisdn, ussd, aci));
-    }
-}
-```
-
-### C.4 Cách thiết kế Resource Adaptor
-
-vendor-ras có 4 RA, mỗi RA = 2 class:
-
-```
-ra-http-server/src/main/java/com/microjainslee/ra/httpserver/
-├── HttpServerResourceAdaptor.java   ← extends AbstractResourceAdaptor
-└── HttpServerRaEndpoint.java        ← implements RaEndpointPort + RaCommandPort
-```
-
-Pattern Endpoint (3-port contract):
-
-```java
-public final class HttpServerRaEndpoint implements RaEndpointPort, RaCommandPort {
-    private final HttpServerResourceAdaptor delegate;
-
-    @Override public String getRaName() { return "http-server-ra"; }
-
-    @Override public void activate(RaBootstrapPort bootstrap) {
-        delegate.setResourceAdaptorContext(bridgeContext(bootstrap));
-        delegate.raConfigure();
-        delegate.raActive();
-    }
-
-    @Override public void sendCommand(OutboundCommand cmd) {
-        if (cmd instanceof HttpServerCommand c) delegate.handleCommand(c);
-    }
-}
-```
-
-Pattern RA Core (extends AbstractResourceAdaptor):
-
-```java
-public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
-    @Override public void raConfigure() { /* setup */ }
-    @Override public void raActive()    { /* start HttpServer */ }
-    @Override public void raInactive()  { /* stop HttpServer */ }
-
-    // Collaborator interfaces
-    public interface ActivityContextFactory { /* ... */ }
-}
-```
-
-### C.5 Cách wire toàn bộ application
-
-```java
-public final class MyAppBootstrap {
-    private final MicroSleeContainer container;
-
-    public void install(int httpPort) {
-        // 1. Register SBB types
-        container.registerSbbType(Ss7UssdIngressSbb.class, Ss7UssdIngressSbb.$Concrete::new);
-        container.registerSbbType(GrpcClientSbb.class, GrpcClientSbb::new);
-
-        // 2. Create & register RAs
-        HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
-        ra.setPort(httpPort);
-        ra.setBeginEventFactory((sid, msisdn, ussd, cb) -> new HttpUssdBeginEvent(sid, msisdn, ussd, cb));
-        HttpServerRaEndpoint ep = new HttpServerRaEndpoint(ra);
-        container.registerRa(ep, ep);  // RaEndpointPort, RaCommandPort
-
-        // 3. Map events → SBBs
-        container.mapEventToSbb(HttpUssdBeginEvent.class, "HttpServerSbb");
-        container.mapEventToSbb(GrpcMenuRequestEvent.class, "GrpcClientSbb");
-    }
-}
-```
-
-### C.6 Full request flow
-
-```
-ussd-client-simulator → HTTP POST → ra-http-server
-  → fireEvent(HttpUssdBeginEvent) → EventRouter
-  → HttpServerSbb → Ss7UssdIngressSbb → child GrpcClientSbb
-  → @InjectRa grpcPort.sendCommand(GrpcMenuCommand) → ra-grpc-client
-  → gRPC ResolveMenu → grpc-server-simulator → menu response
-  → fireEvent(GrpcMenuResponseEvent) → GrpcClientSbb → Ss7UssdIngressSbb
-  → UssdResponseEvent → HttpServerSbb → ra-http-client callback → simulator
-```
-
-> **Key:** SBBs KHÔNG import RA classes trực tiếp. Chỉ biết `RaCommandPort` + `OutboundCommand`.
-
-
-
-
-
----
-
-## Phụ lục D: Full Request Walkthrough (Step-by-Step)
-
-> Xem 711 dòng code chi tiết: [`docs/EXAMPLE_WALKTHROUGH.md`](EXAMPLE_WALKTHROUGH.md)
-
-### D.1 8 bước của 1 USSD request (từ HTTP POST đến callback)
-
-```
-STEP 1 — Client POST → HTTP Server RA
-  POST /api/ussd/begin-callback {"msisdn":"251911000001","ussdString":"*123#"}
-  → HttpServerResourceAdaptor.BeginHandler
-  → sessionPreparer.prepare() → tạo HttpServerSbb entity, attach vào sessionId
-  → beginEventFactory → new HttpUssdBeginEvent
-  → fireEvent() → EventRouter
-
-STEP 2 — EventRouter → HttpServerSbb
-  Lookup: HttpUssdBeginEvent.class → "HttpServerSbb"
-  → pool.acquire() → HttpServerSbb.onEvent()
-
-STEP 3 — HttpServerSbb internal routing
-  lookupTier(msisdn) → "GOLD" (Profile)
-  → acquireEntity Ss7UssdIngressSbb ($Concrete::new)
-  → routeEvent(new Ss7UssdBeginEvent)
-
-STEP 4 — Ss7UssdIngressSbb (core logic)
-  setTimer(30s) → child GrpcClientSbb → routeEvent(new GrpcMenuRequestEvent)
-
-STEP 5 — GrpcClientSbb → gRPC RA (outbound)
-  @InjectRa grpcCommandPort.sendCommand(new GrpcMenuCommand)
-  → GrpcMenuResourceAdaptor.requestMenu()
-  → gRPC ResolveMenu → grpc-server-simulator:9090
-
-STEP 6 — gRPC multi-level menu response
-  MultiLevelMenuService.resolveMenu() → menu text
-  → eventFactory → new GrpcMenuResponseEvent
-  → routeResponse() → EventRouter
-
-STEP 7 — Menu text → final response
-  GrpcMenuResponseEvent → Ss7UssdIngressSbb
-  cancelTimer() → routeEvent(new UssdResponseEvent)
-
-STEP 8 — HTTP callback back to simulator
-  UssdResponseEvent → HttpServerSbb
-  @InjectRa httpCallbackPort.sendCommand(new HttpCallbackCommand)
-  → HTTP POST callback URL → ussd-client-simulator
-  → releaseSession()
-```
-
-### D.2 SBB entity = parked Virtual Thread (100K sessions = ~42 OS threads)
-
-```
-HttpServerSbb entity [session-1]    → parked VT
-Ss7UssdIngressSbb entity [session-1] → parked VT  + IES + CMP + Timer
-GrpcClientSbb entity [session-1]    → parked VT  + @InjectRa grpcMenuRa
-
-Khi event đến → EventRouter:
-  unpark VT → SBB.onEvent() → park VT
-```
-
-### D.3 How everything connects
-
-```
-                     EmbeddedUssdMain.main()
-                            │
-                    new MicroSleeContainer(config)
-                            │
-                    EmbeddedUssdBootstrap.install()
-                            │
-          ┌─────────────────┼────────────────────┐
-          ▼                 ▼                    ▼
-    registerSbbTypes()  registerRa()        mapEventToSbb()
-          │                 │                    │
-    SbbEntityPool      RaRegistry           EventRouter routing table
-    (factory map)      RaEndpointPort
-          │            RaCommandPort
-          │                 │
-
----
-
-## Phụ lục E: Child SBB & Cascade Removal
-
-Micro-jainslee đã implement **JAIN SLEE 1.1 §6.7** Child SBB hierarchy với cascade removal (depth-first post-order).
-
-### Cách dùng
-
-```java
-// Parent SBB tạo child:
-SimpleSbbLocalObject parentLo = (SimpleSbbLocalObject) self;
-ChildRelation grpcChildren = parentLo.getChildRelation("grpc",
-    container.getChildRelationFactory(GrpcClientSbb.class));
-SbbLocalObject grpcLo = grpcChildren.create();
-
-// Khi remove parent → tự động cascade remove children:
-parentLo.remove();
-// → sbbRemove() trên child trước, parent sau
-```
-
-### CascadeRemover algorithm
-
-```
-parent
-├── child-A
-│   └── grandchild-A1 → sbbRemove() FIRST
-│   └── grandchild-A2 → sbbRemove() SECOND
-│   child-A → sbbRemove() THIRD
-└── child-B → sbbRemove() FOURTH
-parent → sbbRemove() LAST
-```
-
-**Code:** `jainslee-core/.../child/CascadeRemover.java` (199 lines)
-**Tests:** `ChildRelationImplTest.java`, `CascadeRemoverEndToEndTest.java`, `CascadeRemoverDeepTreeTest.java`
-
-### Virtual Thread Lifecycle
-
-- Mỗi child SBB entity = 1 parked virtual thread
-- Khi `sbbRemove()` → VT unpark → cleanup → thread kết thúc
-- Cascade đảm bảo child VT kết thúc trước parent VT
-
-    ┌─────┴─────┐     ┌─────┴──────────┐
-    │HttpServerSbb│   │ra-http-server   │ ← listen :8082
-    │            │←──│ (fireEvent)      │
-    │            │──→│ra-http-client    │ ← HTTP POST callback
-    │            │   │ra-grpc-client    │ ← gRPC → :9090 simulator
-    │Ss7Ussd    │    └─────────────────┘
-    │IngressSbb │
-    │GrpcClient │
-    │Sbb        │
-    └───────────┘
-```
-
-> **Golden Rule:** SBBs KHÔNG import class RA. SBBs chỉ biết `@InjectRa RaCommandPort` + `OutboundCommand record`.
-> RA KHÔNG biết class SBB. RA chỉ biết collaborator interfaces (lambda từ bootstrap).
-
-
----
-
-## Phụ lục F: RA Implementation Checklist (3-Port Contract)
-
-Khi implement một Resource Adaptor mới, **phải tuân thủ đúng pattern này**.
-Sai bất kỳ bước nào → RA không integrate được với container.
-
-### ✅ Checklist
-
-| # | Yêu cầu | ✅/❌ |
-|---|---------|-------|
-| 1 | Có class `XxxRaEndpoint implements RaEndpointPort, RaCommandPort` | |
-| 2 | `getRaName()` trả về tên duy nhất | |
-| 3 | `activate(RaBootstrapPort)` gọi delegate lifecycle | |
-| 4 | `deactivate()` dọn dẹp delegate | |
-| 5 | `sendCommand(OutboundCommand)` route outbound command | |
-| 6 | **KHÔNG tự tạo Disruptor riêng** — dùng `bootstrapPort.fireEvent()` | |
-| 7 | Event types là **sealed hierarchy** (không phải 1 generic event) | |
-| 8 | Outbound commands là **sealed hierarchy extends OutboundCommand** | |
-| 9 | Collaborator interfaces trong package `collab/` để user customize | |
-| 10 | Đăng ký với container: `container.registerRa(endpoint, endpoint)` | |
-
-### 🔴 Anti-Pattern (Sai — đã xảy ra với ra-sip-servlet cũ)
-
-```java
-// ❌ SAI: RA extends AbstractResourceAdaptor (old SPI), không có wrapper
-public class OldRa extends AbstractResourceAdaptor {
-    // ❌ SAI: Tự tạo Disruptor riêng — dư thừa, container đã có EventRouter
-    private final Disruptor<Event> disruptor = new Disruptor<>(...);
-    
-    // ❌ SAI: Chỉ 1 event type generic — SBB không dispatch được
-    public record GenericEvent(Object data) implements SleeEvent {}
-}
-```
-
-### 🟢 Correct Pattern (Đúng — tham khảo ra-http-server)
-
-```java
-// ✅ ĐÚNG: Wrapper implement cả RaEndpointPort + RaCommandPort
-public final class MyRaEndpoint implements RaEndpointPort, RaCommandPort {
-    private final MyResourceAdaptor delegate;
-    private RaBootstrapPort bootstrapPort;
-    
-    @Override public String getRaName() { return "my-ra"; }
-    
-    @Override
-    public void activate(RaBootstrapPort bootstrap) {
-        this.bootstrapPort = bootstrap;
-        delegate.setBootstrap(bootstrap);  // pass event-firing capability to delegate
-        delegate.raConfigure();
-        delegate.raActive();
-    }
-    
-    @Override public void deactivate() { delegate.raInactive(); delegate.raUnconfigure(); }
-    
-    @Override
-    public void sendCommand(OutboundCommand cmd) {
-        if (cmd instanceof MyOutboundCommand c) delegate.send(c);
-    }
-    
-    public MyResourceAdaptor delegate() { return delegate; }
-}
-
-// ✅ ĐÚNG: Delegate giữ transport logic
-public class MyResourceAdaptor {
-    private RaBootstrapPort bootstrap;
-    private final Map<String, ActivityHandle> sessions = new ConcurrentHashMap<>();
-    
-    public void setBootstrap(RaBootstrapPort bp) { this.bootstrap = bp; }
-    
-    private void onInboundMessage(byte[] raw) {
-        MyEvent event = classify(raw);  // typed event
-        ActivityHandle handle = sessions.computeIfAbsent(event.sessionId(),
-            id -> bootstrap.createActivityHandle(id));
-        bootstrap.fireEvent(event, handle, null);  // DÙNG CONTAINER EVENTROUTER
-    }
-}
-
-// ✅ ĐÚNG: Sealed event hierarchy
-public sealed interface MyEvent extends SleeEvent
-    permits MyBeginEvent, MyContinueEvent, MyEndEvent {}
-
-// ✅ ĐÚNG: Sealed outbound commands
-public sealed interface MyOutboundCommand extends OutboundCommand
-    permits SendStart, SendStop, SendData {}
-```
-
-### 📋 File structure chuẩn cho 1 RA
-
-```
-vendor-ras/ra-mine/
-├── pom.xml
-└── src/main/java/com/microjainslee/ra/mine/
-    ├── MineRaEndpoint.java          ← RaEndpointPort + RaCommandPort (WRAPPER)
-    ├── MineResourceAdaptor.java     ← Transport + business logic (DELEGATE)
-    ├── MineRaConfig.java            ← Config record
-    ├── collab/                       ← Collaborator interfaces (user customizable)
-    │   ├── MineEventClassifier.java
-    │   └── MineOutboundSender.java
-    ├── event/                        ← Sealed event hierarchy
-    │   ├── MineEvent.java           ← sealed interface
-    │   ├── MineBeginEvent.java
-    │   ├── MineContinueEvent.java
-    │   └── MineEndEvent.java
-    └── command/                      ← Sealed outbound command hierarchy
-        ├── MineOutboundCommand.java ← sealed interface
-        ├── SendStart.java
-        ├── SendStop.java
-        └── SendData.java
-```
-
-> **Golden Rule cho RA developer:** Mỗi khi muốn thêm `new Disruptor<>(...)` trong RA → ĐỪNG.
-> Container đã có EventRouter (LMAX Disruptor). Chỉ cần gọi `bootstrapPort.fireEvent()`.
-
+## Appendix: Quick Reference — key files to read
+
+> **Read these first** when exploring the codebase. Each file is annotated with what you'll learn.
+
+### Core Runtime (read in order)
+
+| File | What you'll learn |
+|---|---|
+| `jainslee-api/src/main/java/com/microjainslee/api/SleeEvent.java` | Base event interface |
+| `jainslee-api/src/main/java/com/microjainslee/api/ActivityContextInterface.java` | ACI: how SBBs attach to sessions |
+| `jainslee-api/src/main/java/com/microjainslee/api/Sbb.java` + `SleeEventHandler.java` | SBB contract |
+| `jainslee-api/src/main/java/com/microjainslee/api/RaEndpointPort.java` + `RaCommandPort.java` + `RaBootstrapPort.java` | 3-port RA contract |
+| `jainslee-core/src/main/java/com/microjainslee/core/MicroSleeContainer.java` | Container: start/stop, registerSbbType, registerRa, fireEvent, routeEvent |
+| `jainslee-core/src/main/java/com/microjainslee/core/EventRouter.java` | LMAX Disruptor ring buffer event routing |
+| `jainslee-core/src/main/java/com/microjainslee/core/IesDispatcher.java` | IES session convergence |
+| `jainslee-scheduler/src/main/java/com/microjainslee/scheduler/HashedWheelTimer.java` | Timer facility |
+
+### RA Reference (best example of production-quality RA)
+
+| File | What you'll learn |
+|---|---|
+| `vendor-ras/ra-sip-servlet/DESIGN.md` | Architecture decisions, thread model, DNS flow |
+| `vendor-ras/ra-sip-servlet/src/main/java/.../SipServletResourceAdaptor.java` | RA core: parse → classify → fireEvent; command → encode → send |
+| `vendor-ras/ra-sip-servlet/src/main/java/.../SipServletRaEndpoint.java` | 3-port wrapper: activate/deactivate/sendCommand |
+| `vendor-ras/ra-sip-servlet/src/main/java/.../collab/DialogRegistry.java` | Session tracking + idle sweeper anti-leak pattern |
+| `vendor-ras/ra-sip-servlet/src/main/java/.../transport/SipTransport.java` | Transport interface (how DPDK swap works) |
+| `vendor-ras/ra-sip-servlet/src/test/java/.../SipEndToEndTest.java` | ★ How to integration-test RA+SBB end-to-end |
+
+### Bootstrap (app wiring)
+
+| File | What you'll learn |
+|---|---|
+| `example/example-quarkus-sip/src/main/java/.../bootstrap/SipGatewayBootstrap.java` | SIP app: registerSbbType → createIesDispatcher → mapEventToSbb → registerRa |
+| `example/example-quarkus/src/main/java/.../bootstrap/UssdDemoBootstrap.java` | USSD app: same pattern + collaborator injection |
+| `example/example-quarkus/src/test/java/.../bootstrap/UssdDemoSmokeTest.java` | Plain-JUnit smoke test without CDI |
+
+### Adapter (Quarkus extension)
+
+| File | What you'll learn |
+|---|---|
+| `jainslee-adapter/adapter-quarkus/runtime/src/main/java/...` | `MicroSleeContainer` producer, config binding |
+| `jainslee-adapter/adapter-quarkus/deployment/src/main/java/...` | Build-time processor: sbb-index, reflective class registration |

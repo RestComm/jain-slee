@@ -63,9 +63,20 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
     @Inject
     UssdSessionStore sessionStore;
 
+    /** USSD ingress port — {@code ussd.http.port} in application.properties;
+     *  0 binds an ephemeral port (tests). */
+    @org.eclipse.microprofile.config.inject.ConfigProperty(
+            name = "ussd.http.port", defaultValue = "8080")
+    int httpPort;
+
     private final ConcurrentHashMap<String, String> tiersByMsisdn = new ConcurrentHashMap<>();
     private volatile HttpServerRaEndpoint httpEndpoint;
     private volatile GrpcMenuRaEndpoint grpcEndpoint;
+
+    /** Actual HTTP RA endpoint (bound port via {@code httpEndpoint().port()}). */
+    public HttpServerRaEndpoint httpEndpoint() {
+        return httpEndpoint;
+    }
 
     @PostConstruct
     void init() {
@@ -141,7 +152,7 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
     // ── wiring ──
 
     private void wireRas() {
-        wireHttpRa(8080);
+        wireHttpRa(httpPort);
         wireGrpcRa("127.0.0.1", 9090);
     }
 
@@ -244,51 +255,19 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
         container.registerSbbType(GrpcClientSbb.class,
                 () -> new GrpcClientSbb(container));
         container.registerSbbType(HttpServerSbb.class,
-                () -> new HttpServerSbb(container));
+                () -> new HttpServerSbb(container, this));
         LOG.info("Registered pooled SBB types: Ss7UssdIngress, GrpcClient, HttpServer");
     }
 
     // ── IES ──
 
     private void bindInitialEventSelector() {
-        try {
-            com.microjainslee.core.VirtualThreadSbbEntityPool pool = container.getSbbEntityPool();
-            final AtomicLong counter = new AtomicLong();
-            InitialEventSelectorDispatcher.SbbEntityPool adapter =
-                    new InitialEventSelectorDispatcher.SbbEntityPool() {
-                        @Override
-                        public String allocateNew(Class<?> sbbClass) {
-                            String entityId = sbbClass.getSimpleName() + "#" + counter.incrementAndGet();
-                            final Class<? extends com.microjainslee.api.Sbb> typedSbb =
-                                    sbbClass.asSubclass(com.microjainslee.api.Sbb.class);
-                            pool.acquire(entityId, () -> {
-                                try {
-                                    return typedSbb.getDeclaredConstructor().newInstance();
-                                } catch (Exception e) {
-                                    throw new IllegalStateException(
-                                            "IES allocate factory failed for " + sbbClass.getName(), e);
-                                }
-                            });
-                            return entityId;
-                        }
-
-                        @Override
-                        public boolean contains(String entityId) {
-                            return pool.findEntity(entityId) != null;
-                        }
-
-                        @Override
-                        public void onEntityRemoved(String entityId,
-                                                     java.util.function.Consumer<String> callback) {
-                            callback.accept(entityId);
-                        }
-                    };
-            InitialEventSelectorDispatcher dispatcher = new InitialEventSelectorDispatcher(adapter);
-            container.setInitialEventSelectorDispatcher(dispatcher);
-            LOG.info("Initial Event Selector dispatcher bound (S3)");
-        } catch (RuntimeException e) {
-            LOG.warn("IES dispatcher bind failed", e);
-        }
+        // Container-backed IES: entities are created through acquireEntity()
+        // so they get the full lifecycle (SbbContext, @InjectRa, removal-bus
+        // convergence cleanup). Hand-rolled SbbEntityPool adapters allocate
+        // raw pool entities that bypass the container lifecycle.
+        container.createIesDispatcher();
+        LOG.info("Initial Event Selector dispatcher bound (container-backed)");
     }
 
     private static void waitForActivation(SimpleSbbLocalObject lo) throws InterruptedException {

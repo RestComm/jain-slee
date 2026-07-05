@@ -10,7 +10,7 @@
 
 package com.example.ussddemo.spring.sbbs;
 
-import com.example.ussddemo.spring.config.UssdDemoBootstrap;
+import com.example.ussddemo.spring.UssdDemoContext;
 import com.example.ussddemo.spring.events.HttpUssdBeginEvent;
 import com.example.ussddemo.spring.events.Ss7UssdBeginEvent;
 import com.example.ussddemo.spring.events.UssdResponseEvent;
@@ -41,14 +41,14 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
     private static final Logger LOG = LogManager.getLogger(HttpServerSbb.class);
 
     private final MicroSleeContainer container;
-    private final UssdDemoBootstrap bootstrap;
+    private final UssdDemoContext bootstrap;
     private volatile SbbLocalObject self;
 
     /** Injected HTTP callback RA command port for async callback delivery. */
-    @InjectRa(name = "httpCallbackRa")
+    @InjectRa(name = "http-callback-ra")
     private volatile RaCommandPort httpCallbackPort;
 
-    public HttpServerSbb(MicroSleeContainer container, UssdDemoBootstrap bootstrap) {
+    public HttpServerSbb(MicroSleeContainer container, UssdDemoContext bootstrap) {
         this.container = container;
         this.bootstrap = bootstrap;
     }

@@ -64,7 +64,7 @@ public final class UsageFacilityQuarkusAdapter implements UsagePort {
             }
             counter.getClass().getMethod("increment").invoke(counter);
         } catch (ReflectiveOperationException e) {
-            LOG.warnf(e, "Micrometer counter failed for %s — falling back to in-memory", counterName);
+            LOG.warn("Micrometer counter failed for {} — falling back to in-memory", counterName, e);
             fallback().incrementCounter(counterName);
         }
     }
@@ -83,7 +83,7 @@ public final class UsageFacilityQuarkusAdapter implements UsagePort {
             Object summary = summaryMethod.invoke(meterRegistry, "microjainslee.sample." + parameterName);
             summary.getClass().getMethod("record", double.class).invoke(summary, (double) value);
         } catch (ReflectiveOperationException e) {
-            LOG.warnf(e, "Micrometer summary failed for %s — falling back to in-memory", parameterName);
+            LOG.warn("Micrometer summary failed for {} — falling back to in-memory", parameterName, e);
             fallback().recordSample(parameterName, value);
         }
     }

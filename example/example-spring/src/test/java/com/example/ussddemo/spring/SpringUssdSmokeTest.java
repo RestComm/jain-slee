@@ -184,11 +184,11 @@ class SpringUssdSmokeTest {
     private void registerSbbTypes() {
         UssdDemoRuntime runtime = new UssdDemoRuntime();
         container.registerSbbType(Ss7UssdIngressSbb.class,
-                () -> new Ss7UssdIngressSbb.$Concrete(container, null, runtime));
+                () -> new Ss7UssdIngressSbb.$Concrete(container, demoContext, runtime));
         container.registerSbbType(GrpcClientSbb.class,
-                () -> new GrpcClientSbb(container, null));
+                () -> new GrpcClientSbb(container, demoContext));
         container.registerSbbType(HttpServerSbb.class,
-                () -> new HttpServerSbb(container, null));
+                () -> new HttpServerSbb(container, demoContext));
     }
 
     private void seedProfiles() {
@@ -215,27 +215,11 @@ class SpringUssdSmokeTest {
     }
 
     private void bindInitialEventSelector() {
-        try {
-            var pool = container.getSbbEntityPool();
-            var counter = new AtomicLong();
-            InitialEventSelectorDispatcher.SbbEntityPool adapter =
-                new InitialEventSelectorDispatcher.SbbEntityPool() {
-                    public String allocateNew(Class<?> sc) {
-                        String eid = sc.getSimpleName() + "#" + counter.incrementAndGet();
-                        var typed = sc.asSubclass(com.microjainslee.api.Sbb.class);
-                        pool.acquire(eid, () -> {
-                            try { return typed.getDeclaredConstructor().newInstance(); }
-                            catch (Exception e) { throw new IllegalStateException(e); }
-                        });
-                        return eid;
-                    }
-                    public boolean contains(String eid) { return pool.findEntity(eid) != null; }
-                    public void onEntityRemoved(String eid, java.util.function.Consumer<String> cb) {
-                        cb.accept(eid);
-                    }
-                };
-            container.setInitialEventSelectorDispatcher(new InitialEventSelectorDispatcher(adapter));
-        } catch (RuntimeException ignored) {}
+        // Container-backed IES: entities go through acquireEntity() so the
+        // registered type factories (which take constructor collaborators)
+        // are honored. A raw-pool adapter with getDeclaredConstructor()
+        // breaks on SBBs without a no-arg constructor.
+        container.createIesDispatcher();
     }
 
     private static int findFreePort() throws IOException {

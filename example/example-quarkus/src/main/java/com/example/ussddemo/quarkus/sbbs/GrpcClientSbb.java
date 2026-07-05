@@ -89,8 +89,9 @@ public final class GrpcClientSbb implements Sbb, SleeEventHandler {
     private void onGrpcMenuResponse(GrpcMenuResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[gRPC-client] menu response session={} status={}",
                 event.getSessionId(), event.getStatus());
-        // Route response back onto the session activity context so the
-        // parent Ss7UssdIngressSbb picks it up.
-        container.routeEvent(event, aci);
+        // The RA already fired this event onto the session ACI, so every
+        // attached SBB (including the parent Ss7UssdIngressSbb) receives it
+        // directly. Re-routing it here would loop the same event through
+        // the router forever.
     }
 }

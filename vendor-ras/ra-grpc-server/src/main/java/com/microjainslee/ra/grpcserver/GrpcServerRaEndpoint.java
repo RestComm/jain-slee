@@ -100,7 +100,12 @@ public final class GrpcServerRaEndpoint implements RaEndpointPort, RaCommandPort
 
     @Override
     public void sendCommand(OutboundCommand command) {
-        LOG.warn("gRPC server RA does not accept outbound commands");
+        if (command instanceof GrpcServerCommand grpcCommand) {
+            delegate.sendOutbound(grpcCommand);
+        } else {
+            LOG.warn("gRPC server RA received unknown command type: {}",
+                    command == null ? "null" : command.getClass().getName());
+        }
     }
 
     /** Expose the underlying RA for backward compatibility (tests, wiring). */
@@ -141,11 +146,17 @@ public final class GrpcServerRaEndpoint implements RaEndpointPort, RaCommandPort
                     @Override
                     public ActivityContextInterface startActivity(
                             ActivityContextHandle handle, Object activity) {
+                        // Creates the activity context in the container via
+                        // the bootstrap port. The ACI object itself is not
+                        // exposed through this bridge (RA never needs it).
+                        bp.createActivityHandle(handle.getId());
                         return null;
                     }
 
                     @Override
-                    public void endActivity(ActivityContextHandle handle) { }
+                    public void endActivity(ActivityContextHandle handle) {
+                        bp.endActivity(() -> handle.getId());
+                    }
 
                     @Override
                     public void fireEvent(ActivityContextHandle handle, SleeEvent event) {

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.microjainslee</groupId>
+        <artifactId>vendor-ras</artifactId>
+        <version>1.2.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>ra-camel</artifactId>
+    <packaging>jar</packaging>
+    <name>micro-jainslee :: RA Camel (generic)</name>
+    <description>
+        Generic Resource Adaptor over Apache Camel. One RA for every Camel
+        component: declare consumer endpoint URIs (kafka:, platform-http:,
+        grpc:, mqtt:, file:, ...) and the RA wires the component per Camel
+        standards, converts Exchanges into SleeEvents for SBBs, and turns
+        SBB commands back into Camel producer sends. In a Quarkus app, add
+        camel-quarkus-core plus the camel-quarkus-* extension you want and
+        inject the CamelContext; standalone it owns a DefaultCamelContext.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Camel core engine + core components (direct, seda, timer, log, mock...).
+             Version aligned with Camel Quarkus 3.15.x (Quarkus 3.15 LTS). -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-main</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- Test — core components are separate artifacts in Camel 4;
+             the RA itself stays component-free (users bring their own). -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-direct</artifactId>
+            <version>${camel.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-seda</artifactId>
+            <version>${camel.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

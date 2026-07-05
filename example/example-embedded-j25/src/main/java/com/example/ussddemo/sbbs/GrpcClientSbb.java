@@ -33,7 +33,7 @@ public final class GrpcClientSbb implements Sbb, SleeEventHandler {
     private volatile SbbLocalObject self;
 
     /** Injected gRPC RA command port. */
-    @InjectRa(name = "grpcMenuRa")
+    @InjectRa(name = "grpc-menu-ra")
     private volatile RaCommandPort grpcCommandPort;
 
     public GrpcClientSbb(MicroSleeContainer container, EmbeddedUssdBootstrap bootstrap) {
@@ -86,9 +86,9 @@ public final class GrpcClientSbb implements Sbb, SleeEventHandler {
     private void onGrpcMenuResponse(GrpcMenuResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[gRPC-client] menu response session={} status={}",
                 event.getSessionId(), event.getStatus());
-        // Route response back onto the session activity context so the
-        // parent Ss7UssdIngressSbb (which also listens on this session)
-        // picks it up.
-        this.container.routeEvent(event, aci);
+        // The RA already fired this event onto the session ACI, so every
+        // attached SBB (including the parent Ss7UssdIngressSbb) receives it
+        // directly. Re-routing it here would loop the same event through
+        // the router forever.
     }
 }

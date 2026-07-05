@@ -49,4 +49,21 @@ public interface RaBootstrapPort {
      * @param address the address for event routing (e.g. MSISDN, SIP URI)
      */
     void fireEvent(SleeEvent event, ActivityHandle handle, Address address);
+
+    /**
+     * End the activity identified by {@code handle}. The SLEE fires an
+     * {@link ActivityEndedEvent} to the SBBs attached to the activity
+     * context and then releases the context. RAs MUST call this when the
+     * underlying protocol activity terminates (e.g. SIP dialog closed by
+     * BYE, Diameter session ended by STR) — otherwise the activity context
+     * and its attached SBB entities leak.
+     *
+     * <p>Default is a no-op for backward compatibility with bootstrap
+     * implementations that predate activity-end propagation.
+     *
+     * @param handle the activity handle previously obtained from
+     *               {@link #createActivityHandle(String)}
+     */
+    default void endActivity(ActivityHandle handle) {
+    }
 }

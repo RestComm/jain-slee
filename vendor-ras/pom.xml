@@ -14,8 +14,14 @@
 
     <properties>
         <okhttp.version>4.12.0</okhttp.version>
-        <grpc.version>1.68.2</grpc.version>
+        <!-- gRPC aligned with the examples (grpc-java, netty-shaded transport) -->
+        <grpc.version>1.82.1</grpc.version>
         <gson.version>2.11.0</gson.version>
+        <!-- Vert.x 4.5.10 = the engine under Quarkus 3.15 (quarkus-vertx-http/quarkus-grpc) -->
+        <vertx.version>4.5.10</vertx.version>
+        <!-- Camel 4.8.x = the core under Camel Quarkus 3.15.x (Quarkus 3.15 LTS) -->
+        <camel.version>4.8.1</camel.version>
+        <log4j.version>2.23.1</log4j.version>
     </properties>
 
     <modules>
@@ -37,7 +43,7 @@
         <module>ra-grpc-server</module>
         <module>ra-sip-servlet</module>
         <module>ra-diameter</module>
-        <!-- Phase 3+: <module>ra-map-jss7</module>, <module>ra-diameter</module> -->
-        <!-- Phase 4+: <module>ra-camel</module> -->
+        <module>ra-camel</module>
+        <!-- Phase 3+: <module>ra-map-jss7</module> -->
     </modules>
 </project>

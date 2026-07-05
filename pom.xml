@@ -68,6 +68,22 @@
         <module>vendor-ras</module>
     </modules>
 
+    <profiles>
+        <!-- mvn -Pexamples ... builds the example apps in the same reactor so
+             CI catches runtime/API changes that would break them. Kept out
+             of the default build because example-quarkus needs the Quarkus
+             platform BOM download on first run. -->
+        <profile>
+            <id>examples</id>
+            <modules>
+                <module>example/example-embedded-j25</module>
+                <module>example/example-quarkus</module>
+                <module>example/example-quarkus-sip</module>
+                <module>example/example-spring</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>

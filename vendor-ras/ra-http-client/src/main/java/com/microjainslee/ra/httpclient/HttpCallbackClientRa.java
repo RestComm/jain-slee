@@ -1,5 +1,5 @@
 /*
- * micro-jainslee 1.1.0
+ * micro-jainslee 1.2.0
  *
  * Dual-licensed: GPLv3 (Section A) OR Commercial License (Section B).
  * See the LICENSE file at the root of this repository for the full text.
@@ -12,43 +12,51 @@ package com.microjainslee.ra.httpclient;
 
 import com.microjainslee.ra.spi.AbstractResourceAdaptor;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
- * Async outbound HTTP callback Resource Adaptor.
+ * Outbound HTTP callback RA on <b>Vert.x WebClient</b> — pooled keep-alive
+ * connections, non-blocking sends, GraalVM-native ready (same client
+ * family the Quarkus ecosystem rides on).
  *
- * <p>Purely an outbound client — no HTTP server. Sends asynchronous
- * POST callbacks to external URLs using {@link java.net.http.HttpClient}
- * on a virtual-thread worker pool. Callbacks carry a JSON payload
- * with session status information.</p>
- *
- * <p>Callers use {@link #sendCallback(String, String, String)} to trigger
- * a fire-and-forget POST to the given {@code callbackUrl}.</p>
+ * <p>Delivery policy: POST JSON, up to {@link #setMaxRetries(int)} retries
+ * with exponential backoff for connect errors and 5xx responses. 4xx is
+ * treated as a permanent receiver error (no retry).</p>
  */
 public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
 
     private static final Logger LOG = LogManager.getLogger(HttpCallbackClientRa.class);
 
-    private ExecutorService workerPool;
-    private HttpClient httpClient;
+    private Vertx vertx;
+    private WebClient webClient;
+    private int connectTimeoutMs = 10_000;
+    private int requestTimeoutMs = 15_000;
+    private int maxRetries = 2;
+    private long retryBackoffMs = 500;
+
+    public void setConnectTimeoutMs(int ms) { this.connectTimeoutMs = ms; }
+    public void setRequestTimeoutMs(int ms) { this.requestTimeoutMs = ms; }
+    public void setMaxRetries(int n) { this.maxRetries = Math.max(0, n); }
+    public void setRetryBackoffMs(long ms) { this.retryBackoffMs = ms; }
 
     @Override
     public void raConfigure() {
-        workerPool = Executors.newVirtualThreadPerTaskExecutor();
-        httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .executor(workerPool)
-                .build();
-        LOG.info("HTTP callback client RA configured (virtual-thread worker pool)");
+        vertx = Vertx.vertx();
+        webClient = WebClient.create(vertx, new WebClientOptions()
+                .setConnectTimeout(connectTimeoutMs)
+                .setKeepAlive(true)
+                .setMaxPoolSize(64)
+                .setTcpNoDelay(true));
+        LOG.info("HTTP callback client RA configured (Vert.x WebClient, retries={})", maxRetries);
     }
 
     @Override
@@ -63,65 +71,88 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
 
     @Override
     public void raInactive() {
-        if (workerPool != null) {
-            workerPool.shutdown();
-        }
+        // keep client until unconfigure — a stopping RA may still flush callbacks
     }
 
     @Override
     public void raUnconfigure() {
-        if (workerPool != null) {
-            workerPool.shutdownNow();
-            workerPool = null;
+        if (webClient != null) {
+            webClient.close();
+            webClient = null;
         }
-        httpClient = null;
+        if (vertx != null) {
+            CountDownLatch closed = new CountDownLatch(1);
+            vertx.close().onComplete(v -> closed.countDown());
+            try {
+                closed.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            vertx = null;
+        }
         super.raUnconfigure();
     }
 
     /**
-     * Sends an async HTTP POST callback to the given URL with session
-     * status as a JSON payload.
-     *
-     * <p>This is a fire-and-forget operation; the POST is submitted to
-     * the virtual-thread worker pool. If {@code callbackUrl} is {@code null}
-     * or blank, the call is silently logged and skipped.</p>
-     *
-     * @param sessionId    the USSD session identifier
-     * @param callbackUrl  the external URL to POST the callback to
-     * @param responseText the final response text to include
+     * Fire-and-forget JSON callback delivery with bounded retries.
+     * Non-blocking — safe to call from SBB entity threads.
      */
     public void sendCallback(String sessionId, String callbackUrl, String responseText) {
         if (callbackUrl == null || callbackUrl.isBlank()) {
             LOG.debug(() -> "HTTP callback client RA: no callback URL for session " + sessionId);
             return;
         }
-        workerPool.submit(() -> doSendCallback(sessionId, callbackUrl, responseText));
+        WebClient client = this.webClient;
+        if (client == null) {
+            LOG.warn("HTTP callback RA not configured — callback for session {} dropped", sessionId);
+            return;
+        }
+        String payload = "{\"sessionId\":\"" + escapeJson(sessionId)
+                + "\",\"status\":\"OK\",\"responseText\":\"" + escapeJson(responseText) + "\"}";
+        attemptSend(client, sessionId, callbackUrl, payload, 0);
     }
 
-    private void doSendCallback(String sessionId, String callbackUrl, String responseText) {
-        String payload = String.format(
-                "{\"sessionId\":\"%s\",\"status\":\"OK\",\"responseText\":\"%s\"}",
-                escapeJson(sessionId),
-                escapeJson(responseText));
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(callbackUrl))
-                    .timeout(Duration.ofSeconds(15))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(payload))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
-            LOG.info(() -> "HTTP callback RA: POST " + callbackUrl
-                    + " → " + response.statusCode()
-                    + " for session " + sessionId);
-        } catch (IOException | InterruptedException e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            LOG.warn("HTTP callback RA: POST failed for session {} to {}: {}",
-                    sessionId, callbackUrl, e.getMessage());
+    private void attemptSend(WebClient client, String sessionId, String callbackUrl,
+                             String payload, int attempt) {
+        client.postAbs(callbackUrl)
+                .timeout(requestTimeoutMs)
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(payload))
+                .onComplete(res -> {
+                    if (res.succeeded()) {
+                        int status = res.result().statusCode();
+                        if (status < 500) {
+                            if (status >= 400) {
+                                LOG.warn("HTTP callback RA: POST {} -> {} for session {} "
+                                        + "(receiver error, not retried)",
+                                        callbackUrl, status, sessionId);
+                            } else {
+                                LOG.info("HTTP callback RA: POST {} -> {} for session {}",
+                                        callbackUrl, status, sessionId);
+                            }
+                            return;
+                        }
+                        retryOrGiveUp(client, sessionId, callbackUrl, payload, attempt,
+                                "HTTP " + status);
+                        return;
+                    }
+                    retryOrGiveUp(client, sessionId, callbackUrl, payload, attempt,
+                            String.valueOf(res.cause() == null ? "?" : res.cause().getMessage()));
+                });
+    }
+
+    private void retryOrGiveUp(WebClient client, String sessionId, String callbackUrl,
+                               String payload, int attempt, String reason) {
+        if (attempt >= maxRetries || vertx == null) {
+            LOG.warn("HTTP callback RA: giving up after {} attempt(s) for session {} to {} ({})",
+                    attempt + 1, sessionId, callbackUrl, reason);
+            return;
         }
+        long delay = retryBackoffMs * (1L << attempt); // 500, 1000, 2000, ...
+        LOG.info("HTTP callback RA: retry {}/{} in {}ms for session {} ({})",
+                attempt + 1, maxRetries, delay, sessionId, reason);
+        vertx.setTimer(delay, id ->
+                attemptSend(client, sessionId, callbackUrl, payload, attempt + 1));
     }
 
     /** Minimal JSON string escaping — replaces backslash, double-quote, and control chars. */

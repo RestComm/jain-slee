@@ -222,10 +222,10 @@ public class EdgeCaseContainerTest {
         CounterSbb sbb = newConcreteCounter(0);
         SimpleSbbLocalObject lo = container.registerSbb("state-sbb", (Sbb) sbb);
         assertNotNull(lo.getEntityState());
-        assertFalse(lo.isReady());
-        Thread.sleep(100);
-        // After activation the state machine should mark the entity READY.
-        assertTrue(lo.isReady());
+        // Activation is asynchronous (entity virtual thread) — the entity may
+        // or may not be READY immediately after registerSbb returns, so only
+        // the eventual READY state is asserted (no racy intermediate check).
+        assertTrue(lo.awaitReady(5, java.util.concurrent.TimeUnit.SECONDS));
     }
 
     @Test

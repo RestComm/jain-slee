@@ -153,6 +153,29 @@ public class EventRouter {
                 ProducerType.MULTI,
                 new YieldingWaitStrategy());
         this.disruptor = built;
+        // LMAX defaults to FatalExceptionHandler, which KILLS the single
+        // disruptor-worker thread on the first dispatch exception — after
+        // that the whole SLEE stops routing events. One bad event must
+        // never take the router down: log it and keep consuming.
+        this.disruptor.setDefaultExceptionHandler(new ExceptionHandler<EventWrapper>() {
+            @Override
+            public void handleEventException(Throwable ex, long sequence, EventWrapper wrapper) {
+                LOG.error("Event dispatch failed (seq={}, event={}) — router continues",
+                        sequence,
+                        wrapper != null && wrapper.event != null
+                                ? wrapper.event.getClass().getSimpleName() : "?", ex);
+            }
+
+            @Override
+            public void handleOnStartException(Throwable ex) {
+                LOG.error("Disruptor start failed", ex);
+            }
+
+            @Override
+            public void handleOnShutdownException(Throwable ex) {
+                LOG.warn("Disruptor shutdown exception", ex);
+            }
+        });
         this.disruptor.handleEventsWith(new EventHandler<EventWrapper>() {
             @Override
             public void onEvent(EventWrapper wrapper, long sequence, boolean endOfBatch) {
@@ -535,6 +558,40 @@ public class EventRouter {
             }
         }
         if (deliveryMode == EventDeliveryMode.ASYNC_COMMIT) {
+            try {
+                entity.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        ScopedValue.where(ActivityContextTransactionRegistry.CURRENT,
+                                transaction).run(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    handler.onEvent(event, aci);
+                                    transaction.commit();
+                                } catch (Exception e) {
+                                    handleSbbException(e, localObject, event, aci, transaction);
+                                } finally {
+                                    ActivityContextTransactionRegistry.clear(transaction);
+                                }
+                            }
+                        });
+                    }
+                });
+            } catch (IllegalStateException slotGone) {
+                // Entity removed between dispatch and delivery (its slot is
+                // shut down). Losing the race is normal during teardown —
+                // drop this delivery, never fail the surrounding dispatch.
+                missingEntityCount.incrementAndGet();
+                LOG.debug("Entity slot gone for {} — {} dropped",
+                        localObject.getSbbID() != null ? localObject.getSbbID().getId() : "?",
+                        event.getClass().getSimpleName());
+            }
+            return false;
+        }
+        final AtomicReference<Exception> failure = new AtomicReference<Exception>();
+        final CountDownLatch done = new CountDownLatch(1);
+        try {
             entity.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -544,38 +601,24 @@ public class EventRouter {
                         public void run() {
                             try {
                                 handler.onEvent(event, aci);
-                                transaction.commit();
                             } catch (Exception e) {
-                                handleSbbException(e, localObject, event, aci, transaction);
+                                failure.set(e);
                             } finally {
-                                ActivityContextTransactionRegistry.clear(transaction);
+                                done.countDown();
                             }
                         }
                     });
                 }
             });
+        } catch (IllegalStateException slotGone) {
+            // Entity removed between dispatch and delivery — see the
+            // ASYNC_COMMIT branch above. Not a transaction failure.
+            missingEntityCount.incrementAndGet();
+            LOG.debug("Entity slot gone for {} — {} dropped",
+                    localObject.getSbbID() != null ? localObject.getSbbID().getId() : "?",
+                    event.getClass().getSimpleName());
             return false;
         }
-        final AtomicReference<Exception> failure = new AtomicReference<Exception>();
-        final CountDownLatch done = new CountDownLatch(1);
-        entity.submit(new Runnable() {
-            @Override
-            public void run() {
-                ScopedValue.where(ActivityContextTransactionRegistry.CURRENT,
-                        transaction).run(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            handler.onEvent(event, aci);
-                        } catch (Exception e) {
-                            failure.set(e);
-                        } finally {
-                            done.countDown();
-                        }
-                    }
-                });
-            }
-        });
         try {
             if (!done.await(30, TimeUnit.SECONDS)) {
                 throw new IllegalStateException(

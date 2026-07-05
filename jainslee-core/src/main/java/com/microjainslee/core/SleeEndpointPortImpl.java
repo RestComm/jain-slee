@@ -45,7 +45,38 @@ public final class SleeEndpointPortImpl implements com.microjainslee.api.SleeEnd
         if (handle == null) {
             return;
         }
+        // JAIN-SLEE 1.1 §7.3.4 — attached SBBs must observe the activity
+        // end. Fire ActivityEndedEvent through the normal routing path
+        // BEFORE the name binding disappears; the dispatch pipeline holds
+        // the ACI object reference, so the unbind below only removes the
+        // name → context mapping.
+        com.microjainslee.api.ActivityContextInterface aci =
+                container.getActivityContextNamingFacility().lookup(handle.getId());
+        if (aci != null) {
+            com.microjainslee.api.ActivityHandle eventHandle =
+                    (handle instanceof com.microjainslee.api.ActivityHandle)
+                            ? (com.microjainslee.api.ActivityHandle) handle
+                            : new StringActivityHandle(handle.getId());
+            container.routeEvent(
+                    new com.microjainslee.api.ActivityEndedEvent(eventHandle), aci);
+        }
         container.getActivityContextNamingFacility().unbind(handle.getId());
+    }
+
+    /** Minimal value-object handle used when the caller's handle type only
+     *  implements {@code ActivityContextHandle}. */
+    private static final class StringActivityHandle
+            implements com.microjainslee.api.ActivityHandle {
+        private final String id;
+
+        StringActivityHandle(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getId() {
+            return id;
+        }
     }
 
     @Override

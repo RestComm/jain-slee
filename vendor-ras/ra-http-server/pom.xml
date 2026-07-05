@@ -11,7 +11,7 @@
     <artifactId>ra-http-server</artifactId>
     <packaging>jar</packaging>
     <name>micro-jainslee :: RA HTTP Server</name>
-    <description>JDK HttpServer RA — fires SleeEvents via SleeEndpointPort.</description>
+    <description>Vert.x HTTP ingress RA — fires SleeEvents via SleeEndpointPort. Same engine as quarkus-vertx-http.</description>
 
     <dependencies>
         <dependency>
@@ -23,6 +23,11 @@
             <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-ra-spi</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>${vertx.version}</version>
         </dependency>
         <dependency>
             <groupId>com.microjainslee</groupId>

@@ -10,7 +10,7 @@
 
 package com.example.ussddemo.spring.sbbs;
 
-import com.example.ussddemo.spring.config.UssdDemoBootstrap;
+import com.example.ussddemo.spring.UssdDemoContext;
 import com.example.ussddemo.spring.events.GrpcMenuRequestEvent;
 import com.example.ussddemo.spring.events.GrpcMenuResponseEvent;
 import com.microjainslee.api.ActivityContextInterface;
@@ -38,10 +38,10 @@ public final class GrpcClientSbb implements Sbb, SleeEventHandler {
     private volatile SbbLocalObject self;
 
     /** Injected gRPC RA command port. */
-    @InjectRa(name = "grpcMenuRa")
+    @InjectRa(name = "grpc-menu-ra")
     private volatile RaCommandPort grpcCommandPort;
 
-    public GrpcClientSbb(MicroSleeContainer container, UssdDemoBootstrap bootstrap) {
+    public GrpcClientSbb(MicroSleeContainer container, UssdDemoContext bootstrap) {
         this.container = container;
     }
 
@@ -91,9 +91,9 @@ public final class GrpcClientSbb implements Sbb, SleeEventHandler {
     private void onGrpcMenuResponse(GrpcMenuResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[gRPC-client] menu response session={} status={}",
                 event.getSessionId(), event.getStatus());
-        // Route response back onto the session activity context so the
-        // parent Ss7UssdIngressSbb (which also listens on this session)
-        // picks it up.
-        this.container.routeEvent(event, aci);
+        // The RA already fired this event onto the session ACI, so every
+        // attached SBB (including the parent Ss7UssdIngressSbb) receives it
+        // directly. Re-routing it here would loop the same event through
+        // the router forever.
     }
 }

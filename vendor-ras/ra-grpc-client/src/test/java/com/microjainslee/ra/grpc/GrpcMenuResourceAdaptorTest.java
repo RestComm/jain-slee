@@ -31,7 +31,11 @@ import static org.junit.Assert.assertTrue;
 public class GrpcMenuResourceAdaptorTest {
 
     @Test
-    public void firesRequestAndResponseViaSleeEndpointPort() throws Exception {
+    public void firesResponseOnlyViaResponseAci() throws Exception {
+        // Contract (post loop-fix): requestMenu fires ONLY the response
+        // event. The request event is the caller's business — an SBB that
+        // sends the command has already observed the request on the session
+        // ACI; if the RA mirrored it back, the pair would loop forever.
         MicroSleeContainer container = new MicroSleeContainer(
                 MicroSleeConfiguration.builder()
                         .eventRouterBufferSize(64)
@@ -39,15 +43,15 @@ public class GrpcMenuResourceAdaptorTest {
                         .build());
         container.start();
         try {
-            EventCollector requestCollector = new EventCollector();
+            EventCollector sessionCollector = new EventCollector();
             EventCollector responseCollector = new EventCollector();
 
-            SbbLocalObject requestLo = container.registerSbb("grpc-client", requestCollector);
+            SbbLocalObject sessionLo = container.registerSbb("grpc-client", sessionCollector);
             SbbLocalObject responseLo = container.registerSbb("ss7-ingress", responseCollector);
 
             container.createActivityContext("session-1");
             container.createActivityContext("response-aci");
-            container.attach("session-1", requestLo);
+            container.attach("session-1", sessionLo);
             container.attach("response-aci", responseLo);
 
             GrpcMenuResourceAdaptor ra = bootstrapRa(container, (msisdn, ussd, sid) ->
@@ -57,13 +61,7 @@ public class GrpcMenuResourceAdaptorTest {
                     container.getActivityContextNamingFacility().lookup("response-aci");
             ra.requestMenu("session-1", "251911000001", "*123#", responseAci);
 
-            assertTrue(requestCollector.awaitEvent(5, TimeUnit.SECONDS));
             assertTrue(responseCollector.awaitEvent(5, TimeUnit.SECONDS));
-
-            TestGrpcMenuRequestEvent request = (TestGrpcMenuRequestEvent) requestCollector.events.get(0);
-            assertEquals("session-1", request.sessionId());
-            assertEquals("251911000001", request.msisdn());
-            assertEquals("*123#", request.ussdString());
 
             TestGrpcMenuResponseEvent response =
                     (TestGrpcMenuResponseEvent) responseCollector.events.get(0);
@@ -71,6 +69,10 @@ public class GrpcMenuResourceAdaptorTest {
             assertEquals("OK", response.status());
             assertEquals("1. Balance\n2. Transfer", response.menuText());
             assertEquals(null, response.error());
+
+            // No request event is mirrored onto the session ACI.
+            assertTrue("request event must NOT be re-published by the RA",
+                    sessionCollector.events.isEmpty());
         } finally {
             container.stop();
         }

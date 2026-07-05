@@ -11,7 +11,7 @@
     <artifactId>ra-grpc-server</artifactId>
     <packaging>jar</packaging>
     <name>micro-jainslee :: RA gRPC Server</name>
-    <description>Inbound gRPC server RA — receives gRPC requests and fires SleeEvents via RaEndpointPort.</description>
+    <description>Generic bytes-level gRPC server RA — accepts ANY gRPC unary method without generated stubs, fires GrpcRequestEvent, SBB replies via SendGrpcResponse. grpc-netty-shaded transport.</description>
 
     <dependencies>
         <dependency>
@@ -23,6 +23,28 @@
             <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-ra-spi</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

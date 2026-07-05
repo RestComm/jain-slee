@@ -131,15 +131,14 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
             return;
         }
         // Sprint S8 - stamp a per-session monotonic sequence number.
-        long seq = sequenceCounters
+        sequenceCounters
                 .computeIfAbsent(sessionId, k -> new AtomicLong(0L))
                 .incrementAndGet();
-        // Request event: session ACI via SleeEndpointPort (canonical hot path).
-        // Use the sequence-aware overload so a SequencedEvent factory
-        // can record the seq for dedup; legacy 3-arg factories get
-        // the default fallback (seq dropped) via the interface default.
-        publish(sessionId,
-                eventFactory.createRequestEvent(sessionId, msisdn, ussdString, seq));
+        // NOTE: the request event is deliberately NOT re-published here.
+        // The command that triggered this call originated from an SBB that
+        // already observed the request event on the session ACI — mirroring
+        // it back would bounce the same request between that SBB and this
+        // RA forever (infinite event loop).
         workerPool.submit(() -> doCall(sessionId, msisdn, ussdString, responseAci));
     }
 
@@ -164,24 +163,27 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
             LOG.warn("gRPC menu RA call failed for session={}", sessionId, t);
             responseEvent = eventFactory.createErrorResponseEvent(sessionId, t);
         }
-        routeResponse(responseAci, responseEvent);
+        routeResponse(sessionId, responseAci, responseEvent);
     }
 
     /**
-     * Route a response event to the caller-supplied ACI via the live
-     * container. Returns silently when the response ACI is {@code null}
-     * (caller did not opt into separate response activity).
+     * Route a response event onto the session. Preferred path: the live
+     * container + the caller-supplied ACI. Fallback (3-port wiring, where
+     * the bridged context exposes no container): fire through the SLEE
+     * endpoint on the session activity handle — never drop the response.
      */
-    private void routeResponse(ActivityContextInterface responseAci, SleeEvent event) {
-        if (responseAci == null) {
-            return;
-        }
+    private void routeResponse(String sessionId, ActivityContextInterface responseAci,
+                               SleeEvent event) {
         Object c = container();
-        if (c instanceof com.microjainslee.core.MicroSleeContainer mc) {
+        if (responseAci != null && c instanceof com.microjainslee.core.MicroSleeContainer mc) {
             mc.routeEvent(event, responseAci);
             return;
         }
-        LOG.warn(() -> "gRPC menu RA cannot route response to ACI - "
-                + "no live MicroSleeContainer available; response event dropped");
+        try {
+            publish(sessionId, event);
+        } catch (RuntimeException e) {
+            LOG.warn("gRPC menu RA could not route response for session={}: {}",
+                    sessionId, e.getMessage());
+        }
     }
 }

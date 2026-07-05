@@ -115,43 +115,12 @@ public final class SipGatewayBootstrap {
     }
 
     private void bindInitialEventSelector() {
-        try {
-            VirtualThreadSbbEntityPool pool = container.getSbbEntityPool();
-            final AtomicLong counter = new AtomicLong();
-            InitialEventSelectorDispatcher.SbbEntityPool adapter =
-                    new InitialEventSelectorDispatcher.SbbEntityPool() {
-                        @Override
-                        public String allocateNew(Class<?> sbbClass) {
-                            String entityId = sbbClass.getSimpleName() + "#" + counter.incrementAndGet();
-                            final Class<? extends com.microjainslee.api.Sbb> typedSbb =
-                                    sbbClass.asSubclass(com.microjainslee.api.Sbb.class);
-                            pool.acquire(entityId, () -> {
-                                try {
-                                    return typedSbb.getDeclaredConstructor().newInstance();
-                                } catch (Exception e) {
-                                    throw new IllegalStateException(
-                                            "IES allocate factory failed for " + sbbClass.getName(), e);
-                                }
-                            });
-                            return entityId;
-                        }
-
-                        @Override
-                        public boolean contains(String entityId) {
-                            return pool.findEntity(entityId) != null;
-                        }
-
-                        @Override
-                        public void onEntityRemoved(String entityId,
-                                                     java.util.function.Consumer<String> callback) {
-                            callback.accept(entityId);
-                        }
-                    };
-            InitialEventSelectorDispatcher dispatcher = new InitialEventSelectorDispatcher(adapter);
-            container.setInitialEventSelectorDispatcher(dispatcher);
-            LOG.info("Initial Event Selector dispatcher bound");
-        } catch (RuntimeException e) {
-            LOG.warn("IES dispatcher bind failed", e);
-        }
+        // Container-backed IES: entities are created through acquireEntity()
+        // so they get the full lifecycle (SbbContext, @InjectRa, removal-bus
+        // convergence cleanup). Never hand-roll a SbbEntityPool adapter —
+        // raw pool entities bypass the container and cannot be attached to
+        // activity contexts.
+        container.createIesDispatcher();
+        LOG.info("Initial Event Selector dispatcher bound (container-backed)");
     }
 }

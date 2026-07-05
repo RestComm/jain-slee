@@ -1,3 +1,9 @@
+/*
+ * micro-jainslee 1.2.0
+ * Dual-licensed: GPLv3 (Section A) OR Commercial License (Section B).
+ * Copyright (c) 2026 Tran Nhan (nhanth87). All rights reserved.
+ */
+
 package com.microjainslee.ra.sipservlet.transport;
 
 import com.microjainslee.ra.sipservlet.SipRaConfig;
@@ -7,7 +13,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.net.InetSocketAddress;
-import java.util.function.Consumer;
 
 /**
  * TLS transport for SIP-over-TLS (SIPS:5061).
@@ -16,7 +21,7 @@ import java.util.function.Consumer;
  */
 public final class TlsTransport extends AbstractNettyTransport {
 
-    public TlsTransport(SipRaConfig config, Consumer<byte[]> sink) {
+    public TlsTransport(SipRaConfig config, SipMessageSink sink) {
         super(config, sink);
     }
 

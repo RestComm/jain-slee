@@ -195,11 +195,11 @@ public class UssdDemoBootstrap {
 
     private void registerSbbTypes() {
         container.registerSbbType(Ss7UssdIngressSbb.class,
-                () -> new Ss7UssdIngressSbb.$Concrete(container, this, ussdDemoRuntime));
+                () -> new Ss7UssdIngressSbb.$Concrete(container, demoContext, ussdDemoRuntime));
         container.registerSbbType(GrpcClientSbb.class,
-                () -> new GrpcClientSbb(container, this));
+                () -> new GrpcClientSbb(container, demoContext));
         container.registerSbbType(HttpServerSbb.class,
-                () -> new HttpServerSbb(container, this));
+                () -> new HttpServerSbb(container, demoContext));
         LOG.info("Registered pooled SBB types: Ss7UssdIngress, GrpcClient, HttpServer");
     }
 
@@ -229,30 +229,12 @@ public class UssdDemoBootstrap {
     }
 
     private void bindInitialEventSelector() {
-        try {
-            var pool = container.getSbbEntityPool();
-            var counter = new AtomicLong();
-            InitialEventSelectorDispatcher.SbbEntityPool adapter =
-                new InitialEventSelectorDispatcher.SbbEntityPool() {
-                    public String allocateNew(Class<?> sc) {
-                        String eid = sc.getSimpleName() + "#" + counter.incrementAndGet();
-                        var typed = sc.asSubclass(com.microjainslee.api.Sbb.class);
-                        pool.acquire(eid, () -> {
-                            try { return typed.getDeclaredConstructor().newInstance(); }
-                            catch (Exception ex) { throw new IllegalStateException(ex); }
-                        });
-                        return eid;
-                    }
-                    public boolean contains(String eid) { return pool.findEntity(eid) != null; }
-                    public void onEntityRemoved(String eid, java.util.function.Consumer<String> cb) {
-                        cb.accept(eid);
-                    }
-                };
-            container.setInitialEventSelectorDispatcher(new InitialEventSelectorDispatcher(adapter));
-            LOG.info("Initial Event Selector dispatcher bound");
-        } catch (RuntimeException e) {
-            LOG.warn("IES dispatcher bind failed", e);
-        }
+        // Container-backed IES: entities are created through acquireEntity()
+        // so they get the full lifecycle (SbbContext, @InjectRa, removal-bus
+        // convergence cleanup). Hand-rolled SbbEntityPool adapters allocate
+        // raw pool entities that bypass the container lifecycle.
+        container.createIesDispatcher();
+        LOG.info("Initial Event Selector dispatcher bound (container-backed)");
     }
 
     // ---- session-tracking delegates (call-through to UssdDemoContext) ----

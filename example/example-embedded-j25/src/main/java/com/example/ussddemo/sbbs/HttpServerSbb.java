@@ -39,7 +39,7 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
     private volatile SbbLocalObject self;
 
     /** Injected HTTP callback RA command port for async callback delivery. */
-    @InjectRa(name = "httpCallbackRa")
+    @InjectRa(name = "http-callback-ra")
     private volatile RaCommandPort httpCallbackPort;
 
     public HttpServerSbb(MicroSleeContainer container, EmbeddedUssdBootstrap bootstrap) {

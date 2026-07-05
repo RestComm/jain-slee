@@ -40,11 +40,29 @@
             <groupId>com.mobius-software.protocols.sip</groupId>
             <artifactId>sip-api</artifactId>
             <version>${corsac-sip.version}</version>
+            <exclusions>
+                <!-- dnsjava-3.6.7-MOBIUS is a broken repack: it declares the
+                     java.net.spi.InetAddressResolverProvider service but does
+                     NOT ship the provider class, so the first InetAddress SPI
+                     lookup on any classpath containing it throws
+                     ServiceConfigurationError. The RA does its own DNS
+                     (dns/DnsResolver, pure JDK) and never uses org.xbill. -->
+                <exclusion>
+                    <groupId>com.mobius-software</groupId>
+                    <artifactId>dnsjava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.mobius-software.protocols.sip</groupId>
             <artifactId>sip-ri</artifactId>
             <version>${corsac-sip.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mobius-software</groupId>
+                    <artifactId>dnsjava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Transport — Netty (TCP + UDP + SCTP + TLS) -->

@@ -36,15 +36,15 @@ public final class AlarmPortQuarkusAdapter implements AlarmPort {
         switch (level) {
             case CRITICAL:
             case MAJOR:
-                LOG.errorf("ALARM [%s] %s — %s", alarmId, level, safe(message));
+                LOG.error("ALARM [{}] {} — {}", alarmId, level, safe(message));
                 break;
             case WARNING:
             case MINOR:
-                LOG.warnf("ALARM [%s] %s — %s", alarmId, level, safe(message));
+                LOG.warn("ALARM [{}] {} — {}", alarmId, level, safe(message));
                 break;
             case CLEARED:
             default:
-                LOG.infof("ALARM [%s] %s — %s", alarmId, level, safe(message));
+                LOG.info("ALARM [{}] {} — {}", alarmId, level, safe(message));
                 break;
         }
     }
@@ -55,7 +55,7 @@ public final class AlarmPortQuarkusAdapter implements AlarmPort {
             return;
         }
         activeAlarms.remove(alarmId);
-        LOG.infof("ALARM CLEARED [%s]", alarmId);
+        LOG.info("ALARM CLEARED [{}]", alarmId);
     }
 
     private static String safe(String message) {

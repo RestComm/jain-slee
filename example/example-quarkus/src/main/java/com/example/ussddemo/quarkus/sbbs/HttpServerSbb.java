@@ -44,8 +44,16 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
     @InjectRa(name = "http-server-ra")
     private volatile RaCommandPort httpCommandPort;
 
+    private final com.example.ussddemo.quarkus.bootstrap.UssdDemoContext demoContext;
+
     public HttpServerSbb(MicroSleeContainer container) {
+        this(container, null);
+    }
+
+    public HttpServerSbb(MicroSleeContainer container,
+                         com.example.ussddemo.quarkus.bootstrap.UssdDemoContext demoContext) {
         this.container = container;
+        this.demoContext = demoContext;
     }
 
     public void bindSelf(SbbLocalObject self) {
@@ -107,6 +115,12 @@ public final class HttpServerSbb implements Sbb, SleeEventHandler {
 
     private void onUssdResponse(UssdResponseEvent event, ActivityContextInterface aci) {
         LOG.info("[HTTP-server] USSD response ready session={}", event.getSessionId());
+        if (demoContext != null) {
+            // Mark the session COMPLETED in the shared store BEFORE releasing
+            // the entities — this is what the HTTP status/callback endpoints
+            // read. Without it the session stays PROCESSING forever.
+            demoContext.completeSession(event.getSessionId(), event.getResponseText());
+        }
         LOG.info("Session {} completed with response: {}", event.getSessionId(), event.getResponseText());
         container.releaseEntity("Ss7UssdIngress/" + event.getSessionId());
         container.releaseEntity("HttpServer/" + event.getSessionId());

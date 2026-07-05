@@ -1,19 +1,37 @@
+/*
+ * micro-jainslee 1.2.0
+ * Dual-licensed: GPLv3 (Section A) OR Commercial License (Section B).
+ * Copyright (c) 2026 Tran Nhan (nhanth87). All rights reserved.
+ */
+
 package com.microjainslee.ra.sipservlet.transport;
 
 import com.microjainslee.ra.sipservlet.SipRaConfig;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
 import java.net.InetSocketAddress;
-import java.util.function.Consumer;
 
 public final class UdpTransport extends AbstractNettyTransport {
-    public UdpTransport(SipRaConfig config, Consumer<byte[]> sink) { super(config, sink); }
+    public UdpTransport(SipRaConfig config, SipMessageSink sink) { super(config, sink); }
 
     @Override
     public String protocol() { return "UDP"; }
+
+    @Override
+    protected ChannelInitializer<Channel> channelInitializer() {
+        // Datagram pipeline — one packet per message, no stream framing.
+        return new ChannelInitializer<Channel>() {
+            @Override
+            protected void initChannel(Channel ch) {
+                ch.pipeline().addLast(new SipMessageHandler(messageSink, protocol(), null));
+            }
+        };
+    }
 
     @Override
     public void start() {
