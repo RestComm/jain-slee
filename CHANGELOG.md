@@ -35,7 +35,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **example-spring-helloworld-web** — Spring Boot mirror: `@SpringBootApplication`,
   `@Configuration`+`SmartLifecycle`, `@RestController`, `static/index.html`.
   Same userAgent feature.
-- **design-ideas/war-hosting-test.md** — Design doc for WAR/static hosting.
+- **`design-ideas/jainslee-telemetry.md`** — Self-healing telemetry engine design:
+  `jainslee-telemetry` module with SbbCollector, RaCollector, ErrorCollector,
+  ResourceMonitor, SpunkDetector, StaleDetector, AlarmEngine, AutoReconfigEngine.
+  TelemetryPort API. Separate GraalVM JS GUI layer.
+- **`design-ideas/telemetry-embedded-nodejs.md`** — Dashboard with embedded Node.js
+  + Next.js + shadcn/ui + Recharts + Tremor.
+- **`design-ideas/telemetry-graalvm-js.md`** — Dashboard with GraalVM polyglot JS
+  SSR and Preact CDN zero-build alternative.
 
 ### Changed
 
