@@ -66,6 +66,7 @@
         <module>jainslee-tck-harness</module>
         <module>jainslee-adapter</module>
         <module>vendor-ras</module>
+        <module>jainslee-telemetry-vertx</module>
     </modules>
 
     <profiles>

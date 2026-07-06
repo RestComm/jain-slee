@@ -1,31 +1,39 @@
 # micro-jainslee — ⭐ The Fastest JAIN SLEE 1.1 on Earth
 
-[![Java 25 LTS](https://img.shields.io/badge/Java-25_LTS-orange)](https://openjdk.org/projects/jdk/25/)
-[![Virtual Threads](https://img.shields.io/badge/Threads-Virtual-green)](https://openjdk.org/projects/loom/)
-[![Disruptor](https://img.shields.io/badge/Event%20Bus-LMAX%20Disruptor-red)](https://lmax-exchange.github.io/disruptor/)
-[![Build](https://img.shields.io/badge/build-passing-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-394%20pass-blue)]()
-[![License](https://img.shields.io/badge/license-Dual_(GPLv3_|_Commercial)-blueviolet)](LICENSE)
+![Java 25 LTS](https://img.shields.io/badge/Java-25_LTS-orange)
+
+![Virtual Threads](https://img.shields.io/badge/Threads-Virtual-green)
+
+![Disruptor](https://img.shields.io/badge/Event%20Bus-LMAX%20Disruptor-red)
+
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+
+![Tests](https://img.shields.io/badge/tests-394%20pass-blue)
+
+![License](https://img.shields.io/badge/license-Dual_(GPLv3_|_Commercial)-blueviolet)
 
 > **The only embeddable JAIN SLEE 1.1 runtime that dispatches 100,000 SBB entity events in under 2 seconds.**
+>
 > Zero JBoss. Zero WildFly. Zero JMX. Just Java 25 virtual threads + LMAX Disruptor.
 
 ---
 
 ## Why micro-jainslee?
 
-| | micro-jainslee | Restcomm JAIN SLEE 1.1 |
-|---|---|---|
-| **Lines of code** | **~17,000** (90% less) | ~175,000 |
-| **Container** | **None — embeds in Quarkus** | JBoss/WildFly 10 |
-| **Startup time** | **< 2 seconds** | 30–60 seconds |
-| **Event bus** | **LMAX Disruptor (6M ev/s)** | JMX MBeans + JMS |
-| **Concurrency** | **Virtual threads (Loom)** | Platform threads |
-| **GraalVM Native** | **In progress** | Impossible |
-| **Memory baseline** | **~30 MB** | ~500 MB |
-| **Deployment** | **1 JAR + mvn quarkus:dev** | WAR/EAR to app server |
 
-> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10× lighter, 100× faster to start, and embeddable anywhere**. We stand on the shoulders of giants.
+|                     | micro-jainslee               | Restcomm JAIN SLEE 1.1 |
+| ------------------- | ---------------------------- | ---------------------- |
+| **Lines of code**   | **~17,000** (90% less)       | ~175,000               |
+| **Container**       | **None — embeds in Quarkus** | JBoss/WildFly 10       |
+| **Startup time**    | **&lt; 2 seconds**           | 30–60 seconds          |
+| **Event bus**       | **LMAX Disruptor (6M ev/s)** | JMX MBeans + JMS       |
+| **Concurrency**     | **Virtual threads (Loom)**   | Platform threads       |
+| **GraalVM Native**  | **In progress**              | Impossible             |
+| **Memory baseline** | **~30 MB**                   | ~500 MB                |
+| **Deployment**      | **1 JAR + mvn quarkus:dev**  | WAR/EAR to app server  |
+
+
+> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10× lighter, 100× faster to start, and embeddable anywhere**. We stand on the shoulders of giants (ye!).
 
 ---
 
@@ -53,11 +61,13 @@ RESULT: 1.8 seconds (55,000 events/sec)
 ENVIRONMENT: Virtual threads on LMAX Disruptor, JDK 25
 ```
 
-| Entity count | Events | Time | Throughput | Memory |
-|---|---|---|---|---|
-| 10,000 | 10,000 | 180 ms | 55,555 ev/s | 22 MB |
-| 100,000 | 100,000 | 1,828 ms | 54,700 ev/s | 68 MB |
-| 1,000,000 | 1,000,000 | 18.5 s | 54,000 ev/s | 320 MB |
+
+| Entity count | Events    | Time     | Throughput  | Memory |
+| ------------ | --------- | -------- | ----------- | ------ |
+| 10,000       | 10,000    | 180 ms   | 55,555 ev/s | 22 MB  |
+| 100,000      | 100,000   | 1,828 ms | 54,700 ev/s | 68 MB  |
+| 1,000,000    | 1,000,000 | 18.5 s   | 54,000 ev/s | 320 MB |
+
 
 → See full report: [`docs/en/run-testcase-100k-sbb.md`](docs/en/run-testcase-100k-sbb.md)
 
@@ -89,11 +99,13 @@ myapp/
 
 Every Resource Adaptor has exactly 3 ports:
 
-| Port | Interface | Direction |
-|------|-----------|-----------|
-| **1. Lifecycle** | `RaEndpointPort` | Container → RA (`activate`/`deactivate`) |
-| **2. Commands** | `RaCommandPort` | SBB → RA (`sendCommand`) |
-| **3. Events** | `RaBootstrapPort` | RA → SLEE (`fireEvent`) |
+
+| Port             | Interface         | Direction                                |
+| ---------------- | ----------------- | ---------------------------------------- |
+| **1. Lifecycle** | `RaEndpointPort`  | Container → RA (`activate`/`deactivate`) |
+| **2. Commands**  | `RaCommandPort`   | SBB → RA (`sendCommand`)                 |
+| **3. Events**    | `RaBootstrapPort` | RA → SLEE (`fireEvent`)                  |
+
 
 ```
 Network bytes → RA → fireEvent → EventRouter → SBB.onEvent()
@@ -135,39 +147,45 @@ Each entity runs on its own virtual thread → **no locks needed**.
 
 ## Examples
 
-| Example | Stack | What it does |
-|---------|-------|-------------|
-| [`example-quarkus-sip`](example/example-quarkus-sip/GUIDE.md) | Quarkus + SIP RA | SIP REGISTER/INVITE/BYE gateway with ProxySbb + RegistrationSbb + ICE |
-| [`example-quarkus-ussdgw`](example/example-quarkus-ussdgw/README.md) | Quarkus + HTTP RA + gRPC RA | USSD gateway: HTTP → SBB → gRPC menu → response |
-| [`example-spring-ussdgw`](example/example-spring-ussdgw/README.md) | Spring Boot 3 | Same USSD flow on Spring |
-| [`example-embedded-j25-ussdgw`](example/example-embedded-j25-ussdgw/README.md) | Plain Java 25 | Same USSD flow, no framework |
-| [`example-quarkus-helloworld-web`](example/example-quarkus-helloworld-web/GUIDE.md) | Quarkus | Minimal HTTP → SBB → Hello World |
-| [`example-spring-helloworld-web`](example/example-spring-helloworld-web/GUIDE.md) | Spring Boot 3 | Same HelloWorld on Spring |
+
+| Example                                                                             | Stack                       | What it does                                                          |
+| ----------------------------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------------- |
+| [`example-quarkus-helloworld-web`](example/example-quarkus-helloworld-web/GUIDE.md) | Quarkus                     | Minimal HTTP → SBB → Hello World                                      |
+| [`example-spring-helloworld-web`](example/example-spring-helloworld-web/GUIDE.md)   | Spring Boot 3               | Same HelloWorld on Spring                                             |
+| [`example-quarkus-sip`](example/example-quarkus-sip/GUIDE.md)                       | Quarkus + SIP RA            | SIP REGISTER/INVITE/BYE gateway with ProxySbb + RegistrationSbb + ICE |
+| [`example-quarkus-ussdgw`](example/example-quarkus-ussdgw/README.md)                | Quarkus + HTTP RA + gRPC RA | USSD gateway: HTTP → SBB → gRPC menu → response                       |
+| [`example-spring-ussdgw`](example/example-spring-ussdgw/README.md)                  | Spring Boot 3               | Same USSD flow on Spring                                              |
+| [`example-embedded-j25-ussdgw`](example/example-embedded-j25-ussdgw/README.md)      | Plain Java 25               | Same USSD flow, no framework                                          |
+
 
 ### Simulators (test tools)
 
-| Tool | What it does |
-|------|-------------|
+
+| Tool                                                     | What it does                                                           |
+| -------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [`ussdgw-simulator`](example/ussdgw-simulator/README.md) | Simulates SS7 MAP USSD client → sends requests via REST to any example |
-| [`grpc-simulator`](example/grpc-simulator/README.md) | Simulates USSD menu server → multi-level menus with session state |
+| [`grpc-simulator`](example/grpc-simulator/README.md)     | Simulates USSD menu server → multi-level menus with session state      |
+
 
 ---
 
 ## RAs — ready to use
 
-| RA | Protocol | Transport |
-|----|----------|-----------|
-| [`ra-sip-servlet`](vendor-ras/ra-sip-servlet/DESIGN_en.md) | SIP (RFC 3261) | UDP/TCP/TLS/SCTP + DNS SRV + STUN/ICE |
-| [`ra-diameter`](vendor-ras/ra-diameter/) | Diameter (RFC 6733) | TCP/SCTP + JDiameter parser |
-| [`ra-http-server`](vendor-ras/ra-http-server/) | HTTP/2 | JDK HttpServer |
-| [`ra-http-client`](vendor-ras/ra-http-client/) | HTTP outbound | Async HTTP client |
-| [`ra-grpc-server`](vendor-ras/ra-grpc-server/) | gRPC server | io.grpc |
-| [`ra-grpc-client`](vendor-ras/ra-grpc-client/) | gRPC client | io.grpc |
-| [`ra-camel`](vendor-ras/ra-camel/) | Apache Camel | Generic messaging bridge |
+
+| RA                                                         | Protocol            | Transport                             |
+| ---------------------------------------------------------- | ------------------- | ------------------------------------- |
+| [`ra-sip-servlet`](vendor-ras/ra-sip-servlet/DESIGN_en.md) | SIP (RFC 3261)      | UDP/TCP/TLS/SCTP + DNS SRV + STUN/ICE |
+| [`ra-diameter`](vendor-ras/ra-diameter/)                   | Diameter (RFC 6733) | TCP/SCTP + JDiameter parser           |
+| [`ra-http-server`](vendor-ras/ra-http-server/)             | HTTP/2              | JDK HttpServer                        |
+| [`ra-http-client`](vendor-ras/ra-http-client/)             | HTTP outbound       | Async HTTP client                     |
+| [`ra-grpc-server`](vendor-ras/ra-grpc-server/)             | gRPC server         | io.grpc                               |
+| [`ra-grpc-client`](vendor-ras/ra-grpc-client/)             | gRPC client         | io.grpc                               |
+| [`ra-camel`](vendor-ras/ra-camel/)                         | Apache Camel        | Generic messaging bridge              |
+
 
 ---
 
-## Build & test
+## Build &amp; test
 
 ```bash
 # Requires JDK 25
@@ -211,18 +229,20 @@ cd example/example-quarkus-sip && mvn quarkus:dev
 
 Core modules:
 
-| Module | What |
-|--------|------|
-| `jainslee-api` | Public API: `Sbb`, `SleeEvent`, `ActivityContextInterface`, 3-port RA contract |
-| `jainslee-core` | Engine: `MicroSleeContainer`, `EventRouter` (Disruptor), entity pool, IES |
-| `jainslee-ra-spi` | RA SPI: `AbstractResourceAdaptor`, lifecycle state machine |
-| `jainslee-scheduler` | `HashedWheelTimer` — SLEE timer facility |
-| `jainslee-apt` | Annotation processor — generates `sbb-index.properties` |
-| `jainslee-codegen` | Javassist — generates concrete SBB classes for CMP fields |
-| `jainslee-tx` | JTA — Narayana transaction manager (optional) |
-| `jainslee-cluster` | Infinispan/JGroups clustering (optional) |
-| `adapter-quarkus` | ★ Quarkus CDI extension (main target) |
-| `adapter-springboot` | Spring Boot adapter (low priority) |
+
+| Module               | What                                                                           |
+| -------------------- | ------------------------------------------------------------------------------ |
+| `jainslee-api`       | Public API: `Sbb`, `SleeEvent`, `ActivityContextInterface`, 3-port RA contract |
+| `jainslee-core`      | Engine: `MicroSleeContainer`, `EventRouter` (Disruptor), entity pool, IES      |
+| `jainslee-ra-spi`    | RA SPI: `AbstractResourceAdaptor`, lifecycle state machine                     |
+| `jainslee-scheduler` | `HashedWheelTimer` — SLEE timer facility                                       |
+| `jainslee-apt`       | Annotation processor — generates `sbb-index.properties`                        |
+| `jainslee-codegen`   | Javassist — generates concrete SBB classes for CMP fields                      |
+| `jainslee-tx`        | JTA — Narayana transaction manager (optional)                                  |
+| `jainslee-cluster`   | Infinispan/JGroups clustering (optional)                                       |
+| `adapter-quarkus`    | ★ Quarkus CDI extension (main target)                                          |
+| `adapter-springboot` | Spring Boot adapter (low priority)                                             |
+
 
 ---
 
@@ -262,20 +282,24 @@ public InitialEventSelectResult select(InitialEventSelectCondition c) {
 
 ## Documentation
 
-| Guide | For |
-|-------|-----|
-| [`junior-dev-guide.md`](docs/en/junior-dev-guide.md) | First read — architecture, build, event flow |
-| [`sbb-guide.md`](docs/en/sbb-guide.md) | Writing Service Building Blocks |
-| [`ra-guide.md`](docs/en/ra-guide.md) | Writing Resource Adaptors (3-port contract) |
-| [`app-guide.md`](docs/en/app-guide.md) | Wiring SBB + RA into a complete app |
-| [`sip-servlet-doc-guide.md`](docs/en/sip-servlet-doc-guide.md) | SIP REGISTER event flow trace |
-| [`run-testcase-100k-sbb.md`](docs/en/run-testcase-100k-sbb.md) | 100K SBB stress test report |
+
+| Guide                                                          | For                                          |
+| -------------------------------------------------------------- | -------------------------------------------- |
+| [`junior-dev-guide.md`](docs/en/junior-dev-guide.md)           | First read — architecture, build, event flow |
+| [`sbb-guide.md`](docs/en/sbb-guide.md)                         | Writing Service Building Blocks              |
+| [`ra-guide.md`](docs/en/ra-guide.md)                           | Writing Resource Adaptors (3-port contract)  |
+| [`app-guide.md`](docs/en/app-guide.md)                         | Wiring SBB + RA into a complete app          |
+| [`sip-servlet-doc-guide.md`](docs/en/sip-servlet-doc-guide.md) | SIP REGISTER event flow trace                |
+| [`run-testcase-100k-sbb.md`](docs/en/run-testcase-100k-sbb.md) | 100K SBB stress test report                  |
+
 
 ### RA design docs
 
-| RA | Design |
-|----|--------|
+
+| RA  | Design                                                                                               |
+| --- | ---------------------------------------------------------------------------------------------------- |
 | SIP | [`DESIGN_en.md`](vendor-ras/ra-sip-servlet/DESIGN_en.md) — 19 events, 10 commands, DNS SRV, STUN/ICE |
+
 
 ---
 
@@ -284,3 +308,4 @@ public InitialEventSelectResult select(InitialEventSelectCondition c) {
 **Dual-licensed:** GPLv3 (Section A) for open-source use, or Commercial License (Section B) for proprietary deployment.
 
 > Maintained by [Tran Nhan (nhanth87)](mailto:nhanth87@gmail.com)
+
