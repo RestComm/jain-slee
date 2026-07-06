@@ -32,7 +32,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.release>25</maven.compiler.release>
-        <!-- Versions inherited from micro-jainslee-bom: javassist 3.30.0-GA -->
+        <!-- Versions inherited from jainslee-pom: javassist 3.30.0-GA -->
         <junit.jupiter.version>5.11.4</junit.jupiter.version>
         <assertj.version>3.26.3</assertj.version>
     </properties>
@@ -40,7 +40,7 @@
     <dependencies>
         <!--
           Bytecode generation engine. Pinned at 3.30.0-GA via the BOM
-          (micro-jainslee-bom 1.2.0-P1-SNAPSHOT).
+          (jainslee-pom 1.2.0-P1-SNAPSHOT).
         -->
         <dependency>
             <groupId>org.javassist</groupId>

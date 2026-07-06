@@ -27,7 +27,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.release>25</maven.compiler.release>
-        <!-- Versions are inherited from micro-jainslee-bom (infinispan.version
+        <!-- Versions are inherited from jainslee-pom (infinispan.version
              = 15.0.0.Final, jgroups.version = 5.3.13.Final) -->
         <junit.jupiter.version>5.11.4</junit.jupiter.version>
         <assertj.version>3.26.3</assertj.version>

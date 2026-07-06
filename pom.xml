@@ -54,7 +54,7 @@
     </organization>
 
     <modules>
-        <module>micro-jainslee-bom</module>
+        <module>jainslee-pom</module>
         <module>jainslee-api</module>
         <module>jainslee-scheduler</module>
         <module>jainslee-ra-spi</module>
@@ -101,7 +101,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.microjainslee</groupId>
-                <artifactId>micro-jainslee-bom</artifactId>
+                <artifactId>jainslee-pom</artifactId>
                 <version>1.2.0-P1-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
