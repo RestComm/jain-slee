@@ -1,4 +1,4 @@
-# micro-jainslee — ⭐ The Fastest JAIN SLEE 1.1 on Earth
+# micro-jainslee —  The Fastest Event - Dispatcher Framework
 
 ![Java 25 LTS](https://img.shields.io/badge/Java-25_LTS-orange)
 
@@ -204,28 +204,7 @@ cd example/example-quarkus-sip && mvn quarkus:dev
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────────┐
-│ APPLICATION (Quarkus / Spring / plain Java)              │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐               │
-│  │ ProxySbb │  │RegistSbb │  │IceNegSbb │  ...          │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘               │
-│       │ sendCommand │             │                      │
-├───────┼─────────────┼─────────────┼──────────────────────┤
-│  ┌────┴─────────────┴─────────────┴──────┐               │
-│  │       EventRouter (LMAX Disruptor)    │  jainslee-core│
-│  │   VirtualThread per entity, 6M ev/s   │               │
-│  └────┬──────────────────────────┬───────┘               │
-│       │ fireEvent                │                        │
-│  ┌────┴──────────┐    ┌──────────┴───────┐               │
-│  │ ra-sip-servlet │    │ ra-diameter      │  ...          │
-│  │ (UDP/TCP/TLS)  │    │ (TCP/SCTP)       │               │
-│  └───────┬────────┘    └────────┬─────────┘               │
-├──────────┼─────────────────────┼─────────────────────────┤
-│ NETWORK  │                     │                          │
-│   SIP ◄──┘        Diameter ◄───┘                         │
-└──────────────────────────────────────────────────────────┘
-```
+![micro-jainslee Architecture](docs/images/micro-jainslee-architecture.svg)
 
 Core modules:
 
