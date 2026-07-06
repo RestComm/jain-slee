@@ -39,6 +39,7 @@
         -->
         <module>ra-grpc-client</module>
         <module>ra-http-server</module>
+        <module>ra-prometheus-exporter</module>
         <module>ra-http-client</module>
         <module>ra-grpc-server</module>
         <module>ra-sip-servlet</module>

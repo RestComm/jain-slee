@@ -44,6 +44,7 @@
     updateSparkline(snap);
     updateRaTable(snap.ras || []);
     updateAlarms(snap.activeAlarms || []);
+    updateCustomMetrics(snap.customMetrics || []);
     // Auto-reconfig toggle
     if (snap.autoReconfigEnabled !== undefined) {
       $('#auto-reconfig-toggle').checked = snap.autoReconfigEnabled;
@@ -164,6 +165,26 @@
 
   // ── Helpers ──
   function animateValue(el, value) {
+
+  // ── Custom Metrics ──
+  function updateCustomMetrics(metrics) {
+    const el = $('#custom-metrics-list');
+    if (!metrics || metrics.length === 0) {
+      el.innerHTML = '<span class="no-alarms">No app-defined metrics yet</span>';
+      return;
+    }
+    el.innerHTML = metrics.map(m => {
+      var val = m.isGauge ? (m.gaugeValue || 0) : (m.counterValue || 0);
+      var icon = m.isGauge ? '📈' : '📊';
+      return '<div class="custom-metric-row">' +
+        '<span class="metric-icon">' + icon + '</span>' +
+        '<span class="metric-name">' + esc(m.name || '?') + '</span>' +
+        '<span class="metric-value">' + val + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  // ── Helpers ──
     if (!el) return;
     el.textContent = value;
     el.classList.add('value-changed');

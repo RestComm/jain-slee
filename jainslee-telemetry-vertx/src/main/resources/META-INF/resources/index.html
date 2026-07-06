@@ -123,6 +123,13 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--fo
 .alarm-clear{grid-row:2;grid-column:3;background:none;border:1px solid var(--border-brass-dim);color:var(--border-brass);font-size:8px;padding:1px 4px;border-radius:3px;cursor:pointer;font-family:var(--font-mono);transition:all 0.2s}
 .alarm-clear:hover{background:var(--border-brass);color:#000}
 .no-alarms{text-align:center;padding:20px;color:var(--neon-green);font-family:var(--font-serif);font-size:13px}
+.custom-metric-row{display:flex;align-items:center;gap:8px;padding:4px 8px;margin-bottom:2px;border-radius:3px;background:var(--bg-card-alt);font-size:11px}
+.custom-metric-row:hover{background:rgba(201,168,76,0.08)}
+.metric-icon{font-size:12px;width:20px;text-align:center}
+.metric-name{flex:1;color:var(--text-secondary);font-family:var(--font-mono)}
+.metric-value{color:var(--neon-cyan);font-weight:bold;min-width:60px;text-align:right}
+
+.no-alarms{text-align:center;padding:20px;color:var(--neon-green);font-family:var(--font-serif);font-size:13px}
 #bottom-row{grid-column:1/-1;display:flex;gap:12px;flex-wrap:wrap}
 #config-panel{flex:1;min-width:300px}
 .config-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
@@ -261,6 +268,15 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--fo
               <tr><td colspan="4" style="text-align:center;color:var(--text-dim)">Awaiting data...</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">App Metrics</div>
+      <div class="card-body" style="padding:8px">
+        <div id="custom-metrics-list">
+          <span class="no-alarms">No app-defined metrics yet</span>
         </div>
       </div>
     </div>

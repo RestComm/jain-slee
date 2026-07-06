@@ -43,6 +43,31 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   + Next.js + shadcn/ui + Recharts + Tremor.
 - **`design-ideas/telemetry-graalvm-js.md`** — Dashboard with GraalVM polyglot JS
   SSR and Preact CDN zero-build alternative.
+- **`jainslee-telemetry`** — Zero-CPU passive telemetry engine with
+  SbbCollector, RaCollector, ErrorCollector, ResourceMonitor,
+  SpunkDetector, StaleDetector, AlarmEngine, AutoReconfigEngine,
+  PrometheusExporter. AtomicLong counters, ring buffers, single daemon
+  VT scheduler (30s evaluate). Micrometer + Prometheus metrics export.
+  Auto-reconfig on memory/CPU/load/error/stale/RA-crash conditions
+  with independent cooldown timers.
+- **`jainslee-telemetry-vertx`** — Steampunk-cyberpunk telemetry dashboard
+  GUI. Single `index.html` + `telemetry.js`, zero build step. Served via
+  Vert.x StaticHandler at `/telemetry/`. SVG arc gauges (heap/CPU),
+  sparkline charts, alarm acknowledgment panel, runtime config sliders.
+  2-second polling of `/api/telemetry/snapshot`. CSS-variable theme system.
+- **Examples** — `example-quarkus-helloworld-web` and
+  `example-spring-helloworld-web` updated with telemetry engine wiring
+  and dashboard at `/telemetry/`.
+- **`docs/jainslee-telemetry.md`** — 629-line comprehensive guide: architecture,
+  collectors deep-dive, auto-reconfig engine, integration guide, API reference,
+  Prometheus/Grafana setup, configuration reference.
+- **`docs/telemetry-gui.md`** — 356-line dashboard guide: screenshot description,
+  layout breakdown, real-time update mechanism, SVG gauge implementation,
+  alarm acknowledgment flow, config panel, CSS variable theming.
+- **`docs/microjainslee-design.md`** — 319-line architecture document: goals,
+  module map, event router pipeline, VT pool deep-dive, 3-port RA contract,
+  adapter pattern, telemetry & self-healing section, concurrency contract,
+  failure modes, design decision log.
 
 ### Changed
 
