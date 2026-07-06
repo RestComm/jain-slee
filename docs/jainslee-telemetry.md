@@ -1,8 +1,13 @@
-# jainslee-telemetry — Zero-CPU Self-Healing Engine
+# jainslee-telemetry — Zero-CPU Observability & Metrics Engine
 
 > **Module:** `jainslee-telemetry`
 >
 > **Replaces:** JAIN SLEE 1.1 AlarmFacility, UsageFacility, TraceFacility
+>
+> **Note:** Self-healing / autonomous reconfiguration is handled by
+> [`jainslee-autonomous`](./jainslee-autonomous.md). Telemetry is **data
+> collection only** — SBB stats, RA stats, errors, resources, spunk/stale
+> detection. It feeds data to `jainslee-autonomous` for decision-making.
 >
 > **Philosophy:** Passive collection, zero polling, AtomicLong counters, single daemon VT scheduler
 
