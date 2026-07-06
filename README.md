@@ -14,18 +14,18 @@
 
 ## Why micro-jainslee?
 
-| | Restcomm JAIN SLEE 1.1 | micro-jainslee |
+| micro-jainslee | | Restcomm JAIN SLEE 1.1 |
 |---|---|---|
-| **Lines of code** | ~175,000 | **~17,000** (90% less) |
-| **Container** | JBoss/WildFly 10 | **None — embeds in Quarkus** |
-| **Startup time** | 30–60 seconds | **< 2 seconds** |
-| **Event bus** | JMX MBeans + JMS | **LMAX Disruptor (6M events/s)** |
-| **Concurrency** | Platform threads | **Virtual threads (Loom)** |
-| **GraalVM Native** | Impossible | **In progress** |
-| **Memory baseline** | ~500 MB | **~30 MB** |
-| **Deployment** | WAR/EAR to app server | **1 JAR + mvn quarkus:dev** |
+| **~17,000** (90% less) | **Lines of code** | ~175,000 |
+| **None — embeds in Quarkus** | **Container** | JBoss/WildFly 10 |
+| **< 2 seconds** | **Startup time** | 30–60 seconds |
+| **LMAX Disruptor (6M ev/s)** | **Event bus** | JMX MBeans + JMS |
+| **Virtual threads (Loom)** | **Concurrency** | Platform threads |
+| **In progress** | **GraalVM Native** | Impossible |
+| **~30 MB** | **Memory baseline** | ~500 MB |
+| **1 JAR + mvn quarkus:dev** | **Deployment** | WAR/EAR to app server |
 
-> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10x lighter, 100x faster to start, and embeddable anywhere**. We stand on the shoulders of giants.
+> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10× lighter, 100× faster to start, and embeddable anywhere**. We stand on the shoulders of giants.
 
 ---
 
