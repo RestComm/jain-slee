@@ -59,9 +59,12 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
     }
 
     public void start() {
+        // Zero-CPU telemetry: no timer threads anywhere. ResourceMonitor
+        // captures lazily on read (30s throttle); AutoReconfigEngine is
+        // armed on JVM memory-threshold notifications + scrape piggyback.
         resourceMonitor.start(30, TimeUnit.SECONDS);
         autoReconfig.start(30, TimeUnit.SECONDS);
-        LOG.info("MicrometerTelemetryPort started (resmon+autoreconf @30s)");
+        LOG.info("MicrometerTelemetryPort started (zero-CPU: lazy capture + event-driven reconfig)");
     }
 
     public void stop() {
@@ -97,6 +100,9 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
 
     @Override
     public String scrape() {
+        // Scrape is the natural heartbeat of a pull-based system — piggyback
+        // the throttled auto-reconfig evaluation here instead of a timer.
+        autoReconfig.maybeEvaluate();
         return prometheusExporter.scrape();
     }
 

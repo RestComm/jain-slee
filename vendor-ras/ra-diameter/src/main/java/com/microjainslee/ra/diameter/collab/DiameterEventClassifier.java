@@ -6,9 +6,9 @@
 
 package com.microjainslee.ra.diameter.collab;
 
-import com.microjainslee.ra.diameter.event.DiameterAnswerEvent;
-import com.microjainslee.ra.diameter.event.DiameterEvent;
-import com.microjainslee.ra.diameter.event.DiameterRequestEvent;
+import com.microjainslee.ra.diameter.events.DiameterAnswerEvent;
+import com.microjainslee.ra.diameter.events.DiameterEvent;
+import com.microjainslee.ra.diameter.events.DiameterRequestEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

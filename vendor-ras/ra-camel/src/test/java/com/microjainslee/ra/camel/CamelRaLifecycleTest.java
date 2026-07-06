@@ -14,8 +14,8 @@ import com.microjainslee.ra.camel.CamelRaConfig.CamelConsumerSpec;
 import com.microjainslee.ra.camel.command.EndCamelActivity;
 import com.microjainslee.ra.camel.command.RequestFromEndpoint;
 import com.microjainslee.ra.camel.command.SendToEndpoint;
-import com.microjainslee.ra.camel.event.CamelInboundEvent;
-import com.microjainslee.ra.camel.event.CamelResponseEvent;
+import com.microjainslee.ra.camel.events.CamelInboundEvent;
+import com.microjainslee.ra.camel.events.CamelResponseEvent;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;

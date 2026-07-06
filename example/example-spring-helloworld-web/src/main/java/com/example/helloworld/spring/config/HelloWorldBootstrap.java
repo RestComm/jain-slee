@@ -21,6 +21,8 @@ import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
 import com.microjainslee.ra.httpserver.collab.HttpServerSessionStore;
 import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
+import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
+import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
 import com.microjainslee.telemetry.MicrometerTelemetryPort;
 import com.microjainslee.telemetry.TelemetryPort;
 
@@ -53,6 +55,7 @@ public class HelloWorldBootstrap {
 
     private final ConcurrentHashMap<String, SessionRecord> sessions = new ConcurrentHashMap<>();
     private volatile HttpServerRaEndpoint httpEndpoint;
+    private volatile PrometheusRaEndpoint prometheusEndpoint;
     private volatile TelemetryPort telemetryPort;
 
     @Bean
@@ -104,6 +107,13 @@ public class HelloWorldBootstrap {
                 // Expose telemetry port to the REST controller
                 helloContext.setTelemetryPort(telemetryPort);
 
+                // ── Prometheus Exporter RA (Vert.x :9090 → /metrics + /health) ──
+                var promRa = new PrometheusResourceAdaptor();
+                promRa.setPort(9090);
+                prometheusEndpoint = new PrometheusRaEndpoint(promRa);
+                container.registerRa(prometheusEndpoint);
+                LOG.info("Prometheus exporter RA registered on port {}", promRa.port());
+
                 registerSbbTypes();
                 bindEventMappings();
                 bindInitialEventSelector();
@@ -115,6 +125,9 @@ public class HelloWorldBootstrap {
             public void stop() {
                 if (httpEndpoint != null) {
                     httpEndpoint.deactivate();
+                }
+                if (prometheusEndpoint != null) {
+                    prometheusEndpoint.deactivate();
                 }
                 running = false;
             }

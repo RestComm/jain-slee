@@ -14,7 +14,7 @@ import com.microjainslee.ra.sipservlet.command.SendMediaKeepAlive;
 import com.microjainslee.ra.sipservlet.command.SipOutboundCommand;
 import com.microjainslee.ra.sipservlet.command.StartIce;
 import com.microjainslee.ra.sipservlet.dns.DnsResolver;
-import com.microjainslee.ra.sipservlet.event.SipEvent;
+import com.microjainslee.ra.sipservlet.events.SipEvent;
 import com.microjainslee.ra.sipservlet.stun.IceCandidateCollector;
 import com.microjainslee.ra.sipservlet.stun.StunClient;
 import com.microjainslee.ra.sipservlet.transport.*;

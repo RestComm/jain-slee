@@ -12,6 +12,9 @@ import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
+import com.microjainslee.ra.grpcserver.command.SendGrpcError;
+import com.microjainslee.ra.grpcserver.command.SendGrpcResponse;
+import com.microjainslee.ra.grpcserver.events.GrpcRequestEvent;
 import com.microjainslee.core.MicroSleeConfiguration;
 import com.microjainslee.core.MicroSleeContainer;
 

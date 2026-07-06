@@ -11,6 +11,13 @@
 package com.microjainslee.ra.grpcserver;
 
 import com.microjainslee.api.SimpleActivityContextHandle;
+import com.microjainslee.ra.grpcserver.collab.BytesMarshaller;
+import com.microjainslee.ra.grpcserver.collab.PendingCallRegistry;
+import com.microjainslee.ra.grpcserver.collab.PendingCallRegistry.PendingCall;
+import com.microjainslee.ra.grpcserver.command.GrpcServerCommand;
+import com.microjainslee.ra.grpcserver.command.SendGrpcError;
+import com.microjainslee.ra.grpcserver.command.SendGrpcResponse;
+import com.microjainslee.ra.grpcserver.events.GrpcRequestEvent;
 import com.microjainslee.ra.spi.AbstractResourceAdaptor;
 
 import io.grpc.HandlerRegistry;
@@ -62,36 +69,9 @@ public final class GrpcServerRa extends AbstractResourceAdaptor {
 
     private static final Logger LOG = LogManager.getLogger(GrpcServerRa.class);
 
-    /** Identity marshaller — hands the raw message bytes through. */
+    /** Identity marshaller — kept as an alias; the impl lives in collab. */
     public static final MethodDescriptor.Marshaller<byte[]> BYTES_MARSHALLER =
-            new MethodDescriptor.Marshaller<>() {
-                @Override
-                public InputStream stream(byte[] value) {
-                    return new ByteArrayInputStream(value == null ? new byte[0] : value);
-                }
-
-                @Override
-                public byte[] parse(InputStream stream) {
-                    try {
-                        return stream.readAllBytes();
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to read gRPC message", e);
-                    }
-                }
-            };
-
-    private static final class PendingCall {
-        final ServerCall<byte[], byte[]> call;
-        final String activityId;
-        final long deadlineMillis;
-        volatile boolean completed;
-
-        PendingCall(ServerCall<byte[], byte[]> call, String activityId, long deadlineMillis) {
-            this.call = call;
-            this.activityId = activityId;
-            this.deadlineMillis = deadlineMillis;
-        }
-    }
+            BytesMarshaller.INSTANCE;
 
     private int port = 9090;
     private String host = "0.0.0.0";
@@ -100,7 +80,7 @@ public final class GrpcServerRa extends AbstractResourceAdaptor {
 
     private Server server;
     private ScheduledExecutorService sweeper;
-    private final Map<String, PendingCall> pendingCalls = new ConcurrentHashMap<>();
+    private final PendingCallRegistry pendingCalls = new PendingCallRegistry();
 
     public void setPort(int port) { this.port = port; }
     public void setHost(String host) { this.host = host; }
@@ -160,10 +140,9 @@ public final class GrpcServerRa extends AbstractResourceAdaptor {
     @Override
     public void raInactive() {
         if (sweeper != null) { sweeper.shutdownNow(); sweeper = null; }
-        for (PendingCall pending : pendingCalls.values()) {
+        for (PendingCall pending : pendingCalls.drainAll()) {
             closeQuietly(pending, Status.UNAVAILABLE.withDescription("RA shutting down"));
         }
-        pendingCalls.clear();
         if (server != null) {
             server.shutdown();
             try {
@@ -205,7 +184,7 @@ public final class GrpcServerRa extends AbstractResourceAdaptor {
         Map<String, String> metadata = copyAsciiMetadata(headers);
         String activityId = resolveActivityId(metadata, callId);
 
-        pendingCalls.put(callId, new PendingCall(call, activityId,
+        pendingCalls.register(callId, new PendingCall(call, activityId,
                 System.currentTimeMillis() + callTimeoutMillis));
         call.request(2); // unary: one message expected; the extra credit detects abuse
 
@@ -235,7 +214,7 @@ public final class GrpcServerRa extends AbstractResourceAdaptor {
             @Override
             public void onCancel() {
                 PendingCall removed = pendingCalls.remove(callId);
-                if (removed != null && !removed.completed) {
+                if (removed != null && !removed.isCompleted()) {
                     LOG.debug("gRPC call {} cancelled by client", callId);
                 }
                 endCallActivity(activityId);
@@ -264,13 +243,13 @@ public final class GrpcServerRa extends AbstractResourceAdaptor {
     public void sendOutbound(GrpcServerCommand command) {
         switch (command) {
             case SendGrpcResponse response -> completeCall(response.callId(), pending -> {
-                pending.call.sendHeaders(new Metadata());
-                pending.call.sendMessage(
+                pending.call().sendHeaders(new Metadata());
+                pending.call().sendMessage(
                         response.payload() == null ? new byte[0] : response.payload());
-                pending.call.close(Status.OK, new Metadata());
+                pending.call().close(Status.OK, new Metadata());
             });
             case SendGrpcError error -> completeCall(error.callId(), pending ->
-                    pending.call.close(
+                    pending.call().close(
                             Status.fromCodeValue(error.statusCode())
                                     .withDescription(error.description()),
                             new Metadata()));
@@ -283,41 +262,40 @@ public final class GrpcServerRa extends AbstractResourceAdaptor {
             LOG.warn("gRPC RA: response for unknown/expired call {} — dropped", callId);
             return;
         }
-        pending.completed = true;
+        pending.markCompleted();
         try {
             completion.accept(pending);
         } catch (RuntimeException e) {
             LOG.warn("gRPC RA: completing call {} failed: {}", callId, e.getMessage());
         }
-        endCallActivity(pending.activityId);
+        endCallActivity(pending.activityId());
     }
 
     private void closeCall(String callId, Status status) {
         PendingCall pending = pendingCalls.remove(callId);
         if (pending != null) {
             closeQuietly(pending, status);
-            endCallActivity(pending.activityId);
+            endCallActivity(pending.activityId());
         }
     }
 
     private static void closeQuietly(PendingCall pending, Status status) {
         try {
-            pending.completed = true;
-            pending.call.close(status, new Metadata());
+            pending.markCompleted();
+            pending.call().close(status, new Metadata());
         } catch (RuntimeException ignored) {
             // call may already be closed by the transport
         }
     }
 
     private void sweepExpiredCalls() {
-        long now = System.currentTimeMillis();
-        for (Map.Entry<String, PendingCall> entry : pendingCalls.entrySet()) {
-            if (entry.getValue().deadlineMillis < now) {
-                LOG.warn("gRPC RA: no SBB reply within {}ms for call {} — DEADLINE_EXCEEDED",
-                        callTimeoutMillis, entry.getKey());
-                closeCall(entry.getKey(), Status.DEADLINE_EXCEEDED
-                        .withDescription("No SBB reply within " + callTimeoutMillis + "ms"));
-            }
+        for (Map.Entry<String, PendingCall> entry
+                : pendingCalls.expireOverdue(System.currentTimeMillis())) {
+            LOG.warn("gRPC RA: no SBB reply within {}ms for call {} — DEADLINE_EXCEEDED",
+                    callTimeoutMillis, entry.getKey());
+            closeQuietly(entry.getValue(), Status.DEADLINE_EXCEEDED
+                    .withDescription("No SBB reply within " + callTimeoutMillis + "ms"));
+            endCallActivity(entry.getValue().activityId());
         }
     }
 

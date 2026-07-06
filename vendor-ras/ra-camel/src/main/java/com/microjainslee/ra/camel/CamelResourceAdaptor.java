@@ -10,13 +10,16 @@ import com.microjainslee.api.ActivityHandle;
 import com.microjainslee.api.RaBootstrapPort;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.ra.camel.CamelRaConfig.CamelConsumerSpec;
+import com.microjainslee.ra.camel.collab.CamelActivityRegistry;
+import com.microjainslee.ra.camel.collab.CamelEventFactory;
+import com.microjainslee.ra.camel.collab.PendingReplyRegistry;
 import com.microjainslee.ra.camel.command.CamelCommand;
 import com.microjainslee.ra.camel.command.EndCamelActivity;
 import com.microjainslee.ra.camel.command.ReplyToExchange;
 import com.microjainslee.ra.camel.command.RequestFromEndpoint;
 import com.microjainslee.ra.camel.command.SendToEndpoint;
-import com.microjainslee.ra.camel.event.CamelInboundEvent;
-import com.microjainslee.ra.camel.event.CamelResponseEvent;
+import com.microjainslee.ra.camel.events.CamelInboundEvent;
+import com.microjainslee.ra.camel.events.CamelResponseEvent;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -72,24 +75,6 @@ public final class CamelResourceAdaptor {
 
     private static final Logger LOG = LogManager.getLogger(CamelResourceAdaptor.class);
 
-    /** Optional app hook: turn an Exchange into a typed SleeEvent. */
-    @FunctionalInterface
-    public interface CamelEventFactory {
-        SleeEvent create(String endpointUri, String exchangeId, String activityId,
-                         Object body, Map<String, Object> headers, boolean requiresReply);
-    }
-
-    private record PendingReply(CompletableFuture<ReplyToExchange> future) { }
-
-    private static final class Activity {
-        final ActivityHandle handle;
-        volatile long lastTouchMillis;
-        Activity(ActivityHandle handle) {
-            this.handle = handle;
-            this.lastTouchMillis = System.currentTimeMillis();
-        }
-    }
-
     private CamelRaConfig config = new CamelRaConfig();
     private RaBootstrapPort bootstrap;
     private CamelContext camelContext;      // externally provided (Quarkus) or owned
@@ -97,8 +82,8 @@ public final class CamelResourceAdaptor {
     private ProducerTemplate template;
     private CamelEventFactory eventFactory = CamelInboundEvent::new;
 
-    private final Map<String, Activity> activities = new ConcurrentHashMap<>();
-    private final Map<String, PendingReply> pendingReplies = new ConcurrentHashMap<>();
+    private final CamelActivityRegistry activities = new CamelActivityRegistry();
+    private final PendingReplyRegistry pendingReplies = new PendingReplyRegistry();
     private final AtomicBoolean active = new AtomicBoolean(false);
     private ExecutorService requestPool;
     private ScheduledExecutorService sweeper;
@@ -132,6 +117,7 @@ public final class CamelResourceAdaptor {
     public boolean isActive() { return active.get(); }
     public int activeActivityCount() { return activities.size(); }
     public int pendingReplyCount() { return pendingReplies.size(); }
+    public CamelActivityRegistry activityRegistry() { return activities; }
 
     // ── lifecycle ───────────────────────────────────────────────────
 
@@ -186,8 +172,7 @@ public final class CamelResourceAdaptor {
         if (sweeper != null) { sweeper.shutdownNow(); sweeper = null; }
         if (requestPool != null) { requestPool.shutdown(); requestPool = null; }
         // Fail all pending replies so blocked consumer exchanges error out fast.
-        pendingReplies.values().forEach(p -> p.future().cancel(true));
-        pendingReplies.clear();
+        pendingReplies.cancelAll();
         activities.clear();
         try {
             if (template != null) { template.stop(); template = null; }
@@ -231,20 +216,17 @@ public final class CamelResourceAdaptor {
         String exchangeId = exchange.getExchangeId();
         String activityId = resolveActivityId(spec, headers, exchangeId);
 
-        Activity activity = activities.computeIfAbsent(activityId,
-                id -> new Activity(bp.createActivityHandle(id)));
-        activity.lastTouchMillis = System.currentTimeMillis();
+        CamelActivityRegistry.Entry activity = activities.acquire(activityId, bp);
 
         boolean requiresReply = spec.isInOut();
         CompletableFuture<ReplyToExchange> replyFuture = null;
         if (requiresReply) {
-            replyFuture = new CompletableFuture<>();
-            pendingReplies.put(exchangeId, new PendingReply(replyFuture));
+            replyFuture = pendingReplies.register(exchangeId);
         }
 
         SleeEvent event = eventFactory.create(
                 spec.uri(), exchangeId, activityId, body, Map.copyOf(headers), requiresReply);
-        bp.fireEvent(event, activity.handle, null);
+        bp.fireEvent(event, activity.handle(), null);
 
         if (requiresReply) {
             // Bounded wait on the Camel consumer thread. Camel components
@@ -264,7 +246,7 @@ public final class CamelResourceAdaptor {
             } catch (ExecutionException | java.util.concurrent.CancellationException e) {
                 throw new IllegalStateException("Reply failed for exchange " + exchangeId, e);
             } finally {
-                pendingReplies.remove(exchangeId);
+                pendingReplies.discard(exchangeId);
             }
         }
 
@@ -293,10 +275,7 @@ public final class CamelResourceAdaptor {
         ProducerTemplate t = this.template;
         switch (command) {
             case ReplyToExchange reply -> {
-                PendingReply pending = pendingReplies.remove(reply.exchangeId());
-                if (pending != null) {
-                    pending.future().complete(reply);
-                } else {
+                if (!pendingReplies.complete(reply.exchangeId(), reply)) {
                     LOG.warn("[ra-camel:{}] reply for unknown/expired exchange {} — dropped",
                             config.name(), reply.exchangeId());
                 }
@@ -334,31 +313,30 @@ public final class CamelResourceAdaptor {
                     e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
         }
         if (bp == null) return;
-        Activity activity = activities.computeIfAbsent(request.correlationId(),
-                id -> new Activity(bp.createActivityHandle(id)));
-        activity.lastTouchMillis = System.currentTimeMillis();
-        bp.fireEvent(responseEvent, activity.handle, null);
+        CamelActivityRegistry.Entry activity =
+                activities.acquire(request.correlationId(), bp);
+        bp.fireEvent(responseEvent, activity.handle(), null);
     }
 
     // ── activity lifecycle ──────────────────────────────────────────
 
     public void endActivity(String activityId) {
         if (activityId == null) return;
-        Activity activity = activities.remove(activityId);
+        CamelActivityRegistry.Entry activity = activities.remove(activityId);
         if (activity != null && bootstrap != null) {
-            bootstrap.endActivity(activity.handle);
+            bootstrap.endActivity(activity.handle());
         }
     }
 
     private void sweepIdleActivities() {
         try {
-            long cutoff = System.currentTimeMillis()
-                    - TimeUnit.SECONDS.toMillis(config.activityIdleSecs());
-            for (Map.Entry<String, Activity> entry : activities.entrySet()) {
-                if (entry.getValue().lastTouchMillis < cutoff) {
-                    LOG.info("[ra-camel:{}] expiring idle activity {}",
-                            config.name(), entry.getKey());
-                    endActivity(entry.getKey());
+            long idleMillis = TimeUnit.SECONDS.toMillis(config.activityIdleSecs());
+            for (Map.Entry<String, CamelActivityRegistry.Entry> expired
+                    : activities.expireIdle(idleMillis)) {
+                LOG.info("[ra-camel:{}] expiring idle activity {}",
+                        config.name(), expired.getKey());
+                if (bootstrap != null) {
+                    bootstrap.endActivity(expired.getValue().handle());
                 }
             }
         } catch (RuntimeException e) {

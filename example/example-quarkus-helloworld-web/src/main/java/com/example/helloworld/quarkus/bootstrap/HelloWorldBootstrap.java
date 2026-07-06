@@ -9,6 +9,8 @@ import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
 import com.microjainslee.ra.httpserver.collab.HttpServerSessionStore;
 import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
+import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
+import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
 import com.microjainslee.telemetry.MicrometerTelemetryPort;
 import com.microjainslee.telemetry.TelemetryPort;
 
@@ -57,6 +59,7 @@ public final class HelloWorldBootstrap implements HelloWorldContext {
 
     private final ConcurrentHashMap<String, SessionRecord> sessions = new ConcurrentHashMap<>();
     private volatile HttpServerRaEndpoint httpEndpoint;
+    private volatile PrometheusRaEndpoint prometheusEndpoint;
     private volatile TelemetryPort telemetry;
 
     @PostConstruct
@@ -128,6 +131,13 @@ public final class HelloWorldBootstrap implements HelloWorldContext {
             }
         });
 
+        // ── Prometheus Exporter RA (Vert.x :9090 → /metrics + /health) ──
+        var promRa = new PrometheusResourceAdaptor();
+        promRa.setPort(9090);
+        prometheusEndpoint = new PrometheusRaEndpoint(promRa);
+        container.registerRa(prometheusEndpoint);
+        LOG.info("Prometheus exporter RA registered on port {}", promRa.port());
+
         // ── Register SBBs ──
         container.registerSbbType(HelloWorldSbb.class,
                 () -> new HelloWorldSbb(container, this));
@@ -144,6 +154,9 @@ public final class HelloWorldBootstrap implements HelloWorldContext {
     void shutdown() {
         if (httpEndpoint != null) {
             httpEndpoint.deactivate();
+        }
+        if (prometheusEndpoint != null) {
+            prometheusEndpoint.deactivate();
         }
         if (container.getState() == MicroSleeContainer.State.STARTED) {
             container.stop();

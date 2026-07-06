@@ -48,6 +48,10 @@ public final class MicroSleeConfiguration {
     private final boolean codegenEnabled;
     private final String deployDir;
     private final boolean tracePinnedThreads;
+    /** Honor @OffHeap annotations (design: docs/en/design-offheap-sbb-state.md). */
+    private final boolean offHeapEnabled;
+    /** Default directory for MMAP arenas when @OffHeap.filePath is empty. */
+    private final String offHeapStorageDir;
 
     private MicroSleeConfiguration(Builder builder) {
         this.eventRouterBufferSize = builder.eventRouterBufferSize;
@@ -65,6 +69,8 @@ public final class MicroSleeConfiguration {
         this.codegenEnabled = builder.codegenEnabled;
         this.deployDir = builder.deployDir;
         this.tracePinnedThreads = builder.tracePinnedThreads;
+        this.offHeapEnabled = builder.offHeapEnabled;
+        this.offHeapStorageDir = builder.offHeapStorageDir;
     }
 
     public static Builder builder() {
@@ -188,6 +194,14 @@ public final class MicroSleeConfiguration {
      * Default {@code false} (no tracing overhead). Use during development and
      * CI to catch {@code synchronized} blocks on the SBB hot path.
      */
+    public boolean isOffHeapEnabled() {
+        return offHeapEnabled;
+    }
+
+    public String getOffHeapStorageDir() {
+        return offHeapStorageDir;
+    }
+
     public boolean isTracePinnedThreads() {
         return tracePinnedThreads;
     }
@@ -215,6 +229,8 @@ public final class MicroSleeConfiguration {
         private boolean codegenEnabled = true;
         private String deployDir = System.getProperty("java.io.tmpdir") + "/slee-deploy";
         private boolean tracePinnedThreads = false;
+        private boolean offHeapEnabled = true;
+        private String offHeapStorageDir = "";
 
         public Builder eventRouterBufferSize(int eventRouterBufferSize) {
             if (eventRouterBufferSize <= 0 || Integer.bitCount(eventRouterBufferSize) != 1) {
@@ -349,6 +365,18 @@ public final class MicroSleeConfiguration {
          * (typically via {@code synchronized} blocks). Default {@code false}.
          * Use during development and CI to audit pinning-free code paths.
          */
+        /** Honor {@code @OffHeap} annotations (default true). */
+        public Builder offHeapEnabled(boolean enable) {
+            this.offHeapEnabled = enable;
+            return this;
+        }
+
+        /** Directory for MMAP arenas when {@code @OffHeap.filePath} is empty. */
+        public Builder offHeapStorageDir(String dir) {
+            this.offHeapStorageDir = dir == null ? "" : dir;
+            return this;
+        }
+
         public Builder tracePinnedThreads(boolean enable) {
             this.tracePinnedThreads = enable;
             return this;

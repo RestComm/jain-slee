@@ -8,6 +8,8 @@ package com.microjainslee.ra.grpc;
 
 import com.microjainslee.api.ActivityHandle;
 import com.microjainslee.api.RaBootstrapPort;
+import com.microjainslee.ra.grpc.command.InvokeGrpc;
+import com.microjainslee.ra.grpc.events.GrpcInvokeResponseEvent;
 
 import io.grpc.CallOptions;
 import io.grpc.ManagedChannel;

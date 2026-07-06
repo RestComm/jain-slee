@@ -31,12 +31,6 @@
         </dependency>
         <dependency>
             <groupId>com.microjainslee</groupId>
-            <artifactId>jainslee-telemetry</artifactId>
-            <version>${project.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -48,4 +42,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

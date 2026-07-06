@@ -8,16 +8,18 @@ package com.microjainslee.ra.grpc;
 
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.api.RaCommandPort;
+import com.microjainslee.ra.grpc.command.InvokeGrpc;
+import com.microjainslee.ra.grpc.events.GrpcInvokeResponseEvent;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.core.MicroSleeConfiguration;
 import com.microjainslee.core.MicroSleeContainer;
-import com.microjainslee.ra.grpcserver.GrpcRequestEvent;
+import com.microjainslee.ra.grpcserver.events.GrpcRequestEvent;
 import com.microjainslee.ra.grpcserver.GrpcServerRa;
 import com.microjainslee.ra.grpcserver.GrpcServerRaEndpoint;
-import com.microjainslee.ra.grpcserver.SendGrpcResponse;
+import com.microjainslee.ra.grpcserver.command.SendGrpcResponse;
 
 import org.junit.After;
 import org.junit.Before;

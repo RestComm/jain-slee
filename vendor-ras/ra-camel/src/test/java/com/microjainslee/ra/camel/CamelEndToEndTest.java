@@ -16,7 +16,7 @@ import com.microjainslee.core.MicroSleeConfiguration;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.ra.camel.CamelRaConfig.CamelConsumerSpec;
 import com.microjainslee.ra.camel.command.ReplyToExchange;
-import com.microjainslee.ra.camel.event.CamelInboundEvent;
+import com.microjainslee.ra.camel.events.CamelInboundEvent;
 
 import org.apache.camel.ProducerTemplate;
 import org.junit.After;

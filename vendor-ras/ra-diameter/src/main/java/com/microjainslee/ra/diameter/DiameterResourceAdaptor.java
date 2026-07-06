@@ -11,7 +11,7 @@ import com.microjainslee.api.RaBootstrapPort;
 import com.microjainslee.ra.diameter.collab.DiameterEventClassifier;
 import com.microjainslee.ra.diameter.collab.DiameterOutboundSender;
 import com.microjainslee.ra.diameter.command.DiameterCommand;
-import com.microjainslee.ra.diameter.event.DiameterEvent;
+import com.microjainslee.ra.diameter.events.DiameterEvent;
 import com.microjainslee.ra.diameter.transport.DiameterTransport;
 import com.microjainslee.ra.diameter.transport.TcpDiameterTransport;
 

@@ -1,7 +1,7 @@
 package com.microjainslee.ra.sipservlet.stun;
 
 import com.microjainslee.api.RaBootstrapPort;
-import com.microjainslee.ra.sipservlet.event.IceCandidateEvent;
+import com.microjainslee.ra.sipservlet.events.IceCandidateEvent;
 
 import java.net.*;
 import java.util.*;

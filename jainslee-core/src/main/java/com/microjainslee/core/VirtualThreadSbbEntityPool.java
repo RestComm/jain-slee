@@ -13,7 +13,11 @@ package com.microjainslee.core;
 import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.annotations.InjectRa;
+import com.microjainslee.api.OffHeapBindable;
+import com.microjainslee.api.annotations.OffHeap;
 import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
+import com.microjainslee.core.offheap.OffHeapArena;
+import com.microjainslee.core.offheap.OffHeapRuntime;
 import com.microjainslee.core.removal.EntityRemovalEvent;
 
 import java.lang.reflect.Field;
@@ -193,6 +197,94 @@ public final class VirtualThreadSbbEntityPool {
         }
     }
 
+    // ──────────────────────────────────────────────────────────
+    // Off-heap CMP state (docs/en/design-offheap-sbb-state.md §6)
+    // ──────────────────────────────────────────────────────────
+
+    /** One arena per @OffHeap-annotated class (the annotation owner). */
+    private final ConcurrentHashMap<Class<?>, OffHeapArena> offHeapArenas =
+            new ConcurrentHashMap<>();
+
+    /** Live arenas — exposed for the autonomous guardian (compaction). */
+    public java.util.Collection<OffHeapArena> getOffHeapArenas() {
+        return java.util.Collections.unmodifiableCollection(offHeapArenas.values());
+    }
+
+    private void bindOffHeapIfNeeded(Sbb sbb, String sbbId) {
+        if (!(sbb instanceof OffHeapBindable bindable)) {
+            return;
+        }
+        Class<?> owner = offHeapOwner(sbb.getClass());
+        if (owner == null) {
+            return;
+        }
+        MicroSleeContainer c = this.container;
+        if (c != null && !c.getConfiguration().isOffHeapEnabled()) {
+            return; // fallback-mode SBBs keep working on the heap path
+        }
+        OffHeapArena arena = offHeapArenas.computeIfAbsent(owner, this::createArena);
+        long base = arena.allocate(sbbId);
+        bindable.setEntityId(sbbId);
+        bindable.bindSlot(base);
+    }
+
+    private void injectOffHeapForPrebuilt(Sbb sbb, String sbbId) {
+        bindOffHeapIfNeeded(sbb, sbbId);
+    }
+
+    private void unbindOffHeapIfNeeded(Sbb sbb, String sbbId) {
+        if (!(sbb instanceof OffHeapBindable bindable)) {
+            return;
+        }
+        Class<?> owner = offHeapOwner(sbb.getClass());
+        if (owner == null) {
+            return;
+        }
+        bindable.unbindSlot();
+        OffHeapArena arena = offHeapArenas.get(owner);
+        if (arena != null) {
+            arena.free(sbbId);
+        }
+    }
+
+    private static Class<?> offHeapOwner(Class<?> cls) {
+        for (Class<?> c = cls; c != null && c != Object.class; c = c.getSuperclass()) {
+            if (c.getAnnotation(OffHeap.class) != null) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    private OffHeapArena createArena(Class<?> owner) {
+        OffHeap ann = owner.getAnnotation(OffHeap.class);
+        var layout = OffHeapRuntime.layoutFor(owner);
+        Path file = null;
+        if (ann.storage() == com.microjainslee.api.annotations.StorageType.MMAP) {
+            String path = ann.filePath();
+            if (path == null || path.isBlank()) {
+                MicroSleeContainer c = this.container;
+                String dir = c != null ? c.getConfiguration().getOffHeapStorageDir() : "";
+                if (dir == null || dir.isBlank()) {
+                    dir = System.getProperty("java.io.tmpdir") + "/slee-offheap";
+                }
+                path = dir + "/" + owner.getSimpleName() + ".slab";
+            }
+            file = Paths.get(path);
+        }
+        OffHeapArena arena = new OffHeapArena(owner.getSimpleName(), layout,
+                ann.maxSlots(), file);
+        // Compaction rebinding: when the guardian compacts the arena, live
+        // entities must see their new base address immediately.
+        arena.setSlotMovedListener((entityId, newAddr) -> {
+            SbbEntity entity = entities.get(entityId);
+            if (entity != null && entity.getSbb() instanceof OffHeapBindable ob) {
+                ob.bindSlot(newAddr);
+            }
+        });
+        return arena;
+    }
+
     public SbbEntity acquire(String sbbId, Supplier<Sbb> factory) {
         if (shuttingDown) {
             throw new IllegalStateException("SbbEntityPool is shutting down");
@@ -206,6 +298,7 @@ public final class VirtualThreadSbbEntityPool {
         }
         Sbb sbb = factory.get();
         injectRaPorts(sbb);
+        bindOffHeapIfNeeded(sbb, sbbId);
         EntitySlot slot = slotPool.borrow();
         slot.bind(sbbId, 0L, sbb);
         SbbEntity fresh = new SbbEntity(slot, sbbId, sbb);
@@ -230,7 +323,8 @@ public final class VirtualThreadSbbEntityPool {
             return existing;
         }
         injectRaPorts(sbb);
-        EntitySlot slot = slotPool.borrow();
+injectOffHeapForPrebuilt(sbb, sbbId);
+                EntitySlot slot = slotPool.borrow();
         slot.bind(sbbId, entityId, sbb);
         SbbEntity fresh = new SbbEntity(slot, sbbId, sbb);
         SbbEntity prior = entities.putIfAbsent(sbbId, fresh);
@@ -250,6 +344,7 @@ public final class VirtualThreadSbbEntityPool {
             return;
         }
         entities.remove(entity.getSbbId(), entity);
+        unbindOffHeapIfNeeded(entity.getSbb(), entity.getSbbId());
         EntitySlot slot = entity.getSlot();
         slot.unbind();
         slotPool.release(slot);
@@ -258,6 +353,7 @@ public final class VirtualThreadSbbEntityPool {
     public void releaseById(String sbbId) {
         SbbEntity entity = entities.remove(sbbId);
         if (entity != null) {
+            unbindOffHeapIfNeeded(entity.getSbb(), sbbId);
             EntitySlot slot = entity.getSlot();
             slot.unbind();
             slotPool.release(slot);
@@ -301,6 +397,8 @@ public final class VirtualThreadSbbEntityPool {
 
     public void shutdown() {
         shuttingDown = true;
+        offHeapArenas.values().forEach(OffHeapArena::close);
+        offHeapArenas.clear();
         for (SbbEntity entity : entities.values()) {
             entity.getSlot().markShutdown();
         }

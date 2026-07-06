@@ -8,6 +8,7 @@ package com.microjainslee.ra.grpc;
 
 import com.microjainslee.api.OutboundCommand;
 import com.microjainslee.api.RaBootstrapPort;
+import com.microjainslee.ra.grpc.command.InvokeGrpc;
 import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.RaEndpointPort;
 

@@ -68,6 +68,7 @@
         <module>vendor-ras</module>
         <module>jainslee-telemetry</module>
         <module>jainslee-telemetry-vertx</module>
+        <module>jainslee-autonomous</module>
     </modules>
 
     <profiles>
@@ -78,10 +79,12 @@
         <profile>
             <id>examples</id>
             <modules>
-                <module>example/example-embedded-j25-ussdgw-ussdgw</module>
+                <module>example/example-embedded-j25-ussdgw</module>
                 <module>example/example-quarkus-ussdgw</module>
                 <module>example/example-quarkus-sip</module>
                 <module>example/example-spring-ussdgw</module>
+                <module>example/example-quarkus-helloworld-web</module>
+                <module>example/example-spring-helloworld-web</module>
             </modules>
         </profile>
     </profiles>

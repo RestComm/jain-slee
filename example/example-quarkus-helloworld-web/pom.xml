@@ -98,6 +98,13 @@
             <version>1.14.0</version>
         </dependency>
 
+        <!-- ra-prometheus-exporter: Vert.x HTTP /metrics endpoint for Prometheus scraping -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-prometheus-exporter</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>io.quarkus</groupId>

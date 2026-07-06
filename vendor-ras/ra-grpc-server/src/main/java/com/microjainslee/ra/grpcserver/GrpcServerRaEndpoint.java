@@ -22,6 +22,7 @@ import com.microjainslee.api.ResourceAdaptorContext;
 import com.microjainslee.api.SimpleActivityContextHandle;
 import com.microjainslee.api.SleeEndpointPort;
 import com.microjainslee.api.SleeEvent;
+import com.microjainslee.ra.grpcserver.command.GrpcServerCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

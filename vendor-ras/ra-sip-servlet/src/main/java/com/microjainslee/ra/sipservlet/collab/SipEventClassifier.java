@@ -1,6 +1,6 @@
 package com.microjainslee.ra.sipservlet.collab;
 
-import com.microjainslee.ra.sipservlet.event.SipEvent;
+import com.microjainslee.ra.sipservlet.events.SipEvent;
 
 /**
  * Classifies a parsed SIP message into a typed {@link SipEvent}.

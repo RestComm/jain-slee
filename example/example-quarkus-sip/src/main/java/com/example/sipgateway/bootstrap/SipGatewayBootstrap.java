@@ -13,12 +13,12 @@ import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
 import com.microjainslee.ra.sipservlet.SipRaConfig;
 import com.microjainslee.ra.sipservlet.SipServletRaEndpoint;
 import com.microjainslee.ra.sipservlet.SipServletResourceAdaptor;
-import com.microjainslee.ra.sipservlet.event.IceCandidateEvent;
-import com.microjainslee.ra.sipservlet.event.IceCompletedEvent;
-import com.microjainslee.ra.sipservlet.event.IceFailedEvent;
-import com.microjainslee.ra.sipservlet.event.SipInviteEvent;
-import com.microjainslee.ra.sipservlet.event.SipRegisterEvent;
-import com.microjainslee.ra.sipservlet.event.SipResponseEvent;
+import com.microjainslee.ra.sipservlet.events.IceCandidateEvent;
+import com.microjainslee.ra.sipservlet.events.IceCompletedEvent;
+import com.microjainslee.ra.sipservlet.events.IceFailedEvent;
+import com.microjainslee.ra.sipservlet.events.SipInviteEvent;
+import com.microjainslee.ra.sipservlet.events.SipRegisterEvent;
+import com.microjainslee.ra.sipservlet.events.SipResponseEvent;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;

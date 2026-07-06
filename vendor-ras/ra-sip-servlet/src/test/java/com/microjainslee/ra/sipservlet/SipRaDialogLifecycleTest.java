@@ -10,8 +10,8 @@ import com.microjainslee.api.ActivityHandle;
 import com.microjainslee.api.Address;
 import com.microjainslee.api.RaBootstrapPort;
 import com.microjainslee.api.SleeEvent;
-import com.microjainslee.ra.sipservlet.event.SipByeEvent;
-import com.microjainslee.ra.sipservlet.event.SipInviteEvent;
+import com.microjainslee.ra.sipservlet.events.SipByeEvent;
+import com.microjainslee.ra.sipservlet.events.SipInviteEvent;
 
 import org.junit.After;
 import org.junit.Before;

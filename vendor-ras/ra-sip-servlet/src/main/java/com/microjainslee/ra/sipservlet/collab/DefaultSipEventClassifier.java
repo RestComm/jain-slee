@@ -1,6 +1,6 @@
 package com.microjainslee.ra.sipservlet.collab;
 
-import com.microjainslee.ra.sipservlet.event.*;
+import com.microjainslee.ra.sipservlet.events.*;
 import javax.sip.header.*;
 import javax.sip.message.Message;
 import javax.sip.message.Request;

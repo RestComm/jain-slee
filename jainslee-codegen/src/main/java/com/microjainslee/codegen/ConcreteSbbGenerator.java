@@ -11,6 +11,7 @@
 package com.microjainslee.codegen;
 
 import com.microjainslee.api.Sbb;
+import com.microjainslee.api.annotations.OffHeap;
 import com.microjainslee.core.CmpFieldStore;
 import com.microjainslee.core.CmpFieldStoreLocator;
 import javassist.ClassPool;
@@ -234,11 +235,17 @@ public class ConcreteSbbGenerator {
                     "Could not resolve abstract SBB " + sbbAbstractClass.getName(), e);
         }
 
+        OffHeap offHeap = sbbAbstractClass.getAnnotation(OffHeap.class);
         try {
             // 1. Emit synthetic helpers used by the accessor bodies
             emitCmpHelpers(concreteSbb);
+            if (offHeap != null) {
+                // Off-heap CMP (docs/en/design-offheap-sbb-state.md §5):
+                // implement OffHeapBindable + slot-bound accessors.
+                emitOffHeapHelpers(concreteSbb, sbbAbstractClass.getName());
+            }
             // 2. CMP accessors - primary task
-            generateCmpAccessors(concreteSbb, abstractSbb);
+            generateCmpAccessors(concreteSbb, abstractSbb, offHeap);
             // 3. No-arg constructor (explicit for clarity)
             CtConstructor ctor = CtNewConstructor.defaultConstructor(concreteSbb);
             concreteSbb.addConstructor(ctor);
@@ -327,7 +334,7 @@ public class ConcreteSbbGenerator {
      * {@code _cmpWrite} (which themselves go through
      * {@link CmpFieldStoreLocator}).
      */
-    private void generateCmpAccessors(CtClass concrete, CtClass abstractSbb)
+    private void generateCmpAccessors(CtClass concrete, CtClass abstractSbb, OffHeap offHeap)
             throws javassist.CannotCompileException, javassist.NotFoundException {
         Set<String> fieldsCreated = new HashSet<String>();
         for (CtMethod method : abstractSbb.getDeclaredMethods()) {
@@ -364,7 +371,12 @@ public class ConcreteSbbGenerator {
             if (getter == null) {
                 getter = synthesizeNoArgGetter(abstractSbb, fieldName, fieldType);
             }
-            generateCmpField(fieldName, fieldType, concrete, getter, setter);
+            if (offHeap != null && isOffHeapSupported(fieldType.getName())) {
+                generateOffHeapCmpField(fieldName, fieldType, concrete, getter, setter,
+                        offHeap.fallback());
+            } else {
+                generateCmpField(fieldName, fieldType, concrete, getter, setter);
+            }
         }
     }
 
@@ -408,6 +420,119 @@ public class ConcreteSbbGenerator {
             impl.setModifiers(impl.getModifiers() & ~Modifier.ABSTRACT);
             impl.setBody("{ /* no-op — state handled by SbbEntityPool */ }");
             concrete.addMethod(impl);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    //  Off-heap emission (design doc §5 — Option A, helper-call form)
+    // ------------------------------------------------------------------------
+
+    /** Field types storable off-heap; anything else falls back to the heap path. */
+    static boolean isOffHeapSupported(String typeName) {
+        switch (typeName) {
+            case "int":
+            case "long":
+            case "boolean":
+            case "double":
+            case "java.lang.String":
+            case "byte[]":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Emit the {@code OffHeapBindable} contract + lazy layout holder:
+     * a volatile slot base, a cached {@code OffHeapLayout}, bind/unbind.
+     */
+    private void emitOffHeapHelpers(CtClass concrete, String abstractClassName)
+            throws javassist.CannotCompileException, javassist.NotFoundException {
+        concrete.addInterface(concrete.getClassPool()
+                .get("com.microjainslee.api.OffHeapBindable"));
+
+        concrete.addField(CtField.make(
+                "private volatile long _offHeapBase;", concrete));
+        concrete.addField(CtField.make(
+                "private static volatile com.microjainslee.core.offheap.OffHeapLayout _OHL;",
+                concrete));
+
+        concrete.addMethod(CtNewMethod.make(
+                "private static com.microjainslee.core.offheap.OffHeapLayout _ohl() {"
+                + " com.microjainslee.core.offheap.OffHeapLayout l = _OHL;"
+                + " if (l == null) {"
+                + "   l = com.microjainslee.core.offheap.OffHeapRuntime.layoutFor("
+                +       abstractClassName + ".class);"
+                + "   _OHL = l;"
+                + " }"
+                + " return l; }", concrete));
+        concrete.addMethod(CtNewMethod.make(
+                "public void bindSlot(long addr) { this._offHeapBase = addr; }", concrete));
+        concrete.addMethod(CtNewMethod.make(
+                "public void unbindSlot() { this._offHeapBase = 0L; }", concrete));
+        concrete.addMethod(CtNewMethod.make(
+                "public long slotAddress() { return this._offHeapBase; }", concrete));
+        concrete.addMethod(CtNewMethod.make(
+                "public void setEntityId(String id) { this._sbbEntityId = id; }", concrete));
+    }
+
+    /**
+     * Emit off-heap getter/setter for one CMP field. The field index into
+     * the layout is resolved once (per class, per field) and cached in a
+     * static — after warm-up an access is: 2 volatile reads + 1 static
+     * helper call, zero Map lookups, zero boxing.
+     */
+    private void generateOffHeapCmpField(String fieldName, CtClass type, CtClass concrete,
+                                         CtMethod getter, CtMethod setter, boolean fallback)
+            throws javassist.CannotCompileException {
+        String idxField = "_ohIdx_" + fieldName;
+        concrete.addField(CtField.make(
+                "private static volatile int " + idxField + " = -1;", concrete));
+
+        String typeName = type.getName();
+        String acc = "com.microjainslee.core.offheap.OffHeapCmpAccessor";
+        String readCall;
+        String writeCall;
+        switch (typeName) {
+            case "int":              readCall = acc + ".readInt(l, b, i)";     writeCall = acc + ".writeInt(l, b, i, $1)";     break;
+            case "long":             readCall = acc + ".readLong(l, b, i)";    writeCall = acc + ".writeLong(l, b, i, $1)";    break;
+            case "boolean":          readCall = acc + ".readBoolean(l, b, i)"; writeCall = acc + ".writeBoolean(l, b, i, $1)"; break;
+            case "double":           readCall = acc + ".readDouble(l, b, i)";  writeCall = acc + ".writeDouble(l, b, i, $1)";  break;
+            case "java.lang.String": readCall = acc + ".readString(l, b, i)";  writeCall = acc + ".writeString(l, b, i, $1)";  break;
+            case "byte[]":           readCall = acc + ".readBytes(l, b, i)";   writeCall = acc + ".writeBytes(l, b, i, $1)";   break;
+            default: throw new javassist.CannotCompileException(
+                    "Off-heap unsupported type " + typeName + " for field " + fieldName);
+        }
+
+        String prologue =
+                " com.microjainslee.core.offheap.OffHeapLayout l = _ohl();"
+                + " long b = this._offHeapBase;"
+                + " int i = " + idxField + ";"
+                + " if (i < 0) { i = l.indexOf(\"" + fieldName + "\"); " + idxField + " = i; }";
+
+        // Fallback mode: when no slot is bound, run the original heap body
+        // (tests / mixed deployments — design doc §5 dual-accessor).
+        String getterFallback = fallback
+                ? " if (b == 0L) " + buildGetterBody(fieldName, type) : "";
+        String setterFallback = fallback
+                ? " if (this._offHeapBase == 0L) " + buildSetterBody(fieldName, type)
+                        .replace("; }", "; return; }") : "";
+
+        CtMethod getterImpl = CtNewMethod.copy(getter, concrete, null);
+        getterImpl.setModifiers(getterImpl.getModifiers() & ~Modifier.ABSTRACT);
+        getterImpl.setBody("{" + prologue + getterFallback
+                + " return " + readCall + "; }");
+        concrete.addMethod(getterImpl);
+
+        if (setter != null) {
+            CtMethod setterImpl = CtNewMethod.copy(setter, concrete, null);
+            setterImpl.setModifiers(setterImpl.getModifiers() & ~Modifier.ABSTRACT);
+            setterImpl.setBody("{" + prologue + setterFallback
+                    + " " + writeCall + "; }");
+            concrete.addMethod(setterImpl);
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Emitted OFF-HEAP CMP field {} {}", typeName, fieldName);
         }
     }
 

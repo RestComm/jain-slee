@@ -57,7 +57,7 @@ public final class CamelRaEndpoint implements RaEndpointPort, RaCommandPort {
         delegate.setCamelContext(context);
     }
 
-    public void setEventFactory(CamelResourceAdaptor.CamelEventFactory factory) {
+    public void setEventFactory(com.microjainslee.ra.camel.collab.CamelEventFactory factory) {
         delegate.setEventFactory(factory);
     }
 

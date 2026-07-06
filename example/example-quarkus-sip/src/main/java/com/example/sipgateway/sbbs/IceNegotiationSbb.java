@@ -7,9 +7,9 @@ import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.ra.sipservlet.command.SelectIceCandidate;
-import com.microjainslee.ra.sipservlet.event.IceCandidateEvent;
-import com.microjainslee.ra.sipservlet.event.IceCompletedEvent;
-import com.microjainslee.ra.sipservlet.event.IceFailedEvent;
+import com.microjainslee.ra.sipservlet.events.IceCandidateEvent;
+import com.microjainslee.ra.sipservlet.events.IceCompletedEvent;
+import com.microjainslee.ra.sipservlet.events.IceFailedEvent;
 import com.microjainslee.ra.sipservlet.stun.IceCandidateCollector.Candidate;
 
 import org.apache.logging.log4j.LogManager;

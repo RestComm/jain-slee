@@ -15,7 +15,7 @@ import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.core.MicroSleeConfiguration;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.ra.sipservlet.command.SendResponse;
-import com.microjainslee.ra.sipservlet.event.SipInviteEvent;
+import com.microjainslee.ra.sipservlet.events.SipInviteEvent;
 
 import org.junit.After;
 import org.junit.Before;

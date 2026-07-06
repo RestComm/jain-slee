@@ -7,7 +7,7 @@ import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.ra.sipservlet.command.*;
-import com.microjainslee.ra.sipservlet.event.*;
+import com.microjainslee.ra.sipservlet.events.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
