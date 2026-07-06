@@ -178,5 +178,8 @@
   <polygon points="314,710 326,710 320,698" fill="#1565C0"/>
   <line x1="320" y1="710" x2="320" y2="698" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
   <text x="340" y="707" font-size="11" font-weight="600" fill="#546E7A">INBOUND: Network → RA → SBB</text>
-  <text x="690" y="707" font-size="11" font-weight="600" fill="#FF6B35">micro-jainslee 1.2.0 · github.com/nhanth87/jain-slee</text>
+  <text x="520" y="707" font-size="11" font-weight="600" fill="#FF6B35">micro-jainslee 1.2.0 · github.com/nhanth87/jain-slee</text>
+  <!-- WATERMARK -->
+  <text x="480" y="360" font-size="72" font-weight="900" fill="#FF6B35" opacity="0.03" text-anchor="middle" transform="rotate(-15 480 360)">MICRO-JAINSLEE</text>
+  <text x="480" y="420" font-size="28" font-weight="700" fill="#FF6B35" opacity="0.04" text-anchor="middle" transform="rotate(-15 480 420)">nhanth87.github.io/jain-slee</text>
 </svg>
