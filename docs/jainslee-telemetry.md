@@ -1,7 +1,9 @@
 # jainslee-telemetry — Zero-CPU Self-Healing Engine
 
 > **Module:** `jainslee-telemetry`
+>
 > **Replaces:** JAIN SLEE 1.1 AlarmFacility, UsageFacility, TraceFacility
+>
 > **Philosophy:** Passive collection, zero polling, AtomicLong counters, single daemon VT scheduler
 
 ---
@@ -9,44 +11,48 @@
 ## Overview
 
 The `jainslee-telemetry` module provides a modern, zero-overhead observability layer
+
 for micro-jainslee. Instead of the heavyweight JMX MBeans, JMS-based alarms, and
+
 polling-based usage tracking required by JAIN SLEE 1.1, this module uses:
 
 - **AtomicLong counters** — zero-lock, zero-contention metric accumulation
 - **Ring buffers** — bounded, lock-free error and alarm history
 - **Single daemon Virtual Thread** — one VT schedules all periodic scans (resource,
+
   stale detection, auto-reconfig evaluate) at 30s intervals
 - **Micrometer + Prometheus** — industry-standard metrics export, no custom wire format
 - **Passive callbacks from EventRouter** — no polling, no interception, just a
+
   one-line `.record()` after each event dispatch
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  micro-jainslee                                                   │
-│                                                                   │
+│  micro-jainslee                                                  │
+│                                                                  │
 │  ┌──────────────┐  ┌───────────────────────────────────────────┐ │
 │  │ jainslee-api │  │ jainslee-telemetry                        │ │
-│  │              │  │                                            │ │
-│  │TelemetryPort │◄─┤ MicrometerTelemetryPort                    │ │
-│  │ (interface)  │  │   ├─ SbbCollector       (AtomicLong)       │ │
-│  │              │  │   ├─ RaCollector        (AtomicLong)       │ │
-│  │              │  │   ├─ ErrorCollector     (RingBuffer 1000)  │ │
-│  │              │  │   ├─ ResourceMonitor    (Daemon VT, 30s)   │ │
-│  └──────────────┘  │   ├─ SpunkDetector      (onEvent callback) │ │
-│                     │   ├─ StaleDetector      (heartbeat + scan) │ │
-│  ┌──────────────┐  │   ├─ AlarmEngine        (RingBuffer 500)   │ │
-│  │jainslee-core │  │   ├─ AutoReconfigEngine (30s evaluate) ⚡  │ │
-│  │              │  │   └─ PrometheusExporter (OpenMetrics)      │ │
-│  │  Container ◄─┤  │                                            │ │
-│  │  EventRouter◄┼──┤ onEventProcessed() → SbbCollector.record() │ │
-│  │  SbbPool    │  │ onError()          → ErrorCollector.record()│ │
+│  │              │  │                                            ││
+│  │TelemetryPort │◄─┤ MicrometerTelemetryPort                    ││
+│  │ (interface)  │  │   ├─ SbbCollector       (AtomicLong)       ││
+│  │              │  │   ├─ RaCollector        (AtomicLong)       ││
+│  │              │  │   ├─ ErrorCollector     (RingBuffer 1000)  ││
+│  │              │  │   ├─ ResourceMonitor    (Daemon VT, 30s)   ││
+│  └──────────────┘  │   ├─ SpunkDetector      (onEvent callback) ││
+│                     │   ├─ StaleDetector      (heartbeat + scan)││
+│  ┌──────────────┐  │   ├─ AlarmEngine        (RingBuffer 500)   ││
+│  │jainslee-core │  │   ├─ AutoReconfigEngine (30s evaluate) ⚡  ││
+│  │              │  │   └─ PrometheusExporter (OpenMetrics)      ││
+│  │  Container ◄─┤  │                                            ││
+│  │  EventRouter◄┼──┤ onEventProcessed() → SbbCollector.record() ││
+│  │  SbbPool    │  │ onError()          → ErrorCollector.record()││
 │  └──────────────┘  └───────────────────────────────────────────┘ │
-│                                                                   │
-│  ┌──────────────────────────────────────────────────────────────┐ │
-│  │  jainslee-telemetry-vertx (GUI — separate module)            │ │
-│  │  GET /telemetry/        → index.html (steampunk dashboard)   │ │
-│  │  GET /api/telemetry/*   → JSON endpoints                     │ │
-│  └──────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────────┐│
+│  │  jainslee-telemetry-vertx (GUI — separate module)            ││
+│  │  GET /telemetry/        → index.html (steampunk dashboard)   ││
+│  │  GET /api/telemetry/*   → JSON endpoints                     ││
+│  └──────────────────────────────────────────────────────────────┘│
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -76,7 +82,9 @@ public interface TelemetryPort {
 ```
 
 ### MicrometerTelemetryPort (`jainslee-telemetry`)
+
 The production implementation wraps a `PrometheusMeterRegistry` and wires all
+
 collectors together in a single constructor.
 
 ---
@@ -86,6 +94,7 @@ collectors together in a single constructor.
 ### 1. SbbCollector
 
 Tracks every SBB entity lifecycle and event processing. Called **passively** by
+
 EventRouter after each dispatch — no polling, no interception overhead.
 
 ```java
@@ -111,15 +120,17 @@ public final class SbbCollector {
 }
 ```
 
-| Metric (Prometheus) | Type | Description |
-|---------------------|------|-------------|
-| `microjainslee_sbb_entities_total` | Gauge | Total entities created |
-| `microjainslee_sbb_entities_active` | Gauge | Currently active entities |
-| `microjainslee_sbb_events_total` | Counter | Events processed |
-| `microjainslee_sbb_events_per_second` | Gauge | Throughput |
-| `microjainslee_sbb_latency_avg_us` | Gauge | Average dispatch latency |
-| `microjainslee_sbb_latency_p99_us` | Gauge | 99th percentile latency |
-| `microjainslee_sbb_errors_total` | Counter | Total error count |
+
+| Metric (Prometheus)                   | Type    | Description               |
+| ------------------------------------- | ------- | ------------------------- |
+| `microjainslee_sbb_entities_total`    | Gauge   | Total entities created    |
+| `microjainslee_sbb_entities_active`   | Gauge   | Currently active entities |
+| `microjainslee_sbb_events_total`      | Counter | Events processed          |
+| `microjainslee_sbb_events_per_second` | Gauge   | Throughput                |
+| `microjainslee_sbb_latency_avg_us`    | Gauge   | Average dispatch latency  |
+| `microjainslee_sbb_latency_p99_us`    | Gauge   | 99th percentile latency   |
+| `microjainslee_sbb_errors_total`      | Counter | Total error count         |
+
 
 ### 2. RaCollector
 
@@ -140,15 +151,18 @@ public final class RaCollector {
 }
 ```
 
-| Metric | Type | Description |
-|--------|------|-------------|
-| `microjainslee_ra_state` | Gauge (1=ACTIVE, 0=INACTIVE) | Per-RA state |
-| `microjainslee_ra_events_fired_total` | Counter | Events fired by RA |
-| `microjainslee_ra_commands_received_total` | Counter | Commands sent to RA |
+
+| Metric                                     | Type                         | Description         |
+| ------------------------------------------ | ---------------------------- | ------------------- |
+| `microjainslee_ra_state`                   | Gauge (1=ACTIVE, 0=INACTIVE) | Per-RA state        |
+| `microjainslee_ra_events_fired_total`      | Counter                      | Events fired by RA  |
+| `microjainslee_ra_commands_received_total` | Counter                      | Commands sent to RA |
+
 
 ### 3. ErrorCollector
 
 Lock-free ring buffer of the last 1000 errors. No locks — AtomicLong write pointer.
+
 Fixed size 1000 entries, `writeIndex` wraps with `& (SIZE - 1)` (power-of-two).
 
 ```java
@@ -186,20 +200,23 @@ public final class ResourceMonitor {
 }
 ```
 
-| Metric | Type | Description |
-|--------|------|-------------|
-| `microjainslee_resource_heap_used_mb` | Gauge | Heap used (MB) |
-| `microjainslee_resource_heap_max_mb` | Gauge | Max heap (MB) |
-| `microjainslee_resource_heap_usage_pct` | Gauge | Heap usage % |
-| `microjainslee_resource_cpu_load` | Gauge | Process CPU load (0.0–1.0) |
-| `microjainslee_resource_threads_active` | Gauge | Active platform threads |
-| `microjainslee_resource_threads_virtual` | Gauge | Active virtual threads |
-| `microjainslee_resource_gc_count` | Counter | GC collections |
-| `microjainslee_resource_gc_time_ms` | Counter | GC pause time (ms) |
+
+| Metric                                   | Type    | Description                |
+| ---------------------------------------- | ------- | -------------------------- |
+| `microjainslee_resource_heap_used_mb`    | Gauge   | Heap used (MB)             |
+| `microjainslee_resource_heap_max_mb`     | Gauge   | Max heap (MB)              |
+| `microjainslee_resource_heap_usage_pct`  | Gauge   | Heap usage %               |
+| `microjainslee_resource_cpu_load`        | Gauge   | Process CPU load (0.0–1.0) |
+| `microjainslee_resource_threads_active`  | Gauge   | Active platform threads    |
+| `microjainslee_resource_threads_virtual` | Gauge   | Active virtual threads     |
+| `microjainslee_resource_gc_count`        | Counter | GC collections             |
+| `microjainslee_resource_gc_time_ms`      | Counter | GC pause time (ms)         |
+
 
 ### 5. SpunkDetector
 
 Detects anomalous SBB behavior ("spunk") — SBBs that are misbehaving or
+
 resource-hogging.
 
 ```java
@@ -214,16 +231,19 @@ public final class SpunkDetector {
 }
 ```
 
-| Spunk Condition | Threshold | Severity |
-|-----------------|-----------|----------|
-| Event loop blocking | `latency > 100ms` | WARNING |
-| Memory spike | `memDelta > 100MB` in single entity | WARNING |
-| CPU hog | Single SBB type > 50% total CPU | CRITICAL |
-| Entity explosion | > 1000 child entities created in 1 min | WARNING |
+
+| Spunk Condition     | Threshold                                 | Severity |
+| ------------------- | ----------------------------------------- | -------- |
+| Event loop blocking | `latency > 100ms`                         | WARNING  |
+| Memory spike        | `memDelta > 100MB` in single entity       | WARNING  |
+| CPU hog             | Single SBB type &gt; 50% total CPU        | CRITICAL |
+| Entity explosion    | &gt; 1000 child entities created in 1 min | WARNING  |
+
 
 ### 6. StaleDetector
 
 Identifies entities that haven't received events — either idle (warning) or
+
 leaked (critical, requires force-release).
 
 ```java
@@ -238,10 +258,12 @@ public final class StaleDetector {
 }
 ```
 
-| Condition | Threshold | Action |
-|-----------|-----------|--------|
-| Idle entity | No event > 5 min | `AlarmLevel.INFO` warning |
-| Leaked entity | No event > 30 min | `AlarmLevel.CRITICAL` + auto-release |
+
+| Condition     | Threshold            | Action                               |
+| ------------- | -------------------- | ------------------------------------ |
+| Idle entity   | No event &gt; 5 min  | `AlarmLevel.INFO` warning            |
+| Leaked entity | No event &gt; 30 min | `AlarmLevel.CRITICAL` + auto-release |
+
 
 ### 7. AlarmEngine
 
@@ -265,6 +287,7 @@ public final class AlarmEngine {
 ```
 
 **Alarm lifecycle:**
+
 ```
 fire() → ACTIVE → acknowledge() → archived in history ring buffer
                                     (retained for 60 minutes)
@@ -275,6 +298,7 @@ fire() → ACTIVE → acknowledge() → archived in history ring buffer
 ## ⚡ Auto-Reconfig Engine
 
 The AutoReconfigEngine automatically adjusts JAIN SLEE configuration based on
+
 real-time metrics. **No human intervention required.**
 
 ### Evaluation Cycle
@@ -299,20 +323,22 @@ public final class AutoReconfigEngine {
 }
 ```
 
-### Reconfig Conditions & Actions
+### Reconfig Conditions &amp; Actions
 
-| # | Condition | Threshold | Action | Alarm | Cooldown |
-|---|-----------|-----------|--------|-------|----------|
-| 1 | High memory | Heap > 85% | Halve SBB pool max | WARNING | 5 min |
-| 2 | Critical memory | Heap > 95% | Release stale entities + System.gc() | CRITICAL | 2 min |
-| 3 | CPU pressure | CPU > 80% sustained 2 cycles | Reduce RA event-loop threads by 25% | WARNING | 10 min |
-| 4 | CPU recovered | CPU < 50% sustained 3 cycles | Restore RA threads to original | INFO | — |
-| 5 | Load spike | EPS > 3× baseline per SBB type | Expand SBB pool × 2 | INFO | 5 min |
-| 6 | Load normalized | EPS < 1.5× baseline sustained 5 cycles | Shrink pool back to normal | INFO | — |
-| 7 | Error storm | > 100 errors/min for single SBB type | Suspend SBB type | CRITICAL | 15 min |
-| 8 | Error storm cleared | 0 errors for suspended SBB in 5 min | Resume SBB type | INFO | — |
-| 9 | Entity leak | Idle > 30 min | Force-release entity | CRITICAL | None (per entity) |
-| 10 | RA crashed | RA state = ERROR | Restart RA | CRITICAL | 2 min |
+
+| #   | Condition           | Threshold                                 | Action                               | Alarm    | Cooldown          |
+| --- | ------------------- | ----------------------------------------- | ------------------------------------ | -------- | ----------------- |
+| 1   | High memory         | Heap &gt; 85%                             | Halve SBB pool max                   | WARNING  | 5 min             |
+| 2   | Critical memory     | Heap &gt; 95%                             | Release stale entities + System.gc() | CRITICAL | 2 min             |
+| 3   | CPU pressure        | CPU &gt; 80% sustained 2 cycles           | Reduce RA event-loop threads by 25%  | WARNING  | 10 min            |
+| 4   | CPU recovered       | CPU &lt; 50% sustained 3 cycles           | Restore RA threads to original       | INFO     | —                 |
+| 5   | Load spike          | EPS &gt; 3× baseline per SBB type         | Expand SBB pool × 2                  | INFO     | 5 min             |
+| 6   | Load normalized     | EPS &lt; 1.5× baseline sustained 5 cycles | Shrink pool back to normal           | INFO     | —                 |
+| 7   | Error storm         | &gt; 100 errors/min for single SBB type   | Suspend SBB type                     | CRITICAL | 15 min            |
+| 8   | Error storm cleared | 0 errors for suspended SBB in 5 min       | Resume SBB type                      | INFO     | —                 |
+| 9   | Entity leak         | Idle &gt; 30 min                          | Force-release entity                 | CRITICAL | None (per entity) |
+| 10  | RA crashed          | RA state = ERROR                          | Restart RA                           | CRITICAL | 2 min             |
+
 
 ### Container API for Reconfig
 
@@ -331,7 +357,9 @@ void releaseEntity(String entityId);
 ### Cooldown Behavior
 
 Each condition has a cooldown period to prevent oscillation. During cooldown,
+
 the same condition is skipped even if the threshold is still breached. Cooldown
+
 is tracked per-condition with a `Map<Condition, Long>` of last-fire timestamps.
 
 ---
@@ -341,16 +369,16 @@ is tracked per-condition with a `Map<Condition, Long>` of last-fire timestamps.
 ### Step 1: Add Dependency
 
 ```xml
-<dependency>
-    <groupId>com.microjainslee</groupId>
-    <artifactId>jainslee-telemetry</artifactId>
-    <version>${microjainslee.version}</version>
-</dependency>
-<dependency>
-    <groupId>com.microjainslee</groupId>
-    <artifactId>jainslee-telemetry-vertx</artifactId>
-    <version>${microjainslee.version}</version>
-</dependency>
+[[ORCA_RAW_HTML_BLOCK:%3Cdependency%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3CgroupId%3E]]com.microjainslee[[ORCA_RAW_HTML_INLINE:%3C%2FgroupId%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3CartifactId%3E]]jainslee-telemetry[[ORCA_RAW_HTML_INLINE:%3C%2FartifactId%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3Cversion%3E]]${microjainslee.version}[[ORCA_RAW_HTML_INLINE:%3C%2Fversion%3E]]
+[[ORCA_RAW_HTML_BLOCK:%3C%2Fdependency%3E]]
+[[ORCA_RAW_HTML_BLOCK:%3Cdependency%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3CgroupId%3E]]com.microjainslee[[ORCA_RAW_HTML_INLINE:%3C%2FgroupId%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3CartifactId%3E]]jainslee-telemetry-vertx[[ORCA_RAW_HTML_INLINE:%3C%2FartifactId%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3Cversion%3E]]${microjainslee.version}[[ORCA_RAW_HTML_INLINE:%3C%2Fversion%3E]]
+[[ORCA_RAW_HTML_BLOCK:%3C%2Fdependency%3E]]
 ```
 
 ### Step 2: Wire in Bootstrap
@@ -393,6 +421,7 @@ void init() {
 ### Step 3: EventRouter Integration Points
 
 The EventRouter calls into telemetry at two points — after each successful
+
 dispatch and on error:
 
 ```java
@@ -434,7 +463,6 @@ open http://localhost:8080/telemetry/
 
 ---
 
-
 ## App-Defined Custom Metrics (Extensible)
 
 Every app domain can register its own counters and gauges at runtime.  
@@ -442,6 +470,7 @@ They automatically appear in `snapshot().customMetrics`, Prometheus scrape,
 and the dashboard GUI — **zero extra wiring**.
 
 ### Usage
+
 ```java
 TelemetryPort telemetry = container.getTelemetryPort();
 
@@ -459,6 +488,7 @@ telemetry.customGauge("ss7_stale_dialogues", staleDialogues::get,
 ```
 
 ### Prometheus output
+
 ```
 ss7_tcap_total{opcode="begin"} 142
 ss7_map_messages{opcode="atsi"} 892
@@ -466,10 +496,12 @@ ss7_stale_dialogues{host="HOST-A"} 3
 ```
 
 ### Dashboard
+
 Custom metrics appear in the "App Metrics" card, with 📊 for counters  
 and 📈 for gauges. Updates every 2 seconds automatically.
 
 ## Integration Guide
+
 ## API Reference
 
 All endpoints served by the telemetry Vert.x router under `/api/telemetry/*`.
@@ -581,16 +613,18 @@ scrape_configs:
 
 ### Sample Grafana Dashboard Panels
 
-| Panel | Metric | Visualization |
-|-------|--------|---------------|
-| Active SBBs | `microjainslee_sbb_entities_active` | Stat (large number) |
-| Events/sec | `microjainslee_sbb_events_per_second` | Time series (line) |
-| Latency p99 | `microjainslee_sbb_latency_p99_us` | Time series (area) |
-| Heap Usage | `microjainslee_resource_heap_usage_pct` | Gauge (semi-circle) |
-| CPU Load | `microjainslee_resource_cpu_load` | Time series |
-| Error Rate | `rate(microjainslee_sbb_errors_total[1m])` | Time series (red) |
-| RA Events | `rate(microjainslee_ra_events_fired_total[1m])` | Time series |
-| Active Alarms | `microjainslee_alarms_active` | Table |
+
+| Panel         | Metric                                          | Visualization       |
+| ------------- | ----------------------------------------------- | ------------------- |
+| Active SBBs   | `microjainslee_sbb_entities_active`             | Stat (large number) |
+| Events/sec    | `microjainslee_sbb_events_per_second`           | Time series (line)  |
+| Latency p99   | `microjainslee_sbb_latency_p99_us`              | Time series (area)  |
+| Heap Usage    | `microjainslee_resource_heap_usage_pct`         | Gauge (semi-circle) |
+| CPU Load      | `microjainslee_resource_cpu_load`               | Time series         |
+| Error Rate    | `rate(microjainslee_sbb_errors_total[1m])`      | Time series (red)   |
+| RA Events     | `rate(microjainslee_ra_events_fired_total[1m])` | Time series         |
+| Active Alarms | `microjainslee_alarms_active`                   | Table               |
+
 
 ---
 
@@ -663,3 +697,4 @@ micro-jainslee/
     ├── example-quarkus-helloworld-web/     ← wired with telemetry
     └── example-spring-helloworld-web/      ← wired with telemetry
 ```
+
