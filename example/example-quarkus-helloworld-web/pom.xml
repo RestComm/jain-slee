@@ -87,6 +87,13 @@
             <artifactId>jainslee-telemetry</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>
+
+        <!-- micro-jainslee autonomous: self-healing guardian + health evaluator -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-autonomous</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-telemetry-vertx</artifactId>

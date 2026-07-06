@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="380" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="25" text-anchor="middle" font-size="15" fill="#333" font-weight="bold">Crash Recovery — mmap Mode</text>
+
+  <rect x="280" y="45" width="240" height="36" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="68" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">Container.start()</text>
+  <line x1="400" y1="81" x2="400" y2="100" stroke="#E65100" stroke-width="1.6"/>
+  <polygon points="394,98 400,112 406,98" fill="#E65100"/>
+
+  <rect x="200" y="113" width="400" height="36" rx="8" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="136" text-anchor="middle" font-size="12" fill="#1565C0" font-weight="bold">Open mmap file, scan for magic 0xC0FFEE01</text>
+
+  <line x1="400" y1="149" x2="400" y2="168" stroke="#555" stroke-width="1.5"/>
+  <line x1="180" y1="168" x2="620" y2="168" stroke="#555" stroke-width="1.5"/>
+  
+  <line x1="180" y1="168" x2="180" y2="183" stroke="#555" stroke-width="1.2"/>
+  <polygon points="174,181 180,195 186,181" fill="#E65100"/>
+  <line x1="620" y1="168" x2="620" y2="183" stroke="#555" stroke-width="1.2"/>
+  <polygon points="614,181 620,195 626,181" fill="#E65100"/>
+
+  <!-- Left branch: Rebuild -->
+  <rect x="40" y="196" width="280" height="70" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="180" y="216" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">For each occupied slot with valid CRC32:</text>
+  <text x="180" y="233" text-anchor="middle" font-size="8" fill="#555">Read field-count + field directory</text>
+  <text x="180" y="247" text-anchor="middle" font-size="8" fill="#555">Rebuild slotMap (entityId → slotIdx)</text>
+  <text x="180" y="261" text-anchor="middle" font-size="8" fill="#555">Call SessionRecoveryService.registerSnapshot()</text>
+
+  <!-- Right branch: Free list -->
+  <rect x="480" y="196" width="280" height="45" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="620" y="216" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">Populate freeList</text>
+  <text x="620" y="233" text-anchor="middle" font-size="8" fill="#555">With unoccupied / CRC-invalid slots</text>
+
+  <!-- Final step -->
+  <line x1="400" y1="270" x2="400" y2="290" stroke="#E65100" stroke-width="1.6"/>
+  <polygon points="394,288 400,302 406,288" fill="#E65100"/>
+
+  <rect x="180" y="303" width="440" height="55" rx="8" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="323" text-anchor="middle" font-size="11" fill="#6A1B9A" font-weight="bold">Rebuild entities via SessionRecoveryService</text>
+  <text x="400" y="340" text-anchor="middle" font-size="9" fill="#555">reconstructFromSnapshot → Re-attach to ACIs → Park in VirtualThreadSbbEntityPool</text>
+</svg>

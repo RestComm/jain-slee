@@ -22,51 +22,7 @@ bảng cảnh báo (alarm), và biểu đồ sparkline — tất cả theo phong
 
 ### Mô tả Ảnh chụp màn hình
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  ⚙ micro-jainslee TELEMETRY          [AUTO-RECONFIG: ● ON]     │
-│  ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔│
-│                                                                    │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │
-│  │  ACTIVE  │ │  EVENTS  │ │  ERRORS  │ │    UPTIME        │   │
-│  │  SBBs    │ │   /sec   │ │  (1min)  │ │    2h 34m        │   │
-│  │   142    │ │  1,234   │ │    3     │ │                  │   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────────────┘   │
-│                                                                    │
-│  ┌─────────────────────┐ ┌──────────────────────────────────┐   │
-│  │     HEAP USAGE      │ │         CPU LOAD                 │   │
-│  │     ╭───╮           │ │     ╭───╮                         │   │
-│  │    ╱     ╲  25%     │ │    ╱     ╲   15%                 │   │
-│  │   │   ●   │         │ │   │   ●   │                       │   │
-│  │    ╲     ╱ 128/512  │ │    ╲     ╱  0.15                 │   │
-│  │     ╰───╯   MB      │ │     ╰───╯                        │   │
-│  └─────────────────────┘ └──────────────────────────────────┘   │
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ SBB PERFORMANCE                                  [sparkline] ││
-│  │ HelloWorldSbb  ████████████░░░░  42 active  ● healthy       ││
-│  │ ProxySbb       ██████░░░░░░░░░░  18 active  ● healthy       ││
-│  └──────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ RA STATUS                                                    ││
-│  │ http-server-ra  ● ACTIVE  :8080  10,000 ev  5,000 cmd       ││
-│  │ sip-servlet-ra   ● ACTIVE  :5060   5,000 ev  2,500 cmd       ││
-│  └──────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ ALARMS                                  [2 active] [history] ││
-│  │ ⚠ WARNING  12:34  heap>85%, pool halved          [ACK]     ││
-│  │ 🔴 CRITICAL 12:30  Error storm: ProxySbb suspended  [ACK]   ││
-│  └──────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ CONFIG                                                       ││
-│  │ Auto-reconfig: [● ON]  Memory warn: [85%]  CPU warn: [80%]  ││
-│  │ Error storm:     [100/min]  Stale warn: [5min]               ││
-│  └──────────────────────────────────────────────────────────────┘│
-└──────────────────────────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/telemetry-gui-1.svg" width="800"/></p>
 
 ---
 
@@ -228,20 +184,7 @@ function updateGauge(id, percent) {
 
 ## Quy trình Xác nhận Cảnh báo (Alarm Acknowledgment)
 
-```
-Người dùng nhấp [ACK] trên hàng cảnh báo
-       │
-       ▼
-POST /api/telemetry/alarms/{id}/acknowledge
-       │
-       ▼
-AlarmEngine.acknowledge(id)
-  → xóa khỏi danh sách active
-  → chuyển vào ring buffer lịch sử
-       │
-       ▼
-Lần poll tiếp theo (≤2s sau) → hàng cảnh báo biến mất khỏi bảng
-```
+<p align="center"><img src="../images/telemetry-gui-2.svg" width="800"/></p>
 
 Các cảnh báo đã xác nhận có thể được xem qua liên kết [history], gọi đến
 `/api/telemetry/alarms/history?minutes=60`.
@@ -333,12 +276,7 @@ Sửa khối `:root` trong `index.html` để thay đổi toàn bộ theme:
 
 ## Cấu trúc File
 
-```
-jainslee-telemetry-vertx/
-└── src/main/resources/webroot/telemetry/
-    ├── index.html          ← dashboard hoàn chỉnh (HTML + CSS + SVG)
-    └── telemetry.js        ← vòng lặp fetch, render, xử lý sự kiện
-```
+<p align="center"><img src="../images/telemetry-gui-3.svg" width="800"/></p>
 
 **index.html** (< 15 KB đã nén gzip):
 - `<style>` nội tuyến chứa toàn bộ CSS

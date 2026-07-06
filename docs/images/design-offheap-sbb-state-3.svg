@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="340" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="25" text-anchor="middle" font-size="15" fill="#333" font-weight="bold">New Off-Heap Flow (Option A — Direct Unsafe)</text>
+
+  <rect x="230" y="45" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="68" text-anchor="middle" font-size="12" fill="#2E7D32" font-weight="bold">Abstract SBB class + @OffHeap</text>
+  <line x1="400" y1="81" x2="400" y2="100" stroke="#E65100" stroke-width="1.6"/>
+  <polygon points="394,98 400,112 406,98" fill="#E65100"/>
+
+  <rect x="200" y="113" width="400" height="36" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="136" text-anchor="middle" font-size="12" fill="#E65100" font-weight="bold">ConcreteSbbGenerator.generateCmpAccessors() with @OffHeap</text>
+  
+  <line x1="400" y1="149" x2="400" y2="168" stroke="#555" stroke-width="1.5"/>
+  <line x1="140" y1="168" x2="660" y2="168" stroke="#555" stroke-width="1.5"/>
+  
+  <line x1="140" y1="168" x2="140" y2="183" stroke="#555" stroke-width="1.2"/>
+  <polygon points="134,181 140,195 146,181" fill="#E65100"/>
+  <line x1="400" y1="168" x2="400" y2="183" stroke="#555" stroke-width="1.2"/>
+  <polygon points="394,181 400,195 406,181" fill="#E65100"/>
+  <line x1="660" y1="168" x2="660" y2="183" stroke="#555" stroke-width="1.2"/>
+  <polygon points="654,181 660,195 666,181" fill="#E65100"/>
+
+  <rect x="40" y="196" width="200" height="50" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="140" y="215" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">emitOffHeapHelpers()</text>
+  <text x="140" y="232" text-anchor="middle" font-size="8" fill="#555">_offHeapBase, _bindSlot</text>
+  <text x="140" y="243" text-anchor="middle" font-size="8" fill="#555">_unbindSlot, _offHeapOffsets</text>
+
+  <rect x="270" y="196" width="260" height="50" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="400" y="215" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">buildOffHeapGetterBody()</text>
+  <text x="400" y="232" text-anchor="middle" font-size="8" fill="#555">Direct Unsafe read at _offHeapBase+offset</text>
+  <text x="400" y="243" text-anchor="middle" font-size="8" fill="#555">Zero boxing, zero Map allocations</text>
+
+  <rect x="560" y="196" width="210" height="50" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="665" y="215" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">buildOffHeapSetterBody()</text>
+  <text x="665" y="232" text-anchor="middle" font-size="8" fill="#555">Direct Unsafe write at _offHeapBase+offset</text>
+  <text x="665" y="243" text-anchor="middle" font-size="8" fill="#555">Zero boxing</text>
+
+  <rect x="30" y="270" width="740" height="50" rx="6" fill="#F5F5F5" stroke="#DDD"/>
+  <text x="400" y="290" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">Key: Skips CmpFieldStore (Map&lt;String,Object&gt;) entirely. Generated code reads/writes directly into buffer.</text>
+  <text x="400" y="308" text-anchor="middle" font-size="9" fill="#555">@OffHeap(fallback = true) emits both paths — off-heap when _offHeapBase != 0, heap fallback otherwise.</text>
+</svg>

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 720" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="720" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="30" text-anchor="middle" font-size="16" fill="#333" font-weight="bold">Event Router Pipeline</text>
+
+  <!-- Box 1: RA.fireEvent -->
+  <rect x="250" y="50" width="300" height="40" rx="8" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="75" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">RA.fireEvent(event, aci)</text>
+  <!-- Arrow down -->
+  <line x1="400" y1="90" x2="400" y2="115" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,113 400,127 406,113" fill="#E65100"/>
+
+  <!-- Box 2: EventRouter.enqueue -->
+  <rect x="250" y="128" width="300" height="40" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="153" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">EventRouter.enqueue(event, aci)</text>
+  <line x1="400" y1="168" x2="400" y2="193" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,191 400,205 406,191" fill="#E65100"/>
+
+  <!-- Box 3: LMAX Disruptor -->
+  <rect x="230" y="206" width="340" height="40" rx="8" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="231" text-anchor="middle" font-size="13" fill="#6A1B9A" font-weight="bold">LMAX Disruptor RingBuffer (slot claimed)</text>
+  <line x1="400" y1="246" x2="400" y2="271" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,269 400,283 406,269" fill="#E65100"/>
+
+  <!-- Box 4: EventHandler -->
+  <rect x="220" y="284" width="360" height="40" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="309" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">EventHandler.onEvent(event, sequence, endOfBatch)</text>
+
+  <!-- Branch lines -->
+  <line x1="400" y1="324" x2="400" y2="350" stroke="#555" stroke-width="1.5"/>
+  <line x1="120" y1="350" x2="680" y2="350" stroke="#555" stroke-width="1.5"/>
+  <!-- 3 branches -->
+  <line x1="120" y1="350" x2="120" y2="370" stroke="#555" stroke-width="1.5"/>
+  <polygon points="114,368 120,382 126,368" fill="#E65100"/>
+  <line x1="400" y1="350" x2="400" y2="370" stroke="#555" stroke-width="1.5"/>
+  <polygon points="394,368 400,382 406,368" fill="#E65100"/>
+  <line x1="680" y1="350" x2="680" y2="370" stroke="#555" stroke-width="1.5"/>
+  <polygon points="674,368 680,382 686,368" fill="#E65100"/>
+
+  <!-- Branch 1: lookupSbbTypes -->
+  <rect x="30" y="383" width="180" height="45" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="120" y="403" text-anchor="middle" font-size="11" fill="#2E7D32" font-weight="bold">lookupSbbTypes()</text>
+  <text x="120" y="419" text-anchor="middle" font-size="9" fill="#555">event.getClass() → SBB list</text>
+
+  <!-- Branch 2: For each SBB -->
+  <rect x="280" y="383" width="240" height="80" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="400" y="403" text-anchor="middle" font-size="11" fill="#E65100" font-weight="bold">For each matched SBB type:</text>
+  <line x1="400" y1="410" x2="400" y2="418" stroke="#E65100" stroke-width="1.2"/>
+  <polygon points="394,416 400,430 406,416" fill="#E65100"/>
+  <text x="400" y="442" text-anchor="middle" font-size="11" fill="#E65100" font-weight="bold">IES.evaluate(event)</text>
+  <text x="400" y="457" text-anchor="middle" font-size="9" fill="#555">match initial event? → route/create entity</text>
+
+  <!-- Branch 3: Telemetry -->
+  <rect x="590" y="383" width="180" height="45" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="680" y="403" text-anchor="middle" font-size="11" fill="#1565C0" font-weight="bold">[telemetry]</text>
+  <text x="680" y="419" text-anchor="middle" font-size="9" fill="#555">SbbCollector.onEventProcessed()</text>
+
+  <!-- Sub-branches under IES -->
+  <line x1="400" y1="463" x2="400" y2="490" stroke="#555" stroke-width="1.2"/>
+  <line x1="310" y1="490" x2="490" y2="490" stroke="#555" stroke-width="1.2"/>
+  <line x1="310" y1="490" x2="310" y2="510" stroke="#555" stroke-width="1.2"/>
+  <polygon points="304,508 310,522 316,508" fill="#E65100"/>
+  <line x1="490" y1="490" x2="490" y2="510" stroke="#555" stroke-width="1.2"/>
+  <polygon points="484,508 490,522 496,508" fill="#E65100"/>
+
+  <rect x="220" y="523" width="180" height="38" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="310" y="540" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">VT EntityPool.acquire()</text>
+  <text x="310" y="554" text-anchor="middle" font-size="8" fill="#555">unpark VT → run event</text>
+
+  <rect x="400" y="523" width="180" height="38" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="490" y="540" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">entity.submit(runnable)</text>
+  <text x="490" y="554" text-anchor="middle" font-size="8" fill="#555">sbb.onEvent(event, aci)</text>
+
+  <!-- Legend -->
+  <rect x="30" y="590" width="740" height="50" rx="6" fill="#F5F5F5" stroke="#DDD"/>
+  <rect x="50" y="608" width="60" height="16" rx="3" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1"/>
+  <text x="120" y="621" font-size="10" fill="#555">RA Layer</text>
+  <rect x="200" y="608" width="60" height="16" rx="3" fill="#FFF3E0" stroke="#FF9800" stroke-width="1"/>
+  <text x="270" y="621" font-size="10" fill="#555">Engine/Core</text>
+  <rect x="370" y="608" width="60" height="16" rx="3" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1"/>
+  <text x="440" y="621" font-size="10" fill="#555">Disruptor</text>
+  <rect x="530" y="608" width="60" height="16" rx="3" fill="#E8F5E9" stroke="#43A047" stroke-width="1"/>
+  <text x="600" y="621" font-size="10" fill="#555">SBB/VT</text>
+</svg>

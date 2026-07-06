@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  micro-jainslee HelloWorld — logging + telemetry batch sink.
+
+  The `microjainslee.telemetry` logger receives one batched event per flush from
+  TelemetryLogSink (newline-delimited JSON). We route it to its OWN async rolling
+  file (telemetry.log) — never to the console — so a downstream sidecar
+  (Filebeat / Promtail / Vector) can ship those lines to Elasticsearch, Loki or
+  Splunk without a heavyweight, GraalVM-hostile client in the JVM.
+-->
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p [%t] %c{1.} - %m%n"/>
+        </Console>
+
+        <!-- Telemetry batch sink: JSON lines, one message per flushed batch. -->
+        <RollingFile name="telemetryFile"
+                     fileName="logs/telemetry.log"
+                     filePattern="logs/telemetry-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="14"/>
+        </RollingFile>
+
+        <!-- Async wrapper: the app thread never blocks on disk I/O. -->
+        <Async name="telemetryAsync" bufferSize="1024">
+            <AppenderRef ref="telemetryFile"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <!-- Batched telemetry → file only, do not pollute the console. -->
+        <Logger name="microjainslee.telemetry" level="INFO" additivity="false">
+            <AppenderRef ref="telemetryAsync"/>
+        </Logger>
+
+        <Logger name="com.microjainslee" level="INFO"/>
+        <Logger name="com.example.helloworld" level="INFO"/>
+        <Root level="INFO">
+            <AppenderRef ref="console"/>
+        </Root>
+    </Loggers>
+</Configuration>

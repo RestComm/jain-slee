@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 592" font-family="Consolas,Menlo,monospace" font-size="13">
+<defs><style>.t{fill:#546E7A}</style></defs>
+<rect x="15" y="10" width="850" height="572" rx="6" fill="#FAFAFA" stroke="#B0BEC5" stroke-width="1"/>
+<rect x="15" y="10" width="850" height="30" rx="6" fill="#455A64"/>
+<rect x="15" y="30" width="850" height="10" fill="#455A64"/>
+<text x="440" y="31" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Source Tree</text>
+<text y="62" x="35" class="t">example/example-quarkus-ussdgw/</text>
+<text y="81" x="35" class="t">├── pom.xml</text>
+<text y="100" x="35" class="t">├── README.md</text>
+<text y="119" x="35" class="t">├── src/main/proto/</text>
+<text y="138" x="35" class="t">│   └── ussd_menu.proto                                 ← gRPC menu service definition</text>
+<text y="157" x="35" class="t">├── src/main/resources/</text>
+<text y="176" x="35" class="t">│   └── application.properties</text>
+<text y="195" x="35" class="t">├── src/main/java/com/example/ussddemo/quarkus/</text>
+<text y="214" x="35" class="t">│   ├── bootstrap/</text>
+<text y="233" x="35" class="t">│   │   ├── UssdDemoBootstrap.java                      ← wire: HTTP-RA + gRPC-RA + 3 SBB types</text>
+<text y="252" x="35" class="t">│   │   ├── UssdDemoContext.java                        ← collaborator interface (DI contract)</text>
+<text y="271" x="35" class="t">│   │   ├── UssdSessionStore.java                       ← session state store</text>
+<text y="290" x="35" class="t">│   │   └── UssdSubscriberProfile.java                  ← per-subscriber tier/profile</text>
+<text y="309" x="35" class="t">│   ├── sbbs/</text>
+<text y="328" x="35" class="t">│   │   ├── HttpServerSbb.java                          ← HTTP begin → start USSD flow</text>
+<text y="347" x="35" class="t">│   │   ├── Ss7UssdIngressSbb.java                      ← SS7 MAP begin → USSD flow (production ingress)</text>
+<text y="366" x="35" class="t">│   │   └── GrpcClientSbb.java                          ← gRPC menu lookup (child SBB)</text>
+<text y="385" x="35" class="t">│   ├── events/</text>
+<text y="404" x="35" class="t">│   │   ├── HttpUssdBeginEvent.java</text>
+<text y="423" x="35" class="t">│   │   ├── Ss7UssdBeginEvent.java</text>
+<text y="442" x="35" class="t">│   │   ├── GrpcMenuRequestEvent.java</text>
+<text y="461" x="35" class="t">│   │   ├── GrpcMenuResponseEvent.java</text>
+<text y="480" x="35" class="t">│   │   └── UssdResponseEvent.java</text>
+<text y="499" x="35" class="t">│   └── rest/</text>
+<text y="518" x="35" class="t">│       └── HealthResource.java                         ← health check + REST API</text>
+<text y="537" x="35" class="t">└── src/test/java/com/example/ussddemo/quarkus/</text>
+<text y="556" x="35" class="t">    └── bootstrap/</text>
+<text y="575" x="35" class="t">        └── UssdDemoSmokeTest.java                      ← plain-JUnit E2E smoke test</text>
+</svg>

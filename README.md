@@ -8,6 +8,82 @@
 
 ---
 
+## 🧠 It heals itself. 📡 It watches itself. At zero idle cost.
+
+Most telecom runtimes hand you a metrics endpoint and wish you luck at 3 a.m.
+micro-jainslee ships two first-class subsystems that turn a bare event
+dispatcher into a **self-driving node** — and both are **zero-CPU when idle**:
+no polling loops, no timer thread pools, no JMX MBean farm.
+
+### `jainslee-autonomous` — the guardian that refuses to let the node die
+
+A **thread-less** self-healing brain. It arms the JVM's own tenured-pool
+collection-usage threshold and stays completely asleep until a GC leaves the
+heap above the watermark — *that push is the only wake-up*. When pressure
+climbs it walks an escalation ladder, and the owner of each piece of state
+decides what is safe to give back:
+
+```text
+heap ≥ 75%  ELEVATED   → trim caches, expire dedup / out-of-order buffers, idle dialogs
+heap ≥ 88%  CRITICAL   → compact off-heap arenas + one guarded, rate-limited System.gc()
+heap ≥ 96%  EMERGENCY  → application load-shedding hook (refuse new activities)
+```
+
+Layered on top, a **holistic health evaluator** scores the whole node every few
+seconds — heap, CPU, error rate, "spunk" (misbehaving-SBB) alerts and leaked
+entities — into one traffic light and raises alarms on every transition:
+
+```text
+GET /api/autonomous/health → {"status":"GREEN","heapPct":24.0,"cpuLoad":0.11,"reliefRuns":0}
+                             AMBER = degraded (WARNING alarm)
+                             RED   = unhealthy (CRITICAL alarm + guardian poked to relieve NOW)
+```
+
+### `jainslee-telemetry` — observability with a rounding-error footprint
+
+Passive, lock-free collection — `AtomicLong` counters and `AtomicReferenceArray`
+ring buffers, a single lazily-sampled resource monitor, **no polling**. It
+replaces JAIN SLEE 1.1's AlarmFacility, UsageFacility and TraceFacility outright,
+and exports two complementary ways at once:
+
+- **Prometheus** — live, pull-based metrics + a ready-made **steampunk dashboard**
+  (`/telemetry`) and REST API (`/api/telemetry/*`).
+- **Batched Log4j2 JSON sink** — a durable, restart-surviving operational log
+  (`telemetry.log`, newline-delimited JSON, flushed in batches on an async
+  appender) that any sidecar (Filebeat / Promtail / Vector) ships onward to
+  Elasticsearch, Loki or Splunk — **without** dragging a GraalVM-hostile client
+  into the native image.
+
+Every app can register its own counters/gauges at runtime — SS7, Diameter, SIP,
+USSD — and they appear in the scrape, the snapshot and the dashboard with **zero
+extra wiring**.
+
+### Drop-in template — two directories, copy and go
+
+Both subsystems are wired through two self-contained packages you copy straight
+into any micro-jainslee app (see `example-quarkus-helloworld-web`):
+
+```text
+myapp/src/main/java/com/example/myapp/
+├── telemetry/
+│   ├── AppTelemetry.java        ← one install() call: collectors + Prometheus + dashboard + log sink
+│   └── TelemetryLogSink.java    ← batched JSON-lines Log4j2 sink
+└── autonomous/
+    ├── AppAutonomous.java       ← guardian + health evaluator, one install() call
+    └── HealthEvaluator.java     ← GREEN / AMBER / RED scoring over the telemetry snapshot
+```
+
+```java
+telemetry = appTelemetry.install(container, vertx);   // observe everything
+appAutonomous.install(container, telemetry);           // heal everything
+appAutonomous.mountRoutes(appTelemetry.router());      // GET /api/autonomous/health
+```
+
+> 📖 Deep dives: [`docs/jainslee-autonomous.md`](docs/jainslee-autonomous.md) ·
+> [`docs/jainslee-telemetry.md`](docs/jainslee-telemetry.md)
+
+---
+
 ## Why micro-jainslee?
 
 
@@ -69,14 +145,17 @@ Every example follows this exact pattern — copy, rename, add your logic:
 
 ```text
 myapp/
-├── pom.xml                              ← 2 deps: adapter-quarkus + your RA
+├── pom.xml                              ← deps: adapter-quarkus + your RA + telemetry + autonomous
 ├── src/main/resources/
-│   └── application.properties           ← microjainslee tuning
+│   ├── application.properties           ← microjainslee tuning
+│   └── log4j2.xml                       ← routes the batched telemetry sink to telemetry.log
 └── src/main/java/com/example/myapp/
     ├── bootstrap/
-    │   └── MyBootstrap.java             ← registerSbbType → IES → mapEvent → registerRa
+    │   └── MyBootstrap.java             ← install(telemetry) → install(autonomous) → registerSbbType → registerRa
     ├── sbbs/
     │   └── MySbb.java                   ← @InjectRa → onEvent() → sendCommand()
+    ├── telemetry/                        ← 📡 drop-in observability (AppTelemetry + TelemetryLogSink)
+    ├── autonomous/                       ← 🧠 drop-in self-healing (AppAutonomous + HealthEvaluator)
     ├── events/                           ← (optional) custom events
     └── commands/                         ← (optional) custom commands
 ```

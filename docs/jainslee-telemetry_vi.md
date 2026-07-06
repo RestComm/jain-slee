@@ -26,35 +26,7 @@ theo dõi usage dựa trên polling theo yêu cầu của JAIN SLEE 1.1, module 
 
   dòng `.record()` sau mỗi lần dispatch sự kiện
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  micro-jainslee                                                  │
-│                                                                  │
-│  ┌──────────────┐  ┌───────────────────────────────────────────┐ │
-│  │ jainslee-api │  │ jainslee-telemetry                        │ │
-│  │              │  │                                            ││
-│  │TelemetryPort │◄─┤ MicrometerTelemetryPort                    ││
-│  │ (interface)  │  │   ├─ SbbCollector       (AtomicLong)       ││
-│  │              │  │   ├─ RaCollector        (AtomicLong)       ││
-│  │              │  │   ├─ ErrorCollector     (RingBuffer 1000)  ││
-│  │              │  │   ├─ ResourceMonitor    (Daemon VT, 30s)   ││
-│  │              │  │   ├─ SpunkDetector      (callback onEvent) ││
-│  │              │  │   ├─ StaleDetector      (heartbeat + quét) ││
-│  │  ┌──────────────┐  │   ├─ AlarmEngine        (RingBuffer 500)   ││
-│  │  │jainslee-core │  │   ├─ AutoReconfigEngine (đánh giá 30s) ⚡  ││
-│  │  │              │  │   └─ PrometheusExporter (OpenMetrics)      ││
-│  │  │  Container ◄─┤  │                                            ││
-│  │  │  EventRouter◄┼──┤ onEventProcessed() → SbbCollector.record() ││
-│  │  │  SbbPool    │  │ onError()          → ErrorCollector.record()││
-│  │  └──────────────┘  └───────────────────────────────────────────┘ │
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │  jainslee-telemetry-vertx (GUI — module riêng)               ││
-│  │  GET /telemetry/        → index.html (steampunk dashboard)   ││
-│  │  GET /api/telemetry/*   → JSON endpoints                     ││
-│  └──────────────────────────────────────────────────────────────┘│
-└──────────────────────────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/jainslee-telemetry-architecture.svg" width="800"/></p>
 
 ---
 
@@ -288,10 +260,7 @@ public final class AlarmEngine {
 
 **Vòng đời cảnh báo:**
 
-```
-fire() → ACTIVE → acknowledge() → lưu trữ trong history ring buffer
-                                    (giữ lại trong 60 phút)
-```
+<p align="center"><img src="../images/jainslee-telemetry-alarm-lifecycle.svg" width="600"/></p>
 
 ---
 
@@ -666,35 +635,5 @@ microjainslee.telemetry.spunk.memory-spike-mb=100
 
 ## Cấu Trúc Module
 
-```
-micro-jainslee/
-├── jainslee-api/
-│   └── org/microjainslee/api/telemetry/
-│       └── TelemetryPort.java              ← interface công khai
-├── jainslee-telemetry/                     ← MODULE MỚI
-│   ├── pom.xml                             ← deps: micrometer, prometheus
-│   └── org/microjainslee/telemetry/
-│       ├── MicrometerTelemetryPort.java
-│       ├── SbbCollector.java
-│       ├── RaCollector.java
-│       ├── ErrorCollector.java
-│       ├── ResourceMonitor.java
-│       ├── SpunkDetector.java
-│       ├── StaleDetector.java
-│       ├── AlarmEngine.java
-│       ├── AutoReconfigEngine.java
-│       └── PrometheusExporter.java
-├── jainslee-telemetry-vertx/               ← MODULE MỚI (GUI)
-│   ├── pom.xml                             ← deps: vertx-web
-│   └── src/main/resources/webroot/telemetry/
-│       ├── index.html                      ← steampunk dashboard
-│       └── telemetry.js                    ← vòng lặp fetch + rendering
-├── jainslee-core/
-│   ├── MicroSleeContainer.java             ← + bindTelemetryPort(), API reconfig
-│   ├── EventRouter.java                    ← + setTelemetryPort(), hook onEvent
-│   └── VirtualThreadSbbEntityPool.java     ← + notifyTelemetry()
-└── example/
-    ├── example-quarkus-helloworld-web/     ← đã kết nối với telemetry
-    └── example-spring-helloworld-web/      ← đã kết nối với telemetry
-```
+<p align="center"><img src="../images/jainslee-telemetry-module-tree.svg" width="700"/></p>
 

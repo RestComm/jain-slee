@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 510" width="720" height="510">
+  <defs><style>
+    text { font-family: Menlo, Monaco, 'Courier New', monospace; }
+    .dir { font-size: 12px; font-weight: bold; }
+    .file { font-size: 11px; }
+    .annote { font-size: 10px; fill: #78909C; }
+  </style></defs>
+  <text x="30" y="28" class="dir" fill="#37474F">micro-jainslee/</text>
+  <!-- jainslee-api (Green) -->
+  <rect x="30" y="38" width="660" height="36" rx="3" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2"/>
+  <text x="46" y="53" class="dir" fill="#2E7D32">├── jainslee-api/</text>
+  <text x="64" y="67" class="file" fill="#33691E">└── org/microjainslee/api/telemetry/TelemetryPort.java</text>
+  <text x="430" y="67" class="annote">← public interface</text>
+  <!-- jainslee-telemetry (Purple) -->
+  <rect x="30" y="82" width="660" height="204" rx="3" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.2"/>
+  <text x="46" y="97" class="dir" fill="#6A1B9A">├── jainslee-telemetry/</text>
+  <text x="250" y="97" class="annote">← NEW MODULE (deps: micrometer, prometheus)</text>
+  <text x="64" y="113" class="file" fill="#4A148C">├── pom.xml</text>
+  <text x="64" y="128" class="file" fill="#4A148C">└── org/microjainslee/telemetry/</text>
+  <text x="80" y="143" class="file" fill="#6A1B9A">├── MicrometerTelemetryPort.java</text>
+  <text x="80" y="158" class="file" fill="#6A1B9A">├── SbbCollector.java</text>
+  <text x="80" y="173" class="file" fill="#6A1B9A">├── RaCollector.java</text>
+  <text x="80" y="188" class="file" fill="#6A1B9A">├── ErrorCollector.java</text>
+  <text x="80" y="203" class="file" fill="#6A1B9A">├── ResourceMonitor.java</text>
+  <text x="80" y="218" class="file" fill="#6A1B9A">├── SpunkDetector.java</text>
+  <text x="80" y="233" class="file" fill="#6A1B9A">├── StaleDetector.java</text>
+  <text x="80" y="248" class="file" fill="#6A1B9A">├── AlarmEngine.java</text>
+  <text x="80" y="263" class="file" fill="#6A1B9A">├── AutoReconfigEngine.java</text>
+  <text x="80" y="278" class="file" fill="#6A1B9A">└── PrometheusExporter.java</text>
+  <!-- jainslee-telemetry-vertx (Gray) -->
+  <rect x="30" y="294" width="660" height="42" rx="3" fill="#ECEFF1" stroke="#78909C" stroke-width="1.2"/>
+  <text x="46" y="309" class="dir" fill="#37474F">├── jainslee-telemetry-vertx/</text>
+  <text x="262" y="309" class="annote">← NEW MODULE — GUI (deps: vertx-web)</text>
+  <text x="64" y="324" class="file" fill="#455A64">├── pom.xml</text>
+  <text x="320" y="324" class="file" fill="#455A64">└── src/main/resources/webroot/telemetry/ (index.html, telemetry.js)</text>
+  <!-- jainslee-core (Orange) -->
+  <rect x="30" y="346" width="660" height="72" rx="3" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.2"/>
+  <text x="46" y="361" class="dir" fill="#E65100">├── jainslee-core/</text>
+  <text x="64" y="377" class="file" fill="#BF360C">├── MicroSleeContainer.java</text>
+  <text x="320" y="377" class="annote">← + bindTelemetryPort(), reconfig API</text>
+  <text x="64" y="393" class="file" fill="#BF360C">├── EventRouter.java</text>
+  <text x="320" y="393" class="annote">← + setTelemetryPort(), onEvent hooks</text>
+  <text x="64" y="409" class="file" fill="#BF360C">└── VirtualThreadSbbEntityPool.java</text>
+  <text x="320" y="409" class="annote">← + notifyTelemetry()</text>
+  <!-- example (Blue) -->
+  <rect x="30" y="428" width="660" height="52" rx="3" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.2"/>
+  <text x="46" y="443" class="dir" fill="#0D47A1">└── example/</text>
+  <text x="64" y="459" class="file" fill="#1565C0">├── example-quarkus-helloworld-web/</text>
+  <text x="340" y="459" class="annote">← wired with telemetry</text>
+  <text x="64" y="474" class="file" fill="#1565C0">└── example-spring-helloworld-web/</text>
+  <text x="340" y="474" class="annote">← wired with telemetry</text>
+</svg>

@@ -55,13 +55,13 @@
         <dependency>
             <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-core</artifactId>
-            <version>1.2.0-P1-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-api</artifactId>
-            <version>1.2.0-P1-SNAPSHOT</version>
+            <version>1.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

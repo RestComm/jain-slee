@@ -33,17 +33,7 @@
 
 ### One-way event flow (never reverses)
 
-```
-   Network                RA                    Core                    SBB
-     │  bytes    ┌─────────────────┐   ┌──────────────────┐   ┌────────────────┐
-     ├──────────►│ parse + classify│──►│ EventRouter      │──►│ onEvent(e, aci)│
-     │           │ fireEvent(...)  │   │ (LMAX Disruptor) │   │  business logic│
-     │           └─────────────────┘   └──────────────────┘   └───────┬────────┘
-     │                    ▲                                           │
-     │  bytes    ┌────────┴────────┐          sendCommand(cmd)        │
-     ◄───────────│ OutboundSender  │◄──────────────────────────────────┘
-                 └─────────────────┘
-```
+<p align="center"><img src="../images/junior-dev-guide-1.svg" width="800"/></p>
 
 Golden rule: **SBBs never open sockets, RAs never contain business logic.**
 
@@ -51,23 +41,7 @@ Golden rule: **SBBs never open sockets, RAs never contain business logic.**
 
 ## 2. Repo structure
 
-```
-micro-jainslee/
-├── jainslee-api/        # Pure Java 25 API (Sbb, SleeEvent, ACI, 3-port contract…)
-├── jainslee-core/       # Engine: MicroSleeContainer, EventRouter, entity pool, IES
-├── jainslee-ra-spi/     # RA SPI in classic JSLEE 1.1 style (AbstractResourceAdaptor…)
-├── jainslee-scheduler/  # HashedWheelTimer for SLEE timers
-├── jainslee-apt/        # Annotation processor generating sbb-index.properties
-├── jainslee-codegen/    # Javassist-generated concrete SBB for CMP fields
-├── jainslee-tx/         # Narayana JTA (optional)
-├── jainslee-cluster/    # Infinispan/JGroups (optional)
-├── jainslee-adapter/
-│   ├── adapter-quarkus/     # ★ Quarkus extension (runtime + deployment)
-│   ├── adapter-springboot/  # (low priority)
-│   └── adapter-jakartaee/   # (low priority)
-├── vendor-ras/          # Bundled RAs: ra-sip-servlet, ra-diameter, ra-http-*, ra-grpc-*
-└── example/             # Sample apps: example-quarkus-ussdgw (USSD), example-quarkus-sip (SIP GW)…
-```
+<p align="center"><img src="../images/junior-dev-guide-2.svg" width="800"/></p>
 
 **Architectural constraints (must not violate):**
 - `jainslee-api` and `jainslee-core`: **zero framework dependency** (no Spring/Quarkus imports).
@@ -148,19 +122,11 @@ No mapping, empty ACI → selects the **earliest-registered SBB whose `EventMask
 ## 5. Lifecycle
 
 ### SBB entity
-```
-registerSbbType ──► acquireEntity/IES allocate ──► setSbbContext → sbbCreate
-   → sbbPostCreate → sbbActivate → READY ──(events)──► remove() → sbbRemove
-```
+<p align="center"><img src="../images/junior-dev-guide-3.svg" width="800"/></p>
 Activation runs **async** on the entity thread. If you need certainty that READY is reached before calling methods directly (outside the event path): `localObject.awaitReady(5, SECONDS)`. Events via the router **don't need** waiting — the entity queue guarantees ordering.
 
 ### RA (3-port)
-```
-container.registerRa(endpoint, commandPort)
-   → (container STARTED) endpoint.activate(bootstrapPort)   // RA opens transport
-   → ... running ...
-   → container.stop() → endpoint.deactivate()               // RA closes transport
-```
+<p align="center"><img src="../images/junior-dev-guide-4.svg" width="800"/></p>
 When a protocol session ends (BYE, timeout…), the RA **must** call `bootstrapPort.endActivity(handle)` — attached SBBs receive `ActivityEndedEvent` and the ACI is reclaimed. Forgetting this = memory leak.
 
 ---

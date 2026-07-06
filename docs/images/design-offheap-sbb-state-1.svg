@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="480" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="25" text-anchor="middle" font-size="15" fill="#333" font-weight="bold">Off-Heap SBB State — Architecture Overview</text>
+
+  <!-- Layer 1: SBB Business Logic -->
+  <rect x="30" y="40" width="740" height="70" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="65" text-anchor="middle" font-size="13" fill="#2E7D32" font-weight="bold">SBB Business Logic</text>
+  <text x="400" y="85" text-anchor="middle" font-size="10" fill="#555">String msisdn = getMsisdn();   // abstract CMP getter</text>
+  <text x="400" y="100" text-anchor="middle" font-size="10" fill="#555">setMenuState(3);               // abstract CMP setter</text>
+
+  <!-- Arrow down -->
+  <line x1="400" y1="110" x2="400" y2="130" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,128 400,142 406,128" fill="#E65100"/>
+  <text x="415" y="125" font-size="8" fill="#E65100">generated $Concrete class</text>
+
+  <!-- Layer 2: Off-Heap Codegen Path -->
+  <rect x="30" y="143" width="740" height="130" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="168" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">Off-Heap Codegen Path (NEW)</text>
+  
+  <rect x="50" y="180" width="340" height="42" rx="5" fill="#FFF" stroke="#FF9800" stroke-width="0.8"/>
+  <text x="220" y="196" text-anchor="middle" font-size="9" fill="#555" font-family="monospace">getMsisdn() { addr = _offHeapBase + 8;</text>
+  <text x="220" y="212" text-anchor="middle" font-size="9" fill="#555" font-family="monospace">  UNSAFE.copyMemory(...); return new String(buf, UTF_8); }</text>
+
+  <rect x="410" y="180" width="340" height="42" rx="5" fill="#FFF" stroke="#FF9800" stroke-width="0.8"/>
+  <text x="580" y="196" text-anchor="middle" font-size="9" fill="#555" font-family="monospace">setMsisdn(String v) { buf = v.getBytes(UTF_8);</text>
+  <text x="580" y="212" text-anchor="middle" font-size="9" fill="#555" font-family="monospace">  UNSAFE.putInt(...); UNSAFE.copyMemory(...); }</text>
+
+  <text x="400" y="255" text-anchor="middle" font-size="9" fill="#E65100">Zero boxing, zero Map allocations on the hot path</text>
+
+  <!-- Arrow down -->
+  <line x1="400" y1="273" x2="400" y2="293" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,291 400,305 406,291" fill="#E65100"/>
+
+  <!-- Layer 3: OffHeapCmpFieldStore -->
+  <rect x="30" y="306" width="740" height="155" rx="8" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="331" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">OffHeapCmpFieldStore (NEW implementation of CmpFieldStore)</text>
+
+  <rect x="50" y="345" width="330" height="50" rx="5" fill="#FFF" stroke="#1E88E5" stroke-width="0.8"/>
+  <text x="215" y="363" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">Per SBB-type: OffHeapArena</text>
+  <text x="215" y="380" text-anchor="middle" font-size="8" fill="#555">slotSize=256/512/1024 | DirectByteBuffer | FreeList | entityId→slotIndex</text>
+
+  <rect x="410" y="345" width="340" height="50" rx="5" fill="#FFF" stroke="#1E88E5" stroke-width="0.8"/>
+  <text x="580" y="363" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">Slot Layout (fixed-size, 256B example)</text>
+  <text x="580" y="380" text-anchor="middle" font-size="8" fill="#555">4B magic | 2B flags | 2B field-count | N×8B field directory | payload | 4B CRC32</text>
+</svg>

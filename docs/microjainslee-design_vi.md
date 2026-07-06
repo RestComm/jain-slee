@@ -25,55 +25,13 @@
 
 ## Sơ đồ Module
 
-```
-jainslee-api          ← Hợp đồng công khai: Sbb, SleeEvent, ACI, 3-port RA
-jainslee-core         ← Engine: MicroSleeContainer, EventRouter, SbbPool, IES
-jainslee-ra-spi       ← Cơ sở RA: AbstractResourceAdaptor, lifecycle FSM
-jainslee-scheduler    ← HashedWheelTimer — tiện ích SLEE timer
-jainslee-apt          ← Annotation processor → sbb-index.properties
-jainslee-codegen      ← Javassist → các lớp SBB cụ thể cho CMP
-jainslee-tx           ← JTA qua Narayana (tùy chọn)
-jainslee-cluster      ← Infinispan/JGroups (tùy chọn)
-adapter-quarkus       ← Quarkus CDI extension (mục tiêu chính)
-adapter-springboot    ← Spring Boot adapter
-jainslee-telemetry    ← Zero-CPU observability + tự phục hồi
-jainslee-telemetry-vertx ← Steampunk dashboard GUI
-```
+<p align="center"><img src="../images/microjainslee-design-1.svg" width="800"/></p>
 
 ---
 
 ## Pipeline Định tuyến Sự kiện
 
-```
-RA.fireEvent(event, aci)
-       │
-       ▼
-EventRouter.enqueue(event, aci)
-       │
-       ▼
-LMAX Disruptor RingBuffer (slot claimed)
-       │
-       ▼
-EventHandler.onEvent(event, sequence, endOfBatch)
-       │
-       ├── EventRouter.lookupSbbTypes(event.getClass())
-       │       ↓
-       │   Map<Class<? extends SleeEvent>, List<String>> eventToSbbTypes
-       │
-       ├── Với từng loại SBB:
-       │       ↓
-       │   IES.evaluate(event)
-       │       ├── khớp điều kiện InitialEventSelect?
-       │       │   → định tuyến đến entity hiện có (session affinity)
-       │       │   → HOẶC tạo entity mới
-       │       │
-       │       ├── VirtualThreadSbbEntityPool.acquire(entityId)
-       │       │   → VT đang park unpark, chạy sự kiện
-       │       │
-       │       └── entity.submit(() -> sbb.onEvent(event, aci))
-       │
-       └── [telemetry] SbbCollector.onEventProcessed(...)
-```
+<p align="center"><img src="../images/microjainslee-design-2.svg" width="800"/></p>
 
 
 ---
@@ -85,23 +43,7 @@ Mỗi SBB entity sở hữu một virtual thread riêng. Thread được park
 đến. Điều này đảm bảo JAIN SLEE §8.4 thứ tự đơn-luồng-trên-SBB
 mà không cần khóa.
 
-```
-VirtualThreadSbbEntityPool
-│
-├── ConcurrentHashMap<String, SbbEntitySlot>
-│       entityId → { VT, queue, sbbInstance }
-│
-├── acquire(entityId, factory)
-│       → getOrCreate slot
-│       → park VT trên queue.take()
-│       → khi có sự kiện: queue.offer(runnable) → VT unpark
-│
-├── release(entityId)
-│       → interrupt VT, xóa slot
-│
-└── prewarm(count, factory)
-        → tạo N VTs đã park trước
-```
+<p align="center"><img src="../images/microjainslee-design-3.svg" width="800"/></p>
 
 ### Đảm bảo Thứ tự
 
@@ -115,15 +57,7 @@ VT chỉ đơn giản xử lý từng sự kiện một.
 
 Mỗi Resource Adaptor phơi bày chính xác ba cổng:
 
-```
-┌──────────────────────────────────────────────┐
-│                 ResourceAdaptor               │
-│                                               │
-│  RaEndpointPort   ← Container kích hoạt RA    │
-│  RaCommandPort    ← SBB gửi lệnh đến RA      │
-│  RaBootstrapPort  → RA bắn sự kiện vào SLEE   │
-└──────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/microjainslee-design-4.svg" width="800"/></p>
 
 ### Mẫu PolyVoice
 
@@ -157,25 +91,11 @@ public class HttpServerResourceAdaptor implements RaCommandPort {
 
 ### Quarkus (Chính)
 
-```
-Quarkus Build Time                    Quarkus Runtime
-─────────────────                    ────────────────
-MicroJainsleeProcessor
-  ├── quét các lớp @Sbb (Jandex)
-  ├── sinh synthetic CDI beans
-  └── MicroJainsleeRecorder
-        └── stash container config ──→ MicroSleeContainer
-                                       @PostConstruct start()
-                                       @PreDestroy stop()
-```
+<p align="center"><img src="../images/microjainslee-design-5.svg" width="800"/></p>
 
 ### Spring Boot
 
-```
-MicroJainsleeAutoConfiguration
-  └── @Bean MicroSleeContainer
-        └── SmartLifecycle → start()/stop()
-```
+<p align="center"><img src="../images/microjainslee-design-6.svg" width="800"/></p>
 
 
 ---
@@ -188,28 +108,7 @@ thụ động zero-CPU hiện đại xây dựng trên Micrometer + Prometheus.
 
 ### Kiến trúc
 
-```
-┌──────────────────────────────────────────────────────┐
-│                  jainslee-telemetry                   │
-│                                                       │
-│  MicrometerTelemetryPort (triển khai TelemetryPort)   │
-│  │                                                    │
-│  ├── SbbCollector ──── AtomicLong counters            │
-│  ├── RaCollector ───── AtomicLong counters            │
-│  ├── ErrorCollector ── RingBuffer<ErrorEntry>(1000)   │
-│  ├── ResourceMonitor ─ Daemon VT, chu kỳ 30s          │
-│  ├── SpunkDetector ─── callback onEvent               │
-│  ├── StaleDetector ─── heartbeat + quét 60s           │
-│  ├── AlarmEngine ───── RingBuffer<Alarm>(500)         │
-│  ├── AutoReconfigEngine ─ đánh giá 30s → container    │
-│  └── PrometheusExporter ─ OpenMetrics /metrics        │
-│                                                       │
-│  Tích hợp qua EventRouter hooks:                      │
-│    onEventProcessed() → SbbCollector + SpunkDetector  │
-│    onError()          → ErrorCollector                │
-│    trackHeartbeat()   → StaleDetector                 │
-└──────────────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/microjainslee-design-7.svg" width="800"/></p>
 
 ### Các Điều kiện Tự phục hồi
 
@@ -240,21 +139,7 @@ biểu đồ sparkline, xác nhận alarm, và thanh trượt cấu hình runtim
 
 ## Cầu Nối Timer
 
-```
-SBB gọi TimerPort.setTimer(...)
-       │
-       ▼
-SleeTimerSchedulerBridge
-       │
-       ▼
-jSS7 HashedWheelTimer (dựa trên Netty)
-       │
-       ▼
-Timer kích hoạt → EventRouter.enqueue(TimerEvent)
-       │
-       ▼
-SBB.onEvent(TimerEvent, aci)
-```
+<p align="center"><img src="../images/microjainslee-design-8.svg" width="800"/></p>
 
 ---
 

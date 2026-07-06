@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="380" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="28" text-anchor="middle" font-size="16" fill="#333" font-weight="bold">Timer Bridge</text>
+
+  <!-- Box 1: SBB calls setTimer -->
+  <rect x="235" y="48" width="330" height="40" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="73" text-anchor="middle" font-size="13" fill="#2E7D32" font-weight="bold">SBB calls TimerPort.setTimer(...)</text>
+  <line x1="400" y1="88" x2="400" y2="113" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,111 400,125 406,111" fill="#E65100"/>
+
+  <!-- Box 2: SleeTimerSchedulerBridge -->
+  <rect x="220" y="126" width="360" height="40" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="151" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">SleeTimerSchedulerBridge</text>
+  <line x1="400" y1="166" x2="400" y2="191" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,189 400,203 406,189" fill="#E65100"/>
+
+  <!-- Box 3: HashedWheelTimer -->
+  <rect x="210" y="204" width="380" height="40" rx="8" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="229" text-anchor="middle" font-size="13" fill="#6A1B9A" font-weight="bold">jSS7 HashedWheelTimer (Netty-based)</text>
+  <line x1="400" y1="244" x2="400" y2="269" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,267 400,281 406,267" fill="#E65100"/>
+
+  <!-- Box 4: Timer fires -->
+  <rect x="200" y="282" width="400" height="40" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="307" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">Timer fires → EventRouter.enqueue(TimerEvent)</text>
+  <line x1="400" y1="322" x2="400" y2="345" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,343 400,357 406,343" fill="#E65100"/>
+
+  <!-- Box 5: SBB.onEvent -->
+  <rect x="235" y="348" width="330" height="30" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="368" text-anchor="middle" font-size="13" fill="#2E7D32" font-weight="bold">SBB.onEvent(TimerEvent, aci)</text>
+</svg>

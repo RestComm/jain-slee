@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="300" fill="#FAFBFC" rx="8"/>
+
+  <!-- Left column: Build Time -->
+  <rect x="20" y="15" width="370" height="265" rx="8" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5"/>
+  <text x="205" y="42" text-anchor="middle" font-size="15" fill="#6A1B9A" font-weight="bold">Quarkus Build Time</text>
+
+  <rect x="50" y="58" width="310" height="38" rx="6" fill="#FFF" stroke="#8E24AA" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="205" y="82" text-anchor="middle" font-size="13" fill="#6A1B9A" font-weight="bold">MicroJainsleeProcessor</text>
+
+  <line x1="205" y1="96" x2="205" y2="115" stroke="#8E24AA" stroke-width="1.5"/>
+  <line x1="90" y1="115" x2="320" y2="115" stroke="#8E24AA" stroke-width="1.5"/>
+
+  <line x1="90" y1="115" x2="90" y2="133" stroke="#8E24AA" stroke-width="1.2"/>
+  <polygon points="84,131 90,145 96,131" fill="#8E24AA"/>
+  <line x1="205" y1="115" x2="205" y2="133" stroke="#8E24AA" stroke-width="1.2"/>
+  <polygon points="199,131 205,145 211,131" fill="#8E24AA"/>
+  <line x1="320" y1="115" x2="320" y2="133" stroke="#8E24AA" stroke-width="1.2"/>
+  <polygon points="314,131 320,145 326,131" fill="#8E24AA"/>
+
+  <rect x="40" y="146" width="100" height="38" rx="6" fill="#FFF" stroke="#8E24AA" stroke-width="0.8"/>
+  <text x="90" y="165" text-anchor="middle" font-size="9" fill="#6A1B9A">scan @Sbb</text>
+  <text x="90" y="178" text-anchor="middle" font-size="9" fill="#6A1B9A">(Jandex)</text>
+
+  <rect x="155" y="146" width="100" height="38" rx="6" fill="#FFF" stroke="#8E24AA" stroke-width="0.8"/>
+  <text x="205" y="165" text-anchor="middle" font-size="9" fill="#6A1B9A">generate</text>
+  <text x="205" y="178" text-anchor="middle" font-size="9" fill="#6A1B9A">CDI beans</text>
+
+  <rect x="270" y="146" width="100" height="38" rx="6" fill="#FFF" stroke="#8E24AA" stroke-width="0.8"/>
+  <text x="320" y="165" text-anchor="middle" font-size="9" fill="#6A1B9A">Recorder</text>
+  <text x="320" y="178" text-anchor="middle" font-size="9" fill="#6A1B9A">stash config</text>
+
+  <!-- Arrow between columns -->
+  <line x1="390" y1="120" x2="415" y2="120" stroke="#555" stroke-width="2" stroke-dasharray="6,3"/>
+  <polygon points="413,114 425,120 413,126" fill="#555"/>
+
+  <!-- Right column: Runtime -->
+  <rect x="430" y="15" width="350" height="265" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5"/>
+  <text x="605" y="42" text-anchor="middle" font-size="15" fill="#E65100" font-weight="bold">Quarkus Runtime</text>
+
+  <rect x="460" y="60" width="290" height="55" rx="6" fill="#FFF" stroke="#FF9800" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="605" y="82" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">MicroSleeContainer</text>
+  <text x="605" y="100" text-anchor="middle" font-size="10" fill="#555">@PostConstruct start()</text>
+  <text x="605" y="112" text-anchor="middle" font-size="10" fill="#555">@PreDestroy stop()</text>
+</svg>

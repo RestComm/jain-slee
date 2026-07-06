@@ -11,16 +11,7 @@
 
 A micro-jainslee app = **3 pieces + 1 bootstrap**:
 
-```
-┌──────────────────────── App (Quarkus) ────────────────────────┐
-│  Bootstrap (@ApplicationScoped, @PostConstruct)               │
-│    1. container.start()          ← if adapter hasn't started  │
-│    2. registerSbbType(...)       ← which SBBs exist           │
-│    3. createIesDispatcher()      ← session routing            │
-│    4. mapEventToSbb(...)         ← which events → which SBB   │
-│    5. registerRa(endpoint, cmd)  ← which RA provides events   │
-└───────────────────────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/app-guide-1.svg" width="800"/></p>
 
 Order 2 → 3 → 4 → 5 is mandatory: once RA activates, events can arrive immediately, all mappings must be ready beforehand.
 
@@ -241,53 +232,8 @@ The goal is `mvn package -Dnative`. Current status and remaining work (check bef
 
 ### SIP Gateway app (`example/example-quarkus-sip/`)
 
-```
-example/example-quarkus-sip/
-├── pom.xml
-├── src/main/resources/
-│   └── application.properties                          ← microjainslee tuning + sip.udp.port
-├── src/main/java/com/example/sipgateway/
-│   ├── bootstrap/
-│   │   └── SipGatewayBootstrap.java                    ← wire RA + SBB, @PostConstruct init
-│   ├── sbbs/
-│   │   ├── ProxySbb.java                               ← INVITE/BYE/response routing
-│   │   ├── RegistrationSbb.java                        ← REGISTER handler + AOR management
-│   │   └── IceNegotiationSbb.java                      ← ICE/STUN candidate negotiation
-│   ├── commands/
-│   │   └── RegisterAorCommand.java                     ← app-defined command (AOR registry)
-│   └── events/
-│       └── RegistrationUpdatedEvent.java               ← app-defined event (registration changed)
-```
+<p align="center"><img src="../images/app-guide-2.svg" width="800"/></p>
 
 ### USSD Demo app (`example/example-quarkus-ussdgw/`)
 
-```
-example/example-quarkus-ussdgw/
-├── pom.xml
-├── README.md
-├── src/main/proto/
-│   └── ussd_menu.proto                                 ← gRPC menu service definition
-├── src/main/resources/
-│   └── application.properties
-├── src/main/java/com/example/ussddemo/quarkus/
-│   ├── bootstrap/
-│   │   ├── UssdDemoBootstrap.java                      ← wire: HTTP-RA + gRPC-RA + 3 SBB types
-│   │   ├── UssdDemoContext.java                        ← collaborator interface (DI contract)
-│   │   ├── UssdSessionStore.java                       ← session state store
-│   │   └── UssdSubscriberProfile.java                  ← per-subscriber tier/profile
-│   ├── sbbs/
-│   │   ├── HttpServerSbb.java                          ← HTTP begin → start USSD flow
-│   │   ├── Ss7UssdIngressSbb.java                      ← SS7 MAP begin → USSD flow (production ingress)
-│   │   └── GrpcClientSbb.java                          ← gRPC menu lookup (child SBB)
-│   ├── events/
-│   │   ├── HttpUssdBeginEvent.java
-│   │   ├── Ss7UssdBeginEvent.java
-│   │   ├── GrpcMenuRequestEvent.java
-│   │   ├── GrpcMenuResponseEvent.java
-│   │   └── UssdResponseEvent.java
-│   └── rest/
-│       └── HealthResource.java                         ← health check + REST API
-└── src/test/java/com/example/ussddemo/quarkus/
-    └── bootstrap/
-        └── UssdDemoSmokeTest.java                      ← plain-JUnit E2E smoke test
-```
+<p align="center"><img src="../images/app-guide-3.svg" width="800"/></p>

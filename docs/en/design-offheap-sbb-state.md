@@ -26,55 +26,7 @@ At 100K+ SBB entities, GC pressure becomes the dominant bottleneck:
 
 ## 2. Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  SBB Business Logic                                                 │
-│    String msisdn = getMsisdn();   // abstract CMP getter            │
-│    setMenuState(3);               // abstract CMP setter            │
-└──────────────┬──────────────────────────────────────────────────────┘
-               │  generated $Concrete class
-               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Off-Heap Codegen Path  (NEW)                                       │
-│                                                                     │
-│  getMsisdn() {                                                      │
-│    long addr = _offHeapBase + 8;  // field offset computed at       │
-│    int len = UNSAFE.getInt(_offHeapBase + 6); // string length      │
-│    byte[] buf = new byte[len];    // (can be thread-local)          │
-│    UNSAFE.copyMemory(null, addr, buf, ARRAY_BYTE_BASE_OFFSET, len); │
-│    return new String(buf, UTF_8);                                   │
-│  }                                                                  │
-│                                                                     │
-│  setMsisdn(String v) {                                              │
-│    byte[] buf = v.getBytes(UTF_8);                                  │
-│    UNSAFE.putInt(_offHeapBase + 6, buf.length);                     │
-│    UNSAFE.copyMemory(buf, ..., null, _offHeapBase + 8, buf.length); │
-│  }                                                                  │
-└──────────────┬──────────────────────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  OffHeapCmpFieldStore  (NEW implementation of CmpFieldStore)        │
-│                                                                     │
-│  ┌──────────────────────────────────────┐                           │
-│  │  Per SBB-type: OffHeapArena          │                           │
-│  │    slotSize = 256 / 512 / 1024 bytes │                           │
-│  │    DirectByteBuffer (or mmap)        │                           │
-│  │    FreeList (MpmcArrayQueue<int>)    │                           │
-│  │    entityId → slotIndex  (bijection)  │                           │
-│  └──────────────────────────────────────┘                           │
-│                                                                     │
-│  Slot Layout (fixed-size, 256B example):                            │
-│  ┌─────────────────────────────────────┐                            │
-│  │ 0    4B magic  0xC0FFEE01           │                            │
-│  │ 4    2B flags  (occupied/dirty)     │                            │
-│  │ 6    2B field-count                 │                            │
-│  │ 8    N×8B field directory           │                            │
-│  │ ...  variable-length payload area   │                            │
-│  │ end  4B CRC32 (integrity check)     │                            │
-│  └─────────────────────────────────────┘                            │
-└─────────────────────────────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/design-offheap-sbb-state-1.svg" width="800"/></p>
 
 **Key principle:** The generated `$Concrete` class knows field offsets at codegen time. It reads/writes directly into a pre-allocated off-heap slot using `Unsafe`/`VarHandle`, with **zero boxing and zero Map allocations on the hot path**.
 
@@ -107,24 +59,7 @@ At 100K+ SBB entities, GC pressure becomes the dominant bottleneck:
 
 Each entity gets a fixed-size slot for O(1) index arithmetic (`baseAddr = arenaBase + entityIndex * slotSize`):
 
-```
-Byte offset  │ Size │ Field
-─────────────┼──────┼──────────────────────────────────────────
-0            │ 4    │ Magic number 0xC0FFEE01 (sanity check)
-4            │ 2    │ Flags: bit-0 = occupied, bit-1 = dirty
-6            │ 2    │ Field count (N, 0–255)
-8            │ N×8  │ Field directory — N entries, each 8 bytes:
-             │      │   [0] 2B: field-name-hash (compatibility check)
-             │      │   [2] 2B: field-type (0=int,1=long,2=String,3=byte[],4=boolean)
-             │      │   [4] 4B: payload offset (relative to slot base; 0 = null)
-             │      │
-8 + N×8      │ var  │ Payload area:
-             │      │   Strings: [2B len][UTF-8 bytes], padded to 4B alignment
-             │      │   Primitives: stored inline in offset field (no separate payload)
-             │      │   byte[]: [4B len][raw bytes], padded to 4B alignment
-             │      │
-slotSize - 4 │ 4    │ CRC32 of bytes 0..(slotSize-5) — corruption detection for mmap
-```
+<p align="center"><img src="../images/design-offheap-sbb-state-2.svg" width="800"/></p>
 
 ### Example: SBB with `msisdn` (String max 20), `sessionId` (String max 64), `menuState` (int), `retryCount` (int)
 
@@ -134,26 +69,7 @@ slotSize - 4 │ 4    │ CRC32 of bytes 0..(slotSize-5) — corruption detectio
 
 Slot layout (256 bytes):
 
-```
-Offset  │ Content
-────────┼─────────────────────────────────────────────────────
-0x00    │ C0 FF EE 01                          (magic)
-0x04    │ 00 01                                (flags: occupied)
-0x06    │ 00 04                                (field count = 4)
-0x08    │ [sessionId]  hash=0x3A2F  type=2(String)  off=0x28
-0x10    │ [msisdn]     hash=0x7B1C  type=2(String)  off=0x70
-0x18    │ [menuState]  hash=0x8C5D  type=0(int)     val=3   (inline)
-0x20    │ [retryCount] hash=0x1E4F  type=0(int)     val=0   (inline)
-0x28    │ 00 10  "abc-session-123..."             (16B sessionId)
-
-
----
-
-## 5. Integration with `JainsleeCodegen`
-
-### Current flow (heap-based)
-
-```
+<p align="center"><img src="../images/design-offheap-sbb-state-3.svg" width="800"/></p>
 Abstract SBB class
   │
   ▼
@@ -322,34 +238,11 @@ Every `setXxx` writes through to the `MappedByteBuffer`. The OS flushes dirty pa
 
 ### Recovery on restart
 
-```
-Container.start()
-  │
-  ├── Open mmap file, scan for magic 0xC0FFEE01
-  │     │
-  │     ├── For each occupied slot with valid CRC32:
-  │     │     ├── Read field-count + field directory
-  │     │     ├── Read entityId from slot header extension
-  │     │     ├── Rebuild slotMap (entityId → slotIdx)
-  │     │     └── Call SessionRecoveryService.registerSnapshot(...)
-  │     │
-  │     └── Populate freeList with unoccupied / CRC-invalid slots
-  │
-  └── Rebuild entities via existing SessionRecoveryService
-        └── For each recovered snapshot:
-              ├── reconstructFromSnapshot(snap)
-              ├── Re-attach to ACIs if still valid
-              └── Park in VirtualThreadSbbEntityPool
-```
+<p align="center"><img src="../images/design-offheap-sbb-state-4.svg" width="800"/></p>
 
 ### CRC32 commit protocol
 
-```
-Write order:                         Recovery check:
-1. Write field data                  ─
-2. Write CRC32                       ─ if CRC valid & occupied → good
-3. Write "occupied" flag last        ─ if occupied & CRC invalid → free (torn write)
-```
+<p align="center"><img src="../images/design-offheap-sbb-state-5.svg" width="800"/></p>
 
 ---
 

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="200" fill="#FAFBFC" rx="8"/>
+  <text x="30" y="28" font-size="14" fill="#333" font-weight="bold">ra-grpc-server/</text>
+  
+  <line x1="35" y1="38" x2="35" y2="55" stroke="#555" stroke-width="1.2"/>
+  <line x1="35" y1="55" x2="600" y2="55" stroke="#555" stroke-width="1"/>
+  
+  <line x1="60" y1="55" x2="60" y2="70" stroke="#555" stroke-width="1"/><polygon points="54,68 60,82 66,68" fill="#E65100"/>
+  <rect x="70" y="75" width="240" height="26" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="190" y="93" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">GrpcServerRa.java — core transport</text>
+
+  <line x1="330" y1="55" x2="330" y2="70" stroke="#555" stroke-width="1"/><polygon points="324,68 330,82 336,68" fill="#E65100"/>
+  <rect x="340" y="75" width="250" height="26" rx="5" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="465" y="93" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">GrpcServerRaEndpoint.java — 3-port wrapper</text>
+
+  <!-- Row 2 -->
+  <line x1="60" y1="101" x2="60" y2="115" stroke="#555" stroke-width="1"/><polygon points="54,113 60,127 66,113" fill="#E65100"/>
+  <rect x="70" y="122" width="240" height="26" rx="5" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="190" y="140" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">events/ — GrpcRequestEvent</text>
+
+  <line x1="330" y1="101" x2="330" y2="115" stroke="#555" stroke-width="1"/><polygon points="324,113 330,127 336,113" fill="#E65100"/>
+  <rect x="340" y="122" width="250" height="26" rx="5" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1" filter="url(#sh)"/>
+  <text x="465" y="140" text-anchor="middle" font-size="10" fill="#6A1B9A" font-weight="bold">command/ — SendGrpcResponse | SendGrpcError</text>
+
+  <!-- Row 3 -->
+  <line x1="60" y1="148" x2="60" y2="162" stroke="#555" stroke-width="1"/><polygon points="54,160 60,174 66,160" fill="#E65100"/>
+  <rect x="70" y="169" width="240" height="26" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="190" y="187" text-anchor="middle" font-size="10" fill="#E65100">collab/ — BytesMarshaller, PendingCallRegistry</text>
+</svg>

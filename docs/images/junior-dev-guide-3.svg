@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 120" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="120" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="22" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">RA Lifecycle (3-Port)</text>
+
+  <rect x="15" y="40" width="175" height="32" rx="8" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="103" y="61" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">container.registerRa(...)</text>
+
+  <line x1="190" y1="56" x2="215" y2="56" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="213,52 223,56 213,60" fill="#E65100"/>
+
+  <rect x="225" y="40" width="175" height="32" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="313" y="61" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">container STARTED</text>
+
+  <line x1="400" y1="56" x2="425" y2="56" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="423,52 433,56 423,60" fill="#E65100"/>
+
+  <rect x="435" y="40" width="175" height="32" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="523" y="61" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">endpoint.activate()</text>
+
+  <line x1="610" y1="56" x2="635" y2="56" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="633,52 643,56 633,60" fill="#E65100"/>
+
+  <rect x="645" y="40" width="140" height="32" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="715" y="61" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">RA opens transport</text>
+
+  <text x="400" y="95" text-anchor="middle" font-size="10" fill="#555">... running (events flowing, commands flowing) ... → container.stop() → endpoint.deactivate() → RA closes transport</text>
+</svg>

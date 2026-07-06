@@ -22,51 +22,7 @@ alarm panels, and sparkline charts — all in a steampunk/cyberpunk aesthetic.
 
 ### Screenshot Description
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│  ⚙ micro-jainslee TELEMETRY          [AUTO-RECONFIG: ● ON]     │
-│  ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔│
-│                                                                    │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │
-│  │  ACTIVE  │ │  EVENTS  │ │  ERRORS  │ │    UPTIME        │   │
-│  │  SBBs    │ │   /sec   │ │  (1min)  │ │    2h 34m        │   │
-│  │   142    │ │  1,234   │ │    3     │ │                  │   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────────────┘   │
-│                                                                    │
-│  ┌─────────────────────┐ ┌──────────────────────────────────┐   │
-│  │     HEAP USAGE      │ │         CPU LOAD                 │   │
-│  │     ╭───╮           │ │     ╭───╮                         │   │
-│  │    ╱     ╲  25%     │ │    ╱     ╲   15%                 │   │
-│  │   │   ●   │         │ │   │   ●   │                       │   │
-│  │    ╲     ╱ 128/512  │ │    ╲     ╱  0.15                 │   │
-│  │     ╰───╯   MB      │ │     ╰───╯                        │   │
-│  └─────────────────────┘ └──────────────────────────────────┘   │
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ SBB PERFORMANCE                                  [sparkline] ││
-│  │ HelloWorldSbb  ████████████░░░░  42 active  ● healthy       ││
-│  │ ProxySbb       ██████░░░░░░░░░░  18 active  ● healthy       ││
-│  └──────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ RA STATUS                                                    ││
-│  │ http-server-ra  ● ACTIVE  :8080  10,000 ev  5,000 cmd       ││
-│  │ sip-servlet-ra   ● ACTIVE  :5060   5,000 ev  2,500 cmd       ││
-│  └──────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ ALARMS                                  [2 active] [history] ││
-│  │ ⚠ WARNING  12:34  heap>85%, pool halved          [ACK]     ││
-│  │ 🔴 CRITICAL 12:30  Error storm: ProxySbb suspended  [ACK]   ││
-│  └──────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐│
-│  │ CONFIG                                                       ││
-│  │ Auto-reconfig: [● ON]  Memory warn: [85%]  CPU warn: [80%]  ││
-│  │ Error storm:     [100/min]  Stale warn: [5min]               ││
-│  └──────────────────────────────────────────────────────────────┘│
-└──────────────────────────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/telemetry-gui-1.svg" width="800"/></p>
 
 ---
 
@@ -228,20 +184,7 @@ function updateGauge(id, percent) {
 
 ## Alarm Acknowledgment Flow
 
-```
-User clicks [ACK] on alarm row
-       │
-       ▼
-POST /api/telemetry/alarms/{id}/acknowledge
-       │
-       ▼
-AlarmEngine.acknowledge(id)
-  → removes from active list
-  → moves to history ring buffer
-       │
-       ▼
-Next poll (≤2s later) → alarm row disappears from panel
-```
+<p align="center"><img src="../images/telemetry-gui-2.svg" width="800"/></p>
 
 Acknowledged alarms can be viewed via the [history] link which fetches
 `/api/telemetry/alarms/history?minutes=60`.
@@ -333,12 +276,7 @@ Edit the `:root` block in `index.html` to change the entire theme:
 
 ## File Structure
 
-```
-jainslee-telemetry-vertx/
-└── src/main/resources/webroot/telemetry/
-    ├── index.html          ← complete dashboard (HTML + CSS + SVG)
-    └── telemetry.js        ← fetch loop, rendering, event handlers
-```
+<p align="center"><img src="../images/telemetry-gui-3.svg" width="800"/></p>
 
 **index.html** (< 15 KB gzipped):
 - Inline `<style>` with all CSS

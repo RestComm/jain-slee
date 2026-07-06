@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 345" font-family="Consolas,Menlo,monospace" font-size="13">
+<defs><style>.t{fill:#546E7A}</style></defs>
+<rect x="15" y="10" width="850" height="325" rx="6" fill="#FAFAFA" stroke="#B0BEC5" stroke-width="1"/>
+<rect x="15" y="10" width="850" height="30" rx="6" fill="#455A64"/>
+<rect x="15" y="30" width="850" height="10" fill="#455A64"/>
+<text x="440" y="31" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Source Tree</text>
+<text y="62" x="35" class="t">example/example-quarkus-sip/</text>
+<text y="81" x="35" class="t">├── pom.xml</text>
+<text y="100" x="35" class="t">├── src/main/resources/</text>
+<text y="119" x="35" class="t">│   └── application.properties                          ← microjainslee tuning + sip.udp.port</text>
+<text y="138" x="35" class="t">├── src/main/java/com/example/sipgateway/</text>
+<text y="157" x="35" class="t">│   ├── bootstrap/</text>
+<text y="176" x="35" class="t">│   │   └── SipGatewayBootstrap.java                    ← wire RA + SBB, @PostConstruct init</text>
+<text y="195" x="35" class="t">│   ├── sbbs/</text>
+<text y="214" x="35" class="t">│   │   ├── ProxySbb.java                               ← INVITE/BYE/response routing</text>
+<text y="233" x="35" class="t">│   │   ├── RegistrationSbb.java                        ← REGISTER handler + AOR management</text>
+<text y="252" x="35" class="t">│   │   └── IceNegotiationSbb.java                      ← ICE/STUN candidate negotiation</text>
+<text y="271" x="35" class="t">│   ├── commands/</text>
+<text y="290" x="35" class="t">│   │   └── RegisterAorCommand.java                     ← app-defined command (AOR registry)</text>
+<text y="309" x="35" class="t">│   └── events/</text>
+<text y="328" x="35" class="t">│       └── RegistrationUpdatedEvent.java               ← app-defined event (registration changed)</text>
+</svg>

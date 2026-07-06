@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="420" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="25" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">gRPC Unary Call — Full Trace (10 Steps)</text>
+
+  <rect x="15" y="38" width="100" height="26" rx="5" fill="#F3E5F5" stroke="#8E24AA"/>
+  <text x="65" y="56" text-anchor="middle" font-size="10" fill="#6A1B9A" font-weight="bold">NETWORK</text>
+  <rect x="130" y="38" width="200" height="26" rx="5" fill="#E3F2FD" stroke="#1E88E5"/>
+  <text x="230" y="56" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">RA (ra-grpc-server)</text>
+  <rect x="345" y="38" width="150" height="26" rx="5" fill="#FFF3E0" stroke="#FF9800"/>
+  <text x="420" y="56" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">CORE</text>
+  <rect x="510" y="38" width="140" height="26" rx="5" fill="#E8F5E9" stroke="#43A047"/>
+  <text x="580" y="56" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">SBB</text>
+
+  <rect x="15" y="75" width="100" height="36" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1" filter="url(#sh)"/>
+  <text x="65" y="90" text-anchor="middle" font-size="8" fill="#6A1B9A">HTTP/2 frame</text>
+  <text x="65" y="103" text-anchor="middle" font-size="8" fill="#6A1B9A">:9090</text>
+  <line x1="115" y1="93" x2="128" y2="93" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="126,90 133,93 126,96" fill="#E65100"/>
+
+  <rect x="130" y="75" width="200" height="36" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="230" y="90" text-anchor="middle" font-size="8" fill="#1565C0">grpc-netty ServerImpl</text>
+  <text x="230" y="103" text-anchor="middle" font-size="8" fill="#1565C0">fallbackHandlerRegistry.lookupMethod()</text>
+
+  <line x1="230" y1="111" x2="230" y2="126" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="226,124 230,134 234,124" fill="#E65100"/>
+
+  <rect x="130" y="135" width="200" height="45" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="230" y="150" text-anchor="middle" font-size="8" fill="#1565C0" font-weight="bold">GrpcServerRa.startUnaryCall()</text>
+  <text x="230" y="163" text-anchor="middle" font-size="7" fill="#555">callId=UUID | metadata extract</text>
+  <text x="230" y="175" text-anchor="middle" font-size="7" fill="#555">pendingCalls.register() | call.request(2)</text>
+
+  <line x1="330" y1="158" x2="343" y2="158" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="341,155 348,158 341,161" fill="#E65100"/>
+
+  <rect x="345" y="140" width="150" height="36" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="420" y="155" text-anchor="middle" font-size="8" fill="#E65100" font-weight="bold">MicroSleeContainer</text>
+  <text x="420" y="169" text-anchor="middle" font-size="7" fill="#555">routeEvent → IES → acquireEntity</text>
+
+  <line x1="495" y1="158" x2="508" y2="158" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="506,155 513,158 506,161" fill="#E65100"/>
+
+  <rect x="510" y="140" width="140" height="50" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="580" y="155" text-anchor="middle" font-size="8" fill="#2E7D32" font-weight="bold">ChargeSbb.onEvent()</text>
+  <text x="580" y="169" text-anchor="middle" font-size="7" fill="#555">ChargeRequest.parseFrom()</text>
+  <text x="580" y="182" text-anchor="middle" font-size="7" fill="#555">→ business → sendCommand()</text>
+
+  <line x1="510" y1="200" x2="335" y2="200" stroke="#1565C0" stroke-width="1.5"/>
+  <polygon points="333,197 326,200 333,203" fill="#1565C0"/>
+  <text x="420" y="195" text-anchor="middle" font-size="7" fill="#1565C0">sendCommand(SendGrpcResponse)</text>
+
+  <rect x="130" y="210" width="200" height="42" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="230" y="225" text-anchor="middle" font-size="8" fill="#1565C0" font-weight="bold">GrpcServerRaEndpoint.sendCommand</text>
+  <text x="230" y="239" text-anchor="middle" font-size="7" fill="#555">→ completeCall(): sendMessage + close(OK)</text>
+
+  <line x1="130" y1="232" x2="118" y2="232" stroke="#1565C0" stroke-width="1.5"/>
+  <polygon points="116,229 109,232 116,235" fill="#1565C0"/>
+
+  <rect x="15" y="220" width="100" height="28" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1" filter="url(#sh)"/>
+  <text x="65" y="239" text-anchor="middle" font-size="8" fill="#6A1B9A">HTTP/2 response</text>
+
+  <rect x="30" y="270" width="740" height="55" rx="8" fill="#F5F5F5" stroke="#DDD"/>
+  <text x="400" y="290" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">Key: Bytes-level generic — no generated stubs anywhere. Timeout guard: 30s → DEADLINE_EXCEEDED.</text>
+  <text x="400" y="308" text-anchor="middle" font-size="9" fill="#555">Fallback HandlerRegistry → genericMethod() lets ANY service/method work with zero registration.</text>
+
+  <rect x="30" y="340" width="740" height="40" rx="6" fill="#FAFAFA" stroke="#DDD"/>
+  <rect x="50" y="355" width="60" height="14" rx="3" fill="#F3E5F5" stroke="#8E24AA"/><text x="120" y="367" font-size="9" fill="#555">Network</text>
+  <rect x="210" y="355" width="60" height="14" rx="3" fill="#E3F2FD" stroke="#1E88E5"/><text x="280" y="367" font-size="9" fill="#555">RA Layer</text>
+  <rect x="370" y="355" width="60" height="14" rx="3" fill="#FFF3E0" stroke="#FF9800"/><text x="440" y="367" font-size="9" fill="#555">Core Engine</text>
+  <rect x="530" y="355" width="60" height="14" rx="3" fill="#E8F5E9" stroke="#43A047"/><text x="600" y="367" font-size="9" fill="#555">SBB</text>
+</svg>

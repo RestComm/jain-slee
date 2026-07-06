@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 140" width="680" height="140">
+  <defs>
+    <style>
+      text { font-family: Menlo, Monaco, 'Courier New', monospace; }
+      .title { font-size: 13px; font-weight: bold; }
+      .body { font-size: 12px; }
+      .small { font-size: 10px; }
+    </style>
+  </defs>
+
+  <!-- fire() box -->
+  <rect x="10" y="40" width="90" height="40" rx="4" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5"/>
+  <text x="55" y="65" class="body" fill="#2E7D32" text-anchor="middle">fire()</text>
+
+  <!-- right arrow -->
+  <line x1="100" y1="60" x2="160" y2="60" stroke="#1565C0" stroke-width="1.8"/>
+  <polygon points="160,60 150,53 150,67" fill="#1565C0"/>
+
+  <!-- ACTIVE box -->
+  <rect x="165" y="40" width="100" height="40" rx="4" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5"/>
+  <text x="215" y="65" class="body" fill="#E65100" text-anchor="middle">ACTIVE</text>
+
+  <!-- right arrow -->
+  <line x1="265" y1="60" x2="335" y2="60" stroke="#1565C0" stroke-width="1.8"/>
+  <polygon points="335,60 325,53 325,67" fill="#1565C0"/>
+
+  <!-- acknowledge() box -->
+  <rect x="342" y="40" width="130" height="40" rx="4" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5"/>
+  <text x="407" y="65" class="body" fill="#0D47A1" text-anchor="middle">acknowledge()</text>
+
+  <!-- right arrow -->
+  <line x1="472" y1="60" x2="530" y2="60" stroke="#1565C0" stroke-width="1.8"/>
+  <polygon points="530,60 520,53 520,67" fill="#1565C0"/>
+
+  <!-- archived box (wider, two-line) -->
+  <rect x="535" y="30" width="130" height="60" rx="4" fill="#ECEFF1" stroke="#78909C" stroke-width="1.5"/>
+  <text x="600" y="52" class="small" fill="#37474F" text-anchor="middle">archived in</text>
+  <text x="600" y="70" class="small" fill="#37474F" text-anchor="middle">history ring buffer</text>
+
+  <!-- annotation below -->
+  <text x="600" y="108" class="small" fill="#78909C" text-anchor="middle">(retained for 60 minutes)</text>
+
+</svg>

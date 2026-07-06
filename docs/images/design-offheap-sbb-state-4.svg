@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="340" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="25" text-anchor="middle" font-size="15" fill="#333" font-weight="bold">OffHeapArena — Memory Management (one per SBB type)</text>
+
+  <rect x="30" y="45" width="740" height="275" rx="10" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="72" text-anchor="middle" font-size="14" fill="#1565C0" font-weight="bold">OffHeapArena</text>
+
+  <!-- Arena buffer -->
+  <rect x="55" y="90" width="300" height="55" rx="6" fill="#FFF" stroke="#1E88E5" stroke-width="1"/>
+  <text x="205" y="110" text-anchor="middle" font-size="11" fill="#1565C0" font-weight="bold">ByteBuffer arena</text>
+  <text x="205" y="127" text-anchor="middle" font-size="9" fill="#555">DirectByteBuffer or MappedByteBuffer</text>
+  <text x="205" y="140" text-anchor="middle" font-size="9" fill="#555">capacity = slotSize × maxSlots (e.g. 256 × 4M = 1 GB)</text>
+
+  <!-- slotMap -->
+  <rect x="380" y="90" width="180" height="55" rx="6" fill="#FFF" stroke="#1E88E5" stroke-width="1"/>
+  <text x="470" y="110" text-anchor="middle" font-size="11" fill="#1565C0" font-weight="bold">ConcurrentHashMap</text>
+  <text x="470" y="127" text-anchor="middle" font-size="9" fill="#555">&lt;String, Integer&gt; slotMap</text>
+  <text x="470" y="140" text-anchor="middle" font-size="9" fill="#555">entityId → slotIdx</text>
+
+  <!-- freeList -->
+  <rect x="585" y="90" width="170" height="55" rx="6" fill="#FFF" stroke="#1E88E5" stroke-width="1"/>
+  <text x="670" y="110" text-anchor="middle" font-size="11" fill="#1565C0" font-weight="bold">MpmcArrayQueue</text>
+  <text x="670" y="127" text-anchor="middle" font-size="9" fill="#555">&lt;Integer&gt; freeList</text>
+  <text x="670" y="140" text-anchor="middle" font-size="9" fill="#555">Release → push / Acquire → pop</text>
+
+  <!-- Operations -->
+  <rect x="55" y="165" width="225" height="45" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="168" y="185" text-anchor="middle" font-size="11" fill="#2E7D32" font-weight="bold">allocate(entityId) → baseAddr</text>
+  <text x="168" y="201" text-anchor="middle" font-size="8" fill="#555">Pop freeList or nextSlotIndex++</text>
+
+  <rect x="300" y="165" width="200" height="45" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="400" y="185" text-anchor="middle" font-size="11" fill="#E65100" font-weight="bold">free(entityId)</text>
+  <text x="400" y="201" text-anchor="middle" font-size="8" fill="#555">Push to freeList, zero-fill slot</text>
+
+  <rect x="520" y="165" width="225" height="45" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1" filter="url(#sh)"/>
+  <text x="633" y="185" text-anchor="middle" font-size="11" fill="#6A1B9A" font-weight="bold">resolve(entityId) → baseAddr</text>
+  <text x="633" y="201" text-anchor="middle" font-size="8" fill="#555">For snapshot/recovery</text>
+
+  <!-- Note -->
+  <rect x="55" y="230" width="690" height="70" rx="6" fill="#F5F5F5" stroke="#DDD"/>
+  <text x="400" y="253" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">EntityPool Integration (in VirtualThreadSbbEntityPool)</text>
+  <text x="400" y="273" text-anchor="middle" font-size="9" fill="#555">acquireByClass: if @OffHeap present → arena.allocate(entityId) → sbb.bindSlot(baseAddr)</text>
+  <text x="400" y="290" text-anchor="middle" font-size="9" fill="#555">release: if OffHeapBindable → unbindSlot() → arena.free(entityId)</text>
+</svg>

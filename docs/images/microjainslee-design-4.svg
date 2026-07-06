@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="280" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="28" text-anchor="middle" font-size="16" fill="#333" font-weight="bold">3-Port RA Contract</text>
+
+  <!-- Big RA box -->
+  <rect x="180" y="45" width="440" height="210" rx="12" fill="#E3F2FD" stroke="#1E88E5" stroke-width="2" filter="url(#sh)"/>
+  <text x="400" y="75" text-anchor="middle" font-size="15" fill="#1565C0" font-weight="bold">ResourceAdaptor</text>
+
+  <!-- Port 1: RaEndpointPort -->
+  <rect x="40" y="105" width="130" height="50" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="105" y="126" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">RaEndpointPort</text>
+  <text x="105" y="143" text-anchor="middle" font-size="8" fill="#555">Container → RA</text>
+  <!-- Arrow: Container to RA -->
+  <line x1="170" y1="130" x2="200" y2="130" stroke="#43A047" stroke-width="1.8"/>
+  <polygon points="198,126 208,130 198,134" fill="#43A047"/>
+  <text x="185" y="122" text-anchor="middle" font-size="7" fill="#43A047">activate</text>
+
+  <!-- Port 2: RaCommandPort -->
+  <rect x="40" y="170" width="130" height="50" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="105" y="191" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">RaCommandPort</text>
+  <text x="105" y="208" text-anchor="middle" font-size="8" fill="#555">SBB → RA</text>
+  <!-- Arrow: SBB to RA -->
+  <line x1="170" y1="195" x2="200" y2="195" stroke="#FF9800" stroke-width="1.8"/>
+  <polygon points="198,191 208,195 198,199" fill="#FF9800"/>
+  <text x="185" y="187" text-anchor="middle" font-size="7" fill="#FF9800">command</text>
+
+  <!-- Port 3: RaBootstrapPort -->
+  <rect x="630" y="130" width="130" height="50" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="695" y="151" text-anchor="middle" font-size="10" fill="#6A1B9A" font-weight="bold">RaBootstrapPort</text>
+  <text x="695" y="168" text-anchor="middle" font-size="8" fill="#555">RA → SLEE</text>
+  <!-- Arrow: RA to SLEE -->
+  <line x1="600" y1="155" x2="625" y2="155" stroke="#8E24AA" stroke-width="1.8"/>
+  <polygon points="623,151 633,155 623,159" fill="#8E24AA"/>
+  <text x="613" y="147" text-anchor="middle" font-size="7" fill="#8E24AA">fireEvent</text>
+
+  <!-- Inside RA box labels for ports -->
+  <text x="220" y="135" font-size="9" fill="#1565C0">← Container activates RA</text>
+  <text x="220" y="200" font-size="9" fill="#1565C0">← SBB sends commands to RA</text>
+  <text x="400" y="163" font-size="9" fill="#1565C0">→ RA fires events to SLEE</text>
+</svg>

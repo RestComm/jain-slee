@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 290" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="290" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="25" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Outbound gRPC Call (ra-grpc-client)</text>
+
+  <rect x="15" y="40" width="140" height="26" rx="5" fill="#E8F5E9" stroke="#43A047"/>
+  <text x="85" y="58" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">SBB</text>
+  <rect x="200" y="40" width="200" height="26" rx="5" fill="#E3F2FD" stroke="#1E88E5"/>
+  <text x="300" y="58" text-anchor="middle" font-size="10" fill="#1565C0" font-weight="bold">RA (ra-grpc-client)</text>
+  <rect x="500" y="40" width="200" height="26" rx="5" fill="#F3E5F5" stroke="#8E24AA"/>
+  <text x="600" y="58" text-anchor="middle" font-size="10" fill="#6A1B9A" font-weight="bold">REMOTE SERVER</text>
+
+  <rect x="15" y="78" width="140" height="38" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="85" y="93" text-anchor="middle" font-size="8" fill="#2E7D32">RequesterSbb</text>
+  <text x="85" y="107" text-anchor="middle" font-size="7" fill="#555">sendCommand(InvokeGrpc)</text>
+
+  <line x1="155" y1="97" x2="198" y2="97" stroke="#E65100" stroke-width="1.5"/>
+  <polygon points="196,94 203,97 196,100" fill="#E65100"/>
+
+  <rect x="200" y="78" width="200" height="55" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="300" y="93" text-anchor="middle" font-size="8" fill="#1565C0" font-weight="bold">GenericGrpcClientRa</text>
+  <text x="300" y="107" text-anchor="middle" font-size="7" fill="#555">VT pool → doInvoke()</text>
+  <text x="300" y="119" text-anchor="middle" font-size="7" fill="#555">channels.computeIfAbsent(host)</text>
+  <text x="300" y="131" text-anchor="middle" font-size="7" fill="#555">ClientCalls.blockingUnaryCall()</text>
+
+  <line x1="400" y1="105" x2="498" y2="105" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="496,102 503,105 496,108" fill="#E65100"/>
+  <text x="450" y="99" text-anchor="middle" font-size="7" fill="#E65100">HTTP/2</text>
+
+  <rect x="500" y="88" width="200" height="36" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1" filter="url(#sh)"/>
+  <text x="600" y="103" text-anchor="middle" font-size="8" fill="#6A1B9A">billing-host:9090</text>
+  <text x="600" y="117" text-anchor="middle" font-size="8" fill="#6A1B9A">ChargingService/Charge</text>
+
+  <line x1="600" y1="124" x2="600" y2="148" stroke="#555" stroke-width="1.2"/>
+  <line x1="600" y1="148" x2="405" y2="148" stroke="#1565C0" stroke-width="1.5"/>
+  <polygon points="403,145 396,148 403,151" fill="#1565C0"/>
+  <text x="500" y="143" text-anchor="middle" font-size="7" fill="#1565C0">response / status</text>
+
+  <rect x="200" y="158" width="200" height="36" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1" filter="url(#sh)"/>
+  <text x="300" y="173" text-anchor="middle" font-size="8" fill="#1565C0">fireResponse()</text>
+  <text x="300" y="187" text-anchor="middle" font-size="7" fill="#555">GrpcInvokeResponseEvent → routeEvent</text>
+
+  <line x1="200" y1="176" x2="160" y2="176" stroke="#1565C0" stroke-width="1.5"/>
+  <polygon points="158,173 151,176 158,179" fill="#1565C0"/>
+
+  <rect x="15" y="165" width="140" height="28" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="85" y="184" text-anchor="middle" font-size="8" fill="#2E7D32">RequesterSbb.onEvent()</text>
+
+  <rect x="30" y="215" width="740" height="55" rx="8" fill="#F5F5F5" stroke="#DDD"/>
+  <text x="400" y="237" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">Key points:</text>
+  <text x="400" y="253" text-anchor="middle" font-size="9" fill="#555">Virtual-thread pool — SBB entity never blocks. MethodDescriptor built at call time (no stubs).</text>
+  <text x="400" y="267" text-anchor="middle" font-size="9" fill="#555">One HTTP/2 connection per target (pooled ManagedChannel). Correlation via corrId.</text>
+</svg>

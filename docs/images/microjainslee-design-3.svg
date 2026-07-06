@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="450" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="28" text-anchor="middle" font-size="16" fill="#333" font-weight="bold">VirtualThreadSbbEntityPool</text>
+
+  <!-- Root box -->
+  <rect x="280" y="45" width="240" height="36" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="68" text-anchor="middle" font-size="14" fill="#E65100" font-weight="bold">VirtualThreadSbbEntityPool</text>
+
+  <!-- Trunk line -->
+  <line x1="400" y1="81" x2="400" y2="110" stroke="#555" stroke-width="1.8"/>
+  <line x1="140" y1="110" x2="660" y2="110" stroke="#555" stroke-width="1.8"/>
+  <!-- 3 branches -->
+  <line x1="140" y1="110" x2="140" y2="130" stroke="#555" stroke-width="1.5"/>
+  <polygon points="134,128 140,142 146,128" fill="#E65100"/>
+  <line x1="400" y1="110" x2="400" y2="130" stroke="#555" stroke-width="1.5"/>
+  <polygon points="394,128 400,142 406,128" fill="#E65100"/>
+  <line x1="660" y1="110" x2="660" y2="130" stroke="#555" stroke-width="1.5"/>
+  <polygon points="654,128 660,142 666,128" fill="#E65100"/>
+
+  <!-- Branch 1: ConcurrentHashMap -->
+  <rect x="35" y="143" width="210" height="65" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="140" y="163" text-anchor="middle" font-size="11" fill="#2E7D32" font-weight="bold">ConcurrentHashMap</text>
+  <text x="140" y="178" text-anchor="middle" font-size="11" fill="#2E7D32" font-weight="bold">&lt;String, SbbEntitySlot&gt;</text>
+  <text x="140" y="198" text-anchor="middle" font-size="9" fill="#555">entityId → { VT, queue, sbb }</text>
+
+  <!-- Branch 2: acquire -->
+  <rect x="280" y="143" width="240" height="85" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="400" y="163" text-anchor="middle" font-size="12" fill="#E65100" font-weight="bold">acquire(entityId, factory)</text>
+  <text x="400" y="182" text-anchor="middle" font-size="10" fill="#555">→ getOrCreate slot</text>
+  <text x="400" y="198" text-anchor="middle" font-size="10" fill="#555">→ park VT on queue.take()</text>
+  <text x="400" y="214" text-anchor="middle" font-size="10" fill="#555">→ event: queue.offer(runnable) → VT unparks</text>
+
+  <!-- Branch 3: release + prewarm -->
+  <rect x="555" y="143" width="210" height="50" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="660" y="163" text-anchor="middle" font-size="12" fill="#E65100" font-weight="bold">release(entityId)</text>
+  <text x="660" y="183" text-anchor="middle" font-size="9" fill="#555">→ interrupt VT, remove slot</text>
+
+  <rect x="555" y="203" width="210" height="50" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.2" filter="url(#sh)"/>
+  <text x="660" y="223" text-anchor="middle" font-size="12" fill="#2E7D32" font-weight="bold">prewarm(count, factory)</text>
+  <text x="660" y="243" text-anchor="middle" font-size="9" fill="#555">→ create N parked VTs ahead of time</text>
+
+  <!-- Arrow from release to prewarm -->
+  <line x1="660" y1="193" x2="660" y2="198" stroke="#888" stroke-width="1.2"/>
+  <polygon points="654,198 660,208 666,198" fill="#888"/>
+
+  <!-- Key principle -->
+  <rect x="30" y="280" width="740" height="55" rx="6" fill="#F5F5F5" stroke="#DDD"/>
+  <text x="50" y="302" font-size="11" fill="#333" font-weight="bold">Ordering Guarantee:</text>
+  <text x="50" y="320" font-size="10" fill="#555">Events for entity E always delivered on E's owning VT. LinkedBlockingQueue is FIFO. No locks held during SBB execution — VT processes one event at a time.</text>
+</svg>

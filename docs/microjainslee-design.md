@@ -25,55 +25,13 @@
 
 ## Module Map
 
-```
-jainslee-api          ← Public contracts: Sbb, SleeEvent, ACI, 3-port RA
-jainslee-core         ← Engine: MicroSleeContainer, EventRouter, SbbPool, IES
-jainslee-ra-spi       ← RA base: AbstractResourceAdaptor, lifecycle FSM
-jainslee-scheduler    ← HashedWheelTimer — SLEE timer facility
-jainslee-apt          ← Annotation processor → sbb-index.properties
-jainslee-codegen      ← Javassist → concrete SBB classes for CMP
-jainslee-tx           ← JTA via Narayana (optional)
-jainslee-cluster      ← Infinispan/JGroups (optional)
-adapter-quarkus       ← Quarkus CDI extension (main target)
-adapter-springboot    ← Spring Boot adapter
-jainslee-telemetry    ← Zero-CPU observability + self-healing
-jainslee-telemetry-vertx ← Steampunk dashboard GUI
-```
+<p align="center"><img src="../images/microjainslee-design-1.svg" width="800"/></p>
 
 ---
 
 ## Event Router Pipeline
 
-```
-RA.fireEvent(event, aci)
-       │
-       ▼
-EventRouter.enqueue(event, aci)
-       │
-       ▼
-LMAX Disruptor RingBuffer (slot claimed)
-       │
-       ▼
-EventHandler.onEvent(event, sequence, endOfBatch)
-       │
-       ├── EventRouter.lookupSbbTypes(event.getClass())
-       │       ↓
-       │   Map<Class<? extends SleeEvent>, List<String>> eventToSbbTypes
-       │
-       ├── For each SBB type:
-       │       ↓
-       │   IES.evaluate(event)
-       │       ├── matches InitialEventSelect condition?
-       │       │   → route to existing entity (session affinity)
-       │       │   → OR create new entity
-       │       │
-       │       ├── VirtualThreadSbbEntityPool.acquire(entityId)
-       │       │   → parked VT unparks, runs event
-       │       │
-       │       └── entity.submit(() -> sbb.onEvent(event, aci))
-       │
-       └── [telemetry] SbbCollector.onEventProcessed(...)
-```
+<p align="center"><img src="../images/microjainslee-design-2.svg" width="800"/></p>
 
 ---
 
@@ -84,23 +42,7 @@ Each SBB entity owns a dedicated virtual thread. The thread is parked
 arrives. This guarantees JAIN SLEE §8.4 single-threaded-per-SBB ordering
 without locks.
 
-```
-VirtualThreadSbbEntityPool
-│
-├── ConcurrentHashMap<String, SbbEntitySlot>
-│       entityId → { VT, queue, sbbInstance }
-│
-├── acquire(entityId, factory)
-│       → getOrCreate slot
-│       → park VT on queue.take()
-│       → on event: queue.offer(runnable) → VT unparks
-│
-├── release(entityId)
-│       → interrupt VT, remove slot
-│
-└── prewarm(count, factory)
-        → create N parked VTs ahead of time
-```
+<p align="center"><img src="../images/microjainslee-design-3.svg" width="800"/></p>
 
 ### Ordering Guarantee
 
@@ -114,15 +56,7 @@ the VT simply processes one event at a time.
 
 Every Resource Adaptor exposes exactly three ports:
 
-```
-┌──────────────────────────────────────────────┐
-│                 ResourceAdaptor               │
-│                                               │
-│  RaEndpointPort   ← Container activates RA    │
-│  RaCommandPort    ← SBB sends commands to RA  │
-│  RaBootstrapPort  → RA fires events to SLEE   │
-└──────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/microjainslee-design-4.svg" width="800"/></p>
 
 ### PolyVoice Pattern
 
@@ -156,25 +90,11 @@ public class HttpServerResourceAdaptor implements RaCommandPort {
 
 ### Quarkus (Primary)
 
-```
-Quarkus Build Time                    Quarkus Runtime
-─────────────────                    ────────────────
-MicroJainsleeProcessor
-  ├── scan @Sbb classes (Jandex)
-  ├── generate synthetic CDI beans
-  └── MicroJainsleeRecorder
-        └── stash container config ──→ MicroSleeContainer
-                                       @PostConstruct start()
-                                       @PreDestroy stop()
-```
+<p align="center"><img src="../images/microjainslee-design-5.svg" width="800"/></p>
 
 ### Spring Boot
 
-```
-MicroJainsleeAutoConfiguration
-  └── @Bean MicroSleeContainer
-        └── SmartLifecycle → start()/stop()
-```
+<p align="center"><img src="../images/microjainslee-design-6.svg" width="800"/></p>
 
 ---
 
@@ -186,28 +106,7 @@ system built on Micrometer + Prometheus.
 
 ### Architecture
 
-```
-┌──────────────────────────────────────────────────────┐
-│                  jainslee-telemetry                   │
-│                                                       │
-│  MicrometerTelemetryPort (implements TelemetryPort)   │
-│  │                                                    │
-│  ├── SbbCollector ──── AtomicLong counters            │
-│  ├── RaCollector ───── AtomicLong counters            │
-│  ├── ErrorCollector ── RingBuffer<ErrorEntry>(1000)   │
-│  ├── ResourceMonitor ─ Daemon VT, 30s interval        │
-│  ├── SpunkDetector ─── onEvent callback               │
-│  ├── StaleDetector ─── heartbeat + 60s scan           │
-│  ├── AlarmEngine ───── RingBuffer<Alarm>(500)         │
-│  ├── AutoReconfigEngine ─ 30s evaluate → container    │
-│  └── PrometheusExporter ─ OpenMetrics /metrics        │
-│                                                       │
-│  Integrated via EventRouter hooks:                    │
-│    onEventProcessed() → SbbCollector + SpunkDetector  │
-│    onError()          → ErrorCollector                │
-│    trackHeartbeat()   → StaleDetector                 │
-└──────────────────────────────────────────────────────┘
-```
+<p align="center"><img src="../images/microjainslee-design-7.svg" width="800"/></p>
 
 ### Self-Healing Conditions
 
@@ -238,21 +137,7 @@ sparkline charts, alarm acknowledgment, and runtime config sliders.
 
 ## Timer Bridge
 
-```
-SBB calls TimerPort.setTimer(...)
-       │
-       ▼
-SleeTimerSchedulerBridge
-       │
-       ▼
-jSS7 HashedWheelTimer (Netty-based)
-       │
-       ▼
-Timer fires → EventRouter.enqueue(TimerEvent)
-       │
-       ▼
-SBB.onEvent(TimerEvent, aci)
-```
+<p align="center"><img src="../images/microjainslee-design-8.svg" width="800"/></p>
 
 ---
 

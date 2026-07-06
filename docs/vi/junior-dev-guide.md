@@ -36,17 +36,7 @@
 
 ### Luồng event một chiều (không bao giờ ngược)
 
-```
-   Network                RA                    Core                    SBB
-     │  bytes    ┌─────────────────┐   ┌──────────────────┐   ┌────────────────┐
-     ├──────────►│ parse + classify│──►│ EventRouter      │──►│ onEvent(e, aci)│
-     │           │ fireEvent(...)  │   │ (LMAX Disruptor) │   │  business logic│
-     │           └─────────────────┘   └──────────────────┘   └───────┬────────┘
-     │                    ▲                                           │
-     │  bytes    ┌────────┴────────┐          sendCommand(cmd)        │
-     ◄───────────│ OutboundSender  │◄──────────────────────────────────┘
-                 └─────────────────┘
-```
+<p align="center"><img src="../images/junior-dev-guide-1.svg" width="800"/></p>
 
 Quy tắc vàng: **SBB không bao giờ tự mở socket, RA không bao giờ chứa business logic.**
 
@@ -54,23 +44,7 @@ Quy tắc vàng: **SBB không bao giờ tự mở socket, RA không bao giờ ch
 
 ## 2. Cấu trúc repo
 
-```
-micro-jainslee/
-├── jainslee-api/        # API thuần Java 25 (Sbb, SleeEvent, ACI, 3-port contract…)
-├── jainslee-core/       # Engine: MicroSleeContainer, EventRouter, entity pool, IES
-├── jainslee-ra-spi/     # RA SPI kiểu JSLEE 1.1 cổ điển (AbstractResourceAdaptor…)
-├── jainslee-scheduler/  # HashedWheelTimer cho SLEE timer
-├── jainslee-apt/        # Annotation processor sinh sbb-index.properties
-├── jainslee-codegen/    # Javassist sinh concrete SBB cho CMP field
-├── jainslee-tx/         # Narayana JTA (tùy chọn)
-├── jainslee-cluster/    # Infinispan/JGroups (tùy chọn)
-├── jainslee-adapter/
-│   ├── adapter-quarkus/     # ★ Quarkus extension (runtime + deployment)
-│   ├── adapter-springboot/  # (low priority)
-│   └── adapter-jakartaee/   # (low priority)
-├── vendor-ras/          # RA có sẵn: ra-sip-servlet, ra-diameter, ra-http-*, ra-grpc-*
-└── example/             # App mẫu: example-quarkus-ussdgw (USSD), example-quarkus-sip (SIP GW)…
-```
+<p align="center"><img src="../images/junior-dev-guide-2.svg" width="800"/></p>
 
 **Ràng buộc kiến trúc (không được vi phạm):**
 
@@ -156,21 +130,13 @@ Không có mapping, ACI trống → chọn SBB **đăng ký sớm nhất có `Ev
 
 ### SBB entity
 
-```
-registerSbbType ──► acquireEntity/IES allocate ──► setSbbContext → sbbCreate
-   → sbbPostCreate → sbbActivate → READY ──(events)──► remove() → sbbRemove
-```
+<p align="center"><img src="../images/junior-dev-guide-3.svg" width="800"/></p>
 
 Activation chạy **async** trên entity thread. Nếu cần chắc chắn READY trước khi gọi method trực tiếp (ngoài event path): `localObject.awaitReady(5, SECONDS)`. Event qua router **không cần** chờ — queue của entity tự bảo đảm thứ tự.
 
 ### RA (3-port)
 
-```
-container.registerRa(endpoint, commandPort)
-   → (container STARTED) endpoint.activate(bootstrapPort)   // RA mở transport
-   → ... hoạt động ...
-   → container.stop() → endpoint.deactivate()               // RA đóng transport
-```
+<p align="center"><img src="../images/junior-dev-guide-4.svg" width="800"/></p>
 
 Khi protocol session kết thúc (BYE, timeout…), RA **phải** gọi `bootstrapPort.endActivity(handle)` — SBB attach sẽ nhận `ActivityEndedEvent` và ACI được thu hồi. Quên bước này = memory leak.
 

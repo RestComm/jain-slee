@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="520" fill="#FAFBFC" rx="8"/>
+
+  <!-- Main container box -->
+  <rect x="30" y="10" width="740" height="400" rx="12" fill="#E3F2FD" stroke="#1E88E5" stroke-width="2" filter="url(#sh)"/>
+  <text x="400" y="38" text-anchor="middle" font-size="15" fill="#1565C0" font-weight="bold">jainslee-telemetry</text>
+
+  <!-- Inner telemetry port -->
+  <rect x="160" y="55" width="480" height="34" rx="6" fill="#1565C0" opacity="0.1" stroke="#1E88E5" stroke-width="1.2"/>
+  <text x="400" y="77" text-anchor="middle" font-size="12" fill="#1565C0" font-weight="bold">MicrometerTelemetryPort (implements TelemetryPort)</text>
+
+  <!-- 9 collector boxes -->
+  <rect x="50" y="105" width="160" height="38" rx="5" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="130" y="121" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">SbbCollector</text>
+  <text x="130" y="135" text-anchor="middle" font-size="8" fill="#555">AtomicLong counters</text>
+
+  <rect x="230" y="105" width="160" height="38" rx="5" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="310" y="121" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">RaCollector</text>
+  <text x="310" y="135" text-anchor="middle" font-size="8" fill="#555">AtomicLong counters</text>
+
+  <rect x="410" y="105" width="160" height="38" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="490" y="121" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">ErrorCollector</text>
+  <text x="490" y="135" text-anchor="middle" font-size="8" fill="#555">RingBuffer&lt;ErrorEntry&gt;(1000)</text>
+
+  <rect x="590" y="105" width="160" height="38" rx="5" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1" filter="url(#sh)"/>
+  <text x="670" y="121" text-anchor="middle" font-size="10" fill="#6A1B9A" font-weight="bold">ResourceMonitor</text>
+  <text x="670" y="135" text-anchor="middle" font-size="8" fill="#555">Daemon VT, 30s interval</text>
+
+  <rect x="50" y="158" width="160" height="38" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="130" y="174" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">SpunkDetector</text>
+  <text x="130" y="188" text-anchor="middle" font-size="8" fill="#555">onEvent callback</text>
+
+  <rect x="230" y="158" width="160" height="38" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="310" y="174" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">StaleDetector</text>
+  <text x="310" y="188" text-anchor="middle" font-size="8" fill="#555">heartbeat + 60s scan</text>
+
+  <rect x="410" y="158" width="160" height="38" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="490" y="174" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">AlarmEngine</text>
+  <text x="490" y="188" text-anchor="middle" font-size="8" fill="#555">RingBuffer&lt;Alarm&gt;(500)</text>
+
+  <rect x="590" y="158" width="160" height="38" rx="5" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1" filter="url(#sh)"/>
+  <text x="670" y="174" text-anchor="middle" font-size="10" fill="#6A1B9A" font-weight="bold">AutoReconfigEngine</text>
+  <text x="670" y="188" text-anchor="middle" font-size="8" fill="#555">30s evaluate → container</text>
+
+  <rect x="300" y="211" width="200" height="38" rx="5" fill="#E8F5E9" stroke="#43A047" stroke-width="1" filter="url(#sh)"/>
+  <text x="400" y="227" text-anchor="middle" font-size="10" fill="#2E7D32" font-weight="bold">PrometheusExporter</text>
+  <text x="400" y="241" text-anchor="middle" font-size="8" fill="#555">OpenMetrics /metrics</text>
+
+  <!-- EventRouter hooks section -->
+  <rect x="50" y="268" width="700" height="78" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.2"/>
+  <text x="400" y="290" text-anchor="middle" font-size="12" fill="#E65100" font-weight="bold">Integrated via EventRouter hooks:</text>
+  <text x="80" y="312" font-size="10" fill="#555">onEventProcessed()  →  SbbCollector + SpunkDetector</text>
+  <text x="80" y="328" font-size="10" fill="#555">onError()           →  ErrorCollector</text>
+  <text x="80" y="344" font-size="10" fill="#555">trackHeartbeat()    →  StaleDetector</text>
+
+  <!-- Legend -->
+  <rect x="30" y="430" width="740" height="50" rx="6" fill="#F5F5F5" stroke="#DDD"/>
+  <rect x="50" y="448" width="60" height="16" rx="3" fill="#E8F5E9" stroke="#43A047" stroke-width="1"/>
+  <text x="120" y="461" font-size="10" fill="#555">Metrics/Export</text>
+  <rect x="240" y="448" width="60" height="16" rx="3" fill="#FFF3E0" stroke="#FF9800" stroke-width="1"/>
+  <text x="310" y="461" font-size="10" fill="#555">Detection/Healing</text>
+  <rect x="450" y="448" width="60" height="16" rx="3" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1"/>
+  <text x="520" y="461" font-size="10" fill="#555">Auto-reconfig</text>
+</svg>

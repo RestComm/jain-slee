@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="320" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="25" text-anchor="middle" font-size="15" fill="#333" font-weight="bold">Current Flow: Heap-based CMP (via CmpFieldStore)</text>
+
+  <rect x="250" y="45" width="300" height="36" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="68" text-anchor="middle" font-size="12" fill="#2E7D32" font-weight="bold">Abstract SBB class</text>
+  <line x1="400" y1="81" x2="400" y2="100" stroke="#E65100" stroke-width="1.6"/>
+  <polygon points="394,98 400,112 406,98" fill="#E65100"/>
+
+  <rect x="230" y="113" width="340" height="36" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="136" text-anchor="middle" font-size="12" fill="#E65100" font-weight="bold">ConcreteSbbGenerator.generateCmpAccessors()</text>
+  
+  <line x1="400" y1="149" x2="400" y2="168" stroke="#555" stroke-width="1.5"/>
+  <line x1="180" y1="168" x2="620" y2="168" stroke="#555" stroke-width="1.5"/>
+  <line x1="180" y1="168" x2="180" y2="183" stroke="#555" stroke-width="1.2"/>
+  <polygon points="174,181 180,195 186,181" fill="#E65100"/>
+  <line x1="620" y1="168" x2="620" y2="183" stroke="#555" stroke-width="1.2"/>
+  <polygon points="614,181 620,195 626,181" fill="#E65100"/>
+
+  <rect x="90" y="196" width="180" height="45" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="180" y="215" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">emitCmpHelpers()</text>
+  <text x="180" y="232" text-anchor="middle" font-size="8" fill="#555">_cmpRead / _cmpWrite</text>
+
+  <rect x="310" y="196" width="180" height="45" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="400" y="215" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">buildGetterBody()</text>
+  <text x="400" y="232" text-anchor="middle" font-size="8" fill="#555">_cmpRead("fieldName")</text>
+
+  <rect x="530" y="196" width="180" height="45" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1" filter="url(#sh)"/>
+  <text x="620" y="215" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">buildSetterBody()</text>
+  <text x="620" y="232" text-anchor="middle" font-size="8" fill="#555">_cmpWrite("fieldName", ...)</text>
+
+  <rect x="30" y="265" width="740" height="35" rx="6" fill="#F5F5F5" stroke="#DDD"/>
+  <text x="400" y="287" text-anchor="middle" font-size="10" fill="#E65100" font-weight="bold">Problem: All paths delegate to CmpFieldStoreLocator.get().load(entityId) → HashMap allocations on every call</text>
+</svg>

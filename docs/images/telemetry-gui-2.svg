@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect width="800" height="340" fill="#FAFBFC" rx="8"/>
+  <text x="400" y="28" text-anchor="middle" font-size="16" fill="#333" font-weight="bold">Alarm Acknowledgment Flow</text>
+
+  <rect x="250" y="48" width="300" height="40" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="73" text-anchor="middle" font-size="13" fill="#2E7D32" font-weight="bold">User clicks [ACK] on alarm row</text>
+  <line x1="400" y1="88" x2="400" y2="113" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,111 400,125 406,111" fill="#E65100"/>
+
+  <rect x="200" y="126" width="400" height="40" rx="8" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="151" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">POST /api/telemetry/alarms/{id}/acknowledge</text>
+  <line x1="400" y1="166" x2="400" y2="191" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,189 400,203 406,189" fill="#E65100"/>
+
+  <rect x="220" y="204" width="360" height="55" rx="8" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="226" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">AlarmEngine.acknowledge(id)</text>
+  <text x="400" y="244" text-anchor="middle" font-size="10" fill="#555">→ removes from active list</text>
+  <text x="400" y="256" text-anchor="middle" font-size="10" fill="#555">→ moves to history ring buffer</text>
+  <line x1="400" y1="259" x2="400" y2="284" stroke="#E65100" stroke-width="1.8"/>
+  <polygon points="394,282 400,296 406,282" fill="#E65100"/>
+
+  <rect x="220" y="297" width="360" height="35" rx="8" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="400" y="319" text-anchor="middle" font-size="12" fill="#2E7D32" font-weight="bold">Next poll (≤2s) → alarm row disappears from panel</text>
+</svg>

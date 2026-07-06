@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" font-family="system-ui, sans-serif">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <rect width="800" height="560" fill="#FAFBFC" rx="8"/>
+  <!-- Layer labels -->
+  <rect x="10" y="10" width="90" height="28" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5"/>
+  <text x="55" y="29" text-anchor="middle" font-size="11" fill="#2E7D32" font-weight="bold">API Layer</text>
+  <rect x="105" y="10" width="90" height="28" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5"/>
+  <text x="150" y="29" text-anchor="middle" font-size="11" fill="#E65100" font-weight="bold">Engine</text>
+  <rect x="200" y="10" width="90" height="28" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5"/>
+  <text x="245" y="29" text-anchor="middle" font-size="11" fill="#1565C0" font-weight="bold">RA/Telemetry</text>
+  <rect x="295" y="10" width="90" height="28" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5"/>
+  <text x="340" y="29" text-anchor="middle" font-size="11" fill="#6A1B9A" font-weight="bold">Adapter</text>
+
+  <!-- Row 1: Core modules -->
+  <rect x="30" y="55" width="220" height="38" rx="6" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="140" y="71" text-anchor="middle" font-size="13" fill="#2E7D32" font-weight="bold">jainslee-api</text>
+  <text x="140" y="85" text-anchor="middle" font-size="9" fill="#555">Sbb, SleeEvent, ACI, 3-port RA</text>
+
+  <rect x="270" y="55" width="250" height="38" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="395" y="71" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">jainslee-core</text>
+  <text x="395" y="85" text-anchor="middle" font-size="9" fill="#555">MicroSleeContainer, EventRouter, SbbPool, IES</text>
+
+  <rect x="540" y="55" width="230" height="38" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="655" y="71" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">jainslee-ra-spi</text>
+  <text x="655" y="85" text-anchor="middle" font-size="9" fill="#555">AbstractResourceAdaptor, lifecycle FSM</text>
+
+  <!-- Row 2: Supporting modules -->
+  <rect x="30" y="110" width="220" height="38" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="140" y="126" text-anchor="middle" font-size="13" fill="#6A1B9A" font-weight="bold">jainslee-scheduler</text>
+  <text x="140" y="140" text-anchor="middle" font-size="9" fill="#555">HashedWheelTimer — SLEE timer facility</text>
+
+  <rect x="270" y="110" width="250" height="38" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="395" y="126" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">jainslee-apt</text>
+  <text x="395" y="140" text-anchor="middle" font-size="9" fill="#555">Annotation processor → sbb-index.properties</text>
+
+  <rect x="540" y="110" width="230" height="38" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="655" y="126" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">jainslee-codegen</text>
+  <text x="655" y="140" text-anchor="middle" font-size="9" fill="#555">Javassist → concrete SBB for CMP</text>
+
+  <!-- Row 3: Optional modules -->
+  <rect x="30" y="165" width="220" height="38" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" stroke-dasharray="5,3" filter="url(#shadow)"/>
+  <text x="140" y="181" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">jainslee-tx</text>
+  <text x="140" y="195" text-anchor="middle" font-size="9" fill="#555">JTA via Narayana (optional)</text>
+
+  <rect x="270" y="165" width="250" height="38" rx="6" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" stroke-dasharray="5,3" filter="url(#shadow)"/>
+  <text x="395" y="181" text-anchor="middle" font-size="13" fill="#E65100" font-weight="bold">jainslee-cluster</text>
+  <text x="395" y="195" text-anchor="middle" font-size="9" fill="#555">Infinispan/JGroups (optional)</text>
+
+  <!-- Row 4: Adapters -->
+  <rect x="30" y="220" width="220" height="38" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="140" y="236" text-anchor="middle" font-size="13" fill="#6A1B9A" font-weight="bold">adapter-quarkus ★</text>
+  <text x="140" y="250" text-anchor="middle" font-size="9" fill="#555">Quarkus CDI extension (main target)</text>
+
+  <rect x="270" y="220" width="250" height="38" rx="6" fill="#F3E5F5" stroke="#8E24AA" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="395" y="236" text-anchor="middle" font-size="13" fill="#6A1B9A" font-weight="bold">adapter-springboot</text>
+  <text x="395" y="250" text-anchor="middle" font-size="9" fill="#555">Spring Boot adapter</text>
+
+  <!-- Row 5: Telemetry -->
+  <rect x="30" y="275" width="220" height="38" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="140" y="291" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">jainslee-telemetry</text>
+  <text x="140" y="305" text-anchor="middle" font-size="9" fill="#555">Zero-CPU observability + self-healing</text>
+
+  <rect x="270" y="275" width="250" height="38" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="395" y="291" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">jainslee-telemetry-vertx</text>
+  <text x="395" y="305" text-anchor="middle" font-size="9" fill="#555">Steampunk dashboard GUI</text>
+
+  <!-- Dependency arrows -->
+  <g stroke="#888" stroke-width="1.2" fill="none">
+    <path d="M250,74 L260,74"/>
+    <polygon points="260,70 270,74 260,78" fill="#888"/>
+    <path d="M520,74 L530,74"/>
+    <polygon points="530,70 540,74 530,78" fill="#888"/>
+    <path d="M250,129 L260,129"/>
+    <polygon points="260,125 270,129 260,133" fill="#888"/>
+  </g>
+
+  <!-- Legend bottom -->
+  <rect x="30" y="340" width="740" height="65" rx="6" fill="#F5F5F5" stroke="#DDD" stroke-width="1"/>
+  <text x="50" y="365" font-size="12" fill="#333" font-weight="bold">Dependency Flow:</text>
+  <line x1="150" y1="360" x2="220" y2="360" stroke="#888" stroke-width="1.5"/>
+  <polygon points="218,356 228,360 218,364" fill="#888"/>
+  <text x="240" y="365" font-size="11" fill="#555">api → core → ra-spi → scheduler</text>
+  <text x="50" y="390" font-size="11" fill="#555">★ Quarkus is the primary target adapter. Dashed border = optional module.</text>
+</svg>

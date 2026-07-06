@@ -1,7 +1,9 @@
 package com.example.helloworld.quarkus.bootstrap;
 
+import com.example.helloworld.quarkus.autonomous.AppAutonomous;
 import com.example.helloworld.quarkus.sbbs.HelloWorldSbb;
 import com.example.helloworld.quarkus.sbbs.TelemetrySbb;
+import com.example.helloworld.quarkus.telemetry.AppTelemetry;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
@@ -9,17 +11,9 @@ import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
 import com.microjainslee.ra.httpserver.collab.HttpServerSessionStore;
 import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
-import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
-import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
-import com.microjainslee.telemetry.MicrometerTelemetryPort;
 import com.microjainslee.telemetry.TelemetryPort;
 
-import io.micrometer.prometheusmetrics.PrometheusConfig;
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.Json;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.StaticHandler;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -30,7 +24,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Bootstrap — wires ra-http-server + HelloWorldSBB + Telemetry into MicroSleeContainer.
@@ -59,8 +52,11 @@ public final class HelloWorldBootstrap implements HelloWorldContext {
 
     private final ConcurrentHashMap<String, SessionRecord> sessions = new ConcurrentHashMap<>();
     private volatile HttpServerRaEndpoint httpEndpoint;
-    private volatile PrometheusRaEndpoint prometheusEndpoint;
     private volatile TelemetryPort telemetry;
+
+    // ── Drop-in observability + self-healing modules (the app template) ──
+    private final AppTelemetry appTelemetry = new AppTelemetry();
+    private final AppAutonomous appAutonomous = new AppAutonomous();
 
     @PostConstruct
     void init() {
@@ -68,77 +64,14 @@ public final class HelloWorldBootstrap implements HelloWorldContext {
             container.start();
         }
 
-        // ── Telemetry Engine (zero-CPU, passive collection) ──
-        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-        telemetry = new MicrometerTelemetryPort(registry, container);
-        container.bindTelemetryPort(telemetry);
+        // ── 1. Telemetry: zero-CPU collection + Prometheus + batched log sink ──
+        telemetry = appTelemetry.install(container, vertx);
 
-        // Start passive collectors (single daemon VT each)
-        telemetry.resourceMonitor().start(30, TimeUnit.SECONDS);
-        telemetry.autoReconfig().start(30, TimeUnit.SECONDS);
+        // ── 2. Autonomous: memory guardian + holistic health evaluator ──
+        appAutonomous.install(container, telemetry);
+        appAutonomous.mountRoutes(appTelemetry.router());
 
-        // Wire EventRouter → telemetry (passive SBB event tracking)
-        container.getEventRouter().setTelemetryPort(telemetry);
-
-        // ── Vert.x Router + Telemetry Dashboard ──
-        Router router = Router.router(vertx);
-
-        // Serve telemetry dashboard UI from jainslee-telemetry-vertx JAR
-        router.route("/telemetry/*").handler(
-                StaticHandler.create("META-INF/resources"));
-        router.route("/telemetry").handler(ctx ->
-                ctx.reroute("/telemetry/index.html"));
-
-        // Telemetry REST API
-        router.get("/api/telemetry/snapshot").handler(ctx -> {
-            TelemetryPort.TelemetrySnapshot snap = telemetry.snapshot();
-            ctx.response()
-                    .putHeader("Content-Type", "application/json")
-                    .end(Json.encode(snap));
-        });
-
-        router.get("/api/telemetry/alarms").handler(ctx -> {
-            ctx.response()
-                    .putHeader("Content-Type", "application/json")
-                    .end(Json.encode(telemetry.alarmEngine().active()));
-        });
-
-        router.post("/api/telemetry/alarms/:id/clear").handler(ctx -> {
-            telemetry.alarmEngine().clear(ctx.pathParam("id"));
-            ctx.response().setStatusCode(200).end("{\"status\":\"ok\"}");
-        });
-
-        router.get("/api/telemetry/metrics").handler(ctx -> {
-            ctx.response()
-                    .putHeader("Content-Type", "text/plain")
-                    .end(telemetry.scrape());
-        });
-
-        router.post("/api/telemetry/config").handler(ctx -> {
-            var body = ctx.body().asJsonObject();
-            if (body.containsKey("autoReconfig")) {
-                telemetry.setAutoReconfigEnabled(body.getBoolean("autoReconfig"));
-            }
-            ctx.response().setStatusCode(200).end("{\"status\":\"ok\"}");
-        });
-
-        // Mount telemetry HTTP server on dedicated port
-        vertx.createHttpServer().requestHandler(router).listen(8090, ar -> {
-            if (ar.succeeded()) {
-                LOG.info("Telemetry dashboard at http://localhost:8090/telemetry");
-            } else {
-                LOG.warn("Telemetry server failed: {}", ar.cause().getMessage());
-            }
-        });
-
-        // ── Prometheus Exporter RA (Vert.x :9090 → /metrics + /health) ──
-        var promRa = new PrometheusResourceAdaptor();
-        promRa.setPort(9090);
-        prometheusEndpoint = new PrometheusRaEndpoint(promRa);
-        container.registerRa(prometheusEndpoint);
-        LOG.info("Prometheus exporter RA registered on port {}", promRa.port());
-
-        // ── Register SBBs ──
+        // ── 3. Business wiring: HTTP ingress → HelloWorld SBB pipeline ──
         container.registerSbbType(HelloWorldSbb.class,
                 () -> new HelloWorldSbb(container, this));
         container.registerSbbType(TelemetrySbb.class,
@@ -152,11 +85,10 @@ public final class HelloWorldBootstrap implements HelloWorldContext {
 
     @PreDestroy
     void shutdown() {
+        appAutonomous.close();
+        appTelemetry.close();
         if (httpEndpoint != null) {
             httpEndpoint.deactivate();
-        }
-        if (prometheusEndpoint != null) {
-            prometheusEndpoint.deactivate();
         }
         if (container.getState() == MicroSleeContainer.State.STARTED) {
             container.stop();

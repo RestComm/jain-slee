@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 1352" font-family="Consolas,Menlo,monospace" font-size="13">
+<defs><style>.t{fill:#546E7A}</style></defs>
+<rect x="15" y="10" width="850" height="1332" rx="6" fill="#FAFAFA" stroke="#B0BEC5" stroke-width="1"/>
+<rect x="15" y="10" width="850" height="30" rx="6" fill="#455A64"/>
+<rect x="15" y="30" width="850" height="10" fill="#455A64"/>
+<text x="440" y="31" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Source Tree</text>
+<text y="62" x="35" class="t">vendor-ras/ra-sip-servlet/</text>
+<text y="81" x="35" class="t">├── pom.xml</text>
+<text y="100" x="35" class="t">├── DESIGN.md                                            ← architecture specification</text>
+<text y="119" x="35" class="t">├── src/main/java/com/microjainslee/ra/sipservlet/</text>
+<text y="138" x="35" class="t">│   ├── SipRaConfig.java                                 ← config: host, port, DNS, STUN, idle timeout</text>
+<text y="157" x="35" class="t">│   ├── SipServletRaEndpoint.java                        ← RaEndpointPort + RaCommandPort (3-port wrapper)</text>
+<text y="176" x="35" class="t">│   ├── SipServletResourceAdaptor.java                   ← core transport + lifecycle + parse + classify</text>
+<text y="195" x="35" class="t">│   ├── event/                                           ← 19 sealed event records</text>
+<text y="214" x="35" class="t">│   │   ├── SipEvent.java                                ←   base sealed interface</text>
+<text y="233" x="35" class="t">│   │   ├── SipInviteEvent.java                          ←   INVITE</text>
+<text y="252" x="35" class="t">│   │   ├── SipResponseEvent.java                        ←   1xx/2xx/3xx/4xx/5xx/6xx response</text>
+<text y="271" x="35" class="t">│   │   ├── SipByeEvent.java                             ←   BYE</text>
+<text y="290" x="35" class="t">│   │   ├── SipAckEvent.java                             ←   ACK</text>
+<text y="309" x="35" class="t">│   │   ├── SipCancelEvent.java                          ←   CANCEL</text>
+<text y="328" x="35" class="t">│   │   ├── SipRegisterEvent.java                        ←   REGISTER</text>
+<text y="347" x="35" class="t">│   │   ├── SipOptionsEvent.java                         ←   OPTIONS</text>
+<text y="366" x="35" class="t">│   │   ├── SipSubscribeEvent.java                       ←   SUBSCRIBE</text>
+<text y="385" x="35" class="t">│   │   ├── SipNotifyEvent.java                          ←   NOTIFY</text>
+<text y="404" x="35" class="t">│   │   ├── SipPublishEvent.java                         ←   PUBLISH</text>
+<text y="423" x="35" class="t">│   │   ├── SipInfoEvent.java                            ←   INFO</text>
+<text y="442" x="35" class="t">│   │   ├── SipMessageEvent.java                         ←   MESSAGE</text>
+<text y="461" x="35" class="t">│   │   ├── SipReferEvent.java                           ←   REFER</text>
+<text y="480" x="35" class="t">│   │   ├── SipUpdateEvent.java                          ←   UPDATE</text>
+<text y="499" x="35" class="t">│   │   ├── SipPrackEvent.java                           ←   PRACK</text>
+<text y="518" x="35" class="t">│   │   ├── IceCandidateEvent.java                       ←   STUN candidate gathered</text>
+<text y="537" x="35" class="t">│   │   ├── IceCompletedEvent.java                       ←   ICE negotiation done</text>
+<text y="556" x="35" class="t">│   │   └── IceFailedEvent.java                          ←   ICE negotiation failed</text>
+<text y="575" x="35" class="t">│   ├── command/                                         ← 10 sealed command records</text>
+<text y="594" x="35" class="t">│   │   ├── SipOutboundCommand.java                      ←   base sealed interface</text>
+<text y="613" x="35" class="t">│   │   ├── SendResponse.java                            ←   send SIP response (status code + reason)</text>
+<text y="632" x="35" class="t">│   │   ├── SendInvite.java                              ←   send outgoing INVITE</text>
+<text y="651" x="35" class="t">│   │   ├── SendBye.java                                 ←   send BYE to end dialog</text>
+<text y="670" x="35" class="t">│   │   ├── SendAck.java                                 ←   send ACK for 2xx/3xx response</text>
+<text y="689" x="35" class="t">│   │   ├── SendCancel.java                              ←   send CANCEL for pending INVITE</text>
+<text y="708" x="35" class="t">│   │   ├── SendSdpUpdate.java                           ←   update SDP mid-call</text>
+<text y="727" x="35" class="t">│   │   ├── SendMediaKeepAlive.java                      ←   send keep-alive RTP/SIP</text>
+<text y="746" x="35" class="t">│   │   ├── StartIce.java                                ←   request ICE candidate gathering</text>
+<text y="765" x="35" class="t">│   │   └── SelectIceCandidate.java                      ←   finalize ICE candidate selection</text>
+<text y="784" x="35" class="t">│   ├── transport/                                       ← Netty transport adapters</text>
+<text y="803" x="35" class="t">│   │   ├── SipTransport.java                            ←   transport interface</text>
+<text y="822" x="35" class="t">│   │   ├── AbstractNettyTransport.java                  ←   shared Netty bootstrap + lifecycle</text>
+<text y="841" x="35" class="t">│   │   ├── UdpTransport.java                            ←   UDP (DatagramChannel)</text>
+<text y="860" x="35" class="t">│   │   ├── TcpTransport.java                            ←   TCP (NioSocketChannel + frame decoder)</text>
+<text y="879" x="35" class="t">│   │   ├── TlsTransport.java                            ←   TLS (SslContext + TCP)</text>
+<text y="898" x="35" class="t">│   │   ├── SctpTransport.java                           ←   SCTP (NioSctpChannel)</text>
+<text y="917" x="35" class="t">│   │   ├── SipTcpFrameDecoder.java                      ←   Content-Length-based framing</text>
+<text y="936" x="35" class="t">│   │   ├── SipMessageSink.java                          ←   @FunctionalInterface raw bytes + peer address</text>
+<text y="955" x="35" class="t">│   │   └── SipMessageHandler.java                       ←   message dispatch on transport thread</text>
+<text y="974" x="35" class="t">│   ├── stun/                                            ← STUN + ICE</text>
+<text y="993" x="35" class="t">│   │   ├── StunClient.java                              ←   STUN binding request/response</text>
+<text y="1012" x="35" class="t">│   │   ├── StunResult.java                              ←   mapped address + NAT type</text>
+<text y="1031" x="35" class="t">│   │   └── IceCandidateCollector.java                   ←   gather/prioritize UDP+TCP+TLS candidates</text>
+<text y="1050" x="35" class="t">│   ├── dns/                                             ← RFC 3263 DNS resolver</text>
+<text y="1069" x="35" class="t">│   │   ├── DnsResolver.java                             ←   NAPTR → SRV → A/AAAA resolution</text>
+<text y="1088" x="35" class="t">│   │   └── DnsResult.java                               ←   resolved address list + priority/weight</text>
+<text y="1107" x="35" class="t">│   └── collab/                                          ← injected collaborators (pluggable)</text>
+<text y="1126" x="35" class="t">│       ├── SipEventClassifier.java                      ←   bytes → typed event interface</text>
+<text y="1145" x="35" class="t">│       ├── DefaultSipEventClassifier.java               ←   default impl: NIST-parse + method dispatch</text>
+<text y="1164" x="35" class="t">│       ├── SipOutboundSender.java                       ←   outbound interface (app can override)</text>
+<text y="1183" x="35" class="t">│       ├── NettySipOutboundSender.java                  ←   default: send via Netty transport</text>
+<text y="1202" x="35" class="t">│       └── DialogRegistry.java                          ←   dialog map + idle sweeper (anti-leak)</text>
+<text y="1221" x="35" class="t">└── src/test/java/com/microjainslee/ra/sipservlet/</text>
+<text y="1240" x="35" class="t">    ├── SipEndToEndTest.java                             ←   ★ E2E: real UDP socket → SBB → real response</text>
+<text y="1259" x="35" class="t">    ├── SipRaDialogLifecycleTest.java                    ←   lifecycle: create/end activity, dialog expiry</text>
+<text y="1278" x="35" class="t">    ├── transport/</text>
+<text y="1297" x="35" class="t">    │   └── SipTcpFrameDecoderTest.java                  ←   TCP framing: Content-Length, fragmentation</text>
+<text y="1316" x="35" class="t">    └── collab/</text>
+<text y="1335" x="35" class="t">        └── NettySipOutboundSenderTest.java              ←   outbound sender unit test</text>
+</svg>

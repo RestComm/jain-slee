@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 197" font-family="Consolas,Menlo,monospace" font-size="14">
+<defs><style>.lb{fill:#37474F}</style></defs>
+<rect x="20" y="15" width="760" height="167" rx="8" fill="#E3F2FD" stroke="#1E88E5" stroke-width="2"/>
+<rect x="20" y="15" width="760" height="34" rx="8" fill="#1E88E5"/>
+<rect x="20" y="37" width="760" height="12" fill="#1E88E5"/>
+<text x="400" y="39" text-anchor="middle" fill="white" font-weight="bold" font-size="15">Architecture</text>
+<text y="78" x="48" class="lb">Bootstrap (@ApplicationScoped, @PostConstruct)</text>
+<text y="100" x="48" class="lb">1. container.start()          ← if adapter hasn't started</text>
+<text y="122" x="48" class="lb">2. registerSbbType(...)       ← which SBBs exist</text>
+<text y="144" x="48" class="lb">3. createIesDispatcher()      ← session routing</text>
+<text y="166" x="48" class="lb">4. mapEventToSbb(...)         ← which events → which SBB</text>
+<text y="188" x="48" class="lb">5. registerRa(endpoint, cmd)  ← which RA provides events</text>
+</svg>
