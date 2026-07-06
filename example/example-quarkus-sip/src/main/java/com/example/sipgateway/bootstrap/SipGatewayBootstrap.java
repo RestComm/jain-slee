@@ -13,6 +13,8 @@ import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
 import com.microjainslee.ra.sipservlet.SipRaConfig;
 import com.microjainslee.ra.sipservlet.SipServletRaEndpoint;
 import com.microjainslee.ra.sipservlet.SipServletResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
 import com.microjainslee.ra.sipservlet.events.IceCandidateEvent;
 import com.microjainslee.ra.sipservlet.events.IceCompletedEvent;
 import com.microjainslee.ra.sipservlet.events.IceFailedEvent;
@@ -52,6 +54,7 @@ public final class SipGatewayBootstrap {
         registerSbbTypes();
         bindInitialEventSelector();
         wireSipRa();
+        wirePrometheusRa();
         mapEventToSbb();
         LOG.info("=== SIP Gateway Ready — listening UDP:5060 TCP:5060 (DNS SRV, STUN/ICE enabled) ===");
     }
@@ -92,6 +95,14 @@ public final class SipGatewayBootstrap {
 
         container.registerRa(sipEndpoint, sipEndpoint);
         LOG.info("SIP RA registered on UDP:{} TCP:{}", config.udpPort(), config.tcpPort());
+    }
+
+    private void wirePrometheusRa() {
+        var prometheusRa = new PrometheusResourceAdaptor();
+        prometheusRa.setPort(9090);
+        var prometheusEndpoint = new PrometheusRaEndpoint(prometheusRa);
+        container.registerRa(prometheusEndpoint);
+        LOG.info("Prometheus exporter RA registered on port {}", prometheusRa.port());
     }
 
     private void registerSbbTypes() {

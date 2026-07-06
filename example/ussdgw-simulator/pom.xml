@@ -18,7 +18,16 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
+        <microjainslee.version>1.2.0-SNAPSHOT</microjainslee.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-prometheus-exporter</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

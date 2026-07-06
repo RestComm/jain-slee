@@ -78,6 +78,11 @@
         <!-- micro-jainslee runtime + Quarkus adapter -->
         <dependency>
             <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-autonomous</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-core</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>
@@ -119,6 +124,11 @@
         <dependency>
             <groupId>com.microjainslee</groupId>
             <artifactId>ra-http-client</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>ra-prometheus-exporter</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>
 

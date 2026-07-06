@@ -62,6 +62,11 @@
         </dependency>
         <dependency>
             <groupId>com.microjainslee</groupId>
+            <artifactId>ra-prometheus-exporter</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
             <artifactId>ra-grpc-client</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>

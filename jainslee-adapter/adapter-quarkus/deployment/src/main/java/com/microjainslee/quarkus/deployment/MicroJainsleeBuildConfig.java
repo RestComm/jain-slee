@@ -126,4 +126,20 @@ public interface MicroJainsleeBuildConfig {
     @WithName("event-to-sbb-mappings")
     @WithDefault("")
     Optional<String> eventToSbbMappings();
+
+    /**
+     * Honor {@code @OffHeap} annotations on SBB types (off-heap CMP state,
+     * docs/en/design-offheap-sbb-state.md). Default true.
+     */
+    @WithName("offheap-enabled")
+    @WithDefault("true")
+    boolean offHeapEnabled();
+
+    /**
+     * Directory for MMAP off-heap arenas when {@code @OffHeap.filePath}
+     * is empty. Empty → {@code $java.io.tmpdir/slee-offheap}.
+     */
+    @WithName("offheap-storage-dir")
+    @WithDefault("")
+    String offHeapStorageDir();
 }

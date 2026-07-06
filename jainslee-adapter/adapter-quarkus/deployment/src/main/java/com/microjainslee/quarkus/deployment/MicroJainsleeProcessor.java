@@ -72,6 +72,8 @@ public class MicroJainsleeProcessor {
                 .sbbPerVirtualThread(config.sbbPerVirtualThread())
                 .sbbTypePoolMinIdle(config.sbbTypePoolMinIdle())
                 .eventDeliveryMode(EventDeliveryMode.parse(config.eventDelivery()))
+                .offHeapEnabled(config.offHeapEnabled())
+                .offHeapStorageDir(config.offHeapStorageDir())
                 .build();
     }
 

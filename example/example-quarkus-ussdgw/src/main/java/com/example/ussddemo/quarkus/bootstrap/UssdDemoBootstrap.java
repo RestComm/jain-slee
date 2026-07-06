@@ -15,6 +15,7 @@ import com.microjainslee.api.Profile;
 import com.microjainslee.api.ProfileFacility;
 import com.microjainslee.api.ProfileLocalObject;
 import com.microjainslee.api.SleeEvent;
+import com.microjainslee.autonomous.AutonomousGuardian;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
 import com.microjainslee.core.SimpleSbbLocalObject;
@@ -27,6 +28,8 @@ import com.microjainslee.ra.grpc.GrpcMenuResult;
 import com.microjainslee.ra.grpc.GrpcMenuUpstream;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -67,6 +70,9 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
     int httpPort;
 
     private final ConcurrentHashMap<String, String> tiersByMsisdn = new ConcurrentHashMap<>();
+    /** Run-forever self-protection: trims caches / compacts off-heap arenas
+     *  / guarded GC on JVM memory-threshold notifications. Zero threads. */
+    private volatile AutonomousGuardian guardian;
     private volatile HttpServerRaEndpoint httpEndpoint;
     private volatile GrpcMenuRaEndpoint grpcEndpoint;
 
@@ -84,11 +90,16 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
         registerSbbTypes();
         bindInitialEventSelector();
         wireRas();
-        LOG.info("USSD Quarkus demo bootstrap complete (vendor-ras)");
+        guardian = new AutonomousGuardian().attach(container);
+        guardian.start();
+        LOG.info("USSD Quarkus demo bootstrap complete (vendor-ras, autonomous guardian armed)");
     }
 
     @PreDestroy
     void shutdown() {
+        if (guardian != null) {
+            guardian.stop();
+        }
         if (grpcEndpoint != null) {
             grpcEndpoint.deactivate();
         }
@@ -151,6 +162,7 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
     private void wireRas() {
         wireHttpRa(httpPort);
         wireGrpcRa("127.0.0.1", 9090);
+        wirePrometheusRa();
     }
 
     private void wireHttpRa(int port) {
@@ -179,6 +191,14 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
 
         container.registerRa(grpcEndpoint, grpcEndpoint);
         LOG.info("gRPC menu RA registered (vendor-ras) targeting {}:{}", host, port);
+    }
+
+    private void wirePrometheusRa() {
+        var prometheusRa = new PrometheusResourceAdaptor();
+        prometheusRa.setPort(9090);
+        var prometheusEndpoint = new PrometheusRaEndpoint(prometheusRa);
+        container.registerRa(prometheusEndpoint);
+        LOG.info("Prometheus exporter RA registered on port {}", prometheusRa.port());
     }
 
     private static class QuarkusGrpcEventFactory implements GrpcMenuEventFactory {

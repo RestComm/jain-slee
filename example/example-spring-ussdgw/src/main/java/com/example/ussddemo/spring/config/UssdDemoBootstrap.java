@@ -40,6 +40,8 @@ import com.microjainslee.ra.httpclient.HttpCallbackClientRa;
 import com.microjainslee.ra.httpclient.HttpCallbackRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -108,6 +110,16 @@ public class UssdDemoBootstrap {
         ep.setEventFactory(ef);
         ep.setActivityContextLookup(sid -> container.getActivityContextNamingFacility().lookup(sid));
         return ep;
+    }
+
+    @Bean public PrometheusResourceAdaptor prometheusRa() {
+        PrometheusResourceAdaptor ra = new PrometheusResourceAdaptor();
+        ra.setPort(9090);
+        return ra;
+    }
+
+    @Bean public PrometheusRaEndpoint prometheusEndpoint(PrometheusResourceAdaptor ra) {
+        return new PrometheusRaEndpoint(ra);
     }
 
     @Bean

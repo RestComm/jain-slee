@@ -18,21 +18,6 @@
     </linearGradient>
     <filter id="sh"><feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-opacity="0.10"/></filter>
     <filter id="shL"><feDropShadow dx="0" dy="0.5" stdDeviation="1" flood-opacity="0.06"/></filter>
-    <!-- OUTBOUND arrow: points DOWN (0° = right, 90° = down) -->
-    <marker id="adn" markerWidth="14" markerHeight="14" refX="7" refY="12" orient="auto">
-      <path d="M0,0 L7,12 L14,0" fill="#E65100"/>
-    </marker>
-    <!-- INBOUND arrow: points UP -->
-    <marker id="aup" markerWidth="14" markerHeight="14" refX="7" refY="2" orient="auto">
-      <path d="M0,12 L7,0 L14,12" fill="#1565C0"/>
-    </marker>
-    <!-- LEGEND arrows: fixed orientation (no auto) -->
-    <marker id="leg-down" markerWidth="14" markerHeight="14" refX="7" refY="12" orient="90">
-      <path d="M0,0 L7,12 L14,0" fill="#E65100"/>
-    </marker>
-    <marker id="leg-up" markerWidth="14" markerHeight="14" refX="7" refY="2" orient="270">
-      <path d="M0,12 L7,0 L14,12" fill="#1565C0"/>
-    </marker>
   </defs>
 
   <rect width="960" height="720" fill="#F8F9FA"/>
@@ -44,11 +29,9 @@
 
   <!-- ===== APP LAYER ===== -->
   <rect x="40" y="65" width="880" height="110" rx="8" fill="url(#appG)" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
-
   <rect x="55" y="72" width="290" height="24" rx="4" fill="#43A047" opacity="0.18"/>
   <text x="70" y="89" font-size="13" font-weight="700" fill="#2E7D32">APPLICATION LAYER — Service Building Blocks (SBB)</text>
 
-  <!-- SBB boxes -->
   <rect x="55" y="120" width="150" height="41" rx="6" fill="white" stroke="#66BB6A" stroke-width="1" filter="url(#shL)"/>
   <text x="130" y="145" font-size="13" font-weight="600" fill="#2E7D32" text-anchor="middle">ProxySbb</text>
 
@@ -64,31 +47,30 @@
   <rect x="715" y="120" width="150" height="41" rx="6" fill="white" stroke="#A5D6A7" stroke-width="1" filter="url(#shL)"/>
   <text x="790" y="145" font-size="13" fill="#66BB6A" text-anchor="middle">HttpServerSbb</text>
 
-  <!-- ===== GAP 1: SBB ↔ Core ===== -->
-  <!-- INBOUND: blue dashed UP — Core fires event to SBB -->
-  <line x1="180" y1="262" x2="180" y2="180" stroke="#1565C0" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#aup)"/>
-  <line x1="440" y1="262" x2="440" y2="180" stroke="#1565C0" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#aup)"/>
-
+  <!-- GAP 1: INBOUND (Core → SBB) blue dashed UP -->
+  <line x1="180" y1="262" x2="180" y2="188" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
+  <line x1="440" y1="262" x2="440" y2="188" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
+  <polygon points="174,200 186,200 180,188" fill="#1565C0"/>
+  <polygon points="434,200 446,200 440,188" fill="#1565C0"/>
   <rect x="38" y="205" width="260" height="30" rx="5" fill="#E3F2FD" stroke="#90CAF9" stroke-width="1"/>
   <text x="168" y="225" font-size="12" font-weight="700" fill="#1565C0" text-anchor="middle">▲ INBOUND: fireEvent() → VirtualThread</text>
-
-  <!-- OUTBOUND: red solid DOWN — SBB sends command to Core -->
-  <line x1="295" y1="161" x2="295" y2="228" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="460" y1="161" x2="460" y2="228" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="625" y1="161" x2="625" y2="228" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="790" y1="161" x2="790" y2="228" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-
+  <!-- GAP 1: OUTBOUND (SBB → Core) red solid DOWN -->
+  <line x1="295" y1="161" x2="295" y2="220" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="460" y1="161" x2="460" y2="220" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="625" y1="161" x2="625" y2="220" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="790" y1="161" x2="790" y2="220" stroke="#E65100" stroke-width="2.5"/>
+  <polygon points="289,208 301,208 295,220" fill="#E65100"/>
+  <polygon points="454,208 466,208 460,220" fill="#E65100"/>
+  <polygon points="619,208 631,208 625,220" fill="#E65100"/>
+  <polygon points="784,208 796,208 790,220" fill="#E65100"/>
   <rect x="640" y="205" width="242" height="30" rx="5" fill="#FFF8E1" stroke="#FFB74D" stroke-width="1"/>
   <text x="761" y="225" font-size="12" font-weight="700" fill="#E65100" text-anchor="middle">▼ OUTBOUND: sendCommand()</text>
-
-  <!-- ===== CORE LAYER ===== -->
+  <!-- CORE LAYER -->
   <rect x="40" y="235" width="880" height="160" rx="8" fill="url(#coreG)" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
-
   <rect x="55" y="242" width="280" height="24" rx="4" fill="#FF9800" opacity="0.16"/>
   <text x="70" y="259" font-size="13" font-weight="700" fill="#E65100">CORE RUNTIME — jainslee-core</text>
   <text x="70" y="278" font-size="11" fill="#EF6C00">LMAX Disruptor RingBuffer · VirtualThread per entity · 55K events/sec · Lock-free</text>
 
-  <!-- Core boxes -->
   <rect x="55" y="290" width="205" height="93" rx="6" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shL)"/>
   <text x="157" y="312" font-size="13" font-weight="700" fill="#E65100" text-anchor="middle">EventRouter</text>
   <line x1="75" y1="318" x2="240" y2="318" stroke="#FFE0B2" stroke-width="1"/>
@@ -116,33 +98,33 @@
   <text x="802" y="334" font-size="10" fill="#8D6E63" text-anchor="middle">HashedWheelTimer</text>
   <text x="802" y="350" font-size="10" fill="#8D6E63" text-anchor="middle">Child SBB cascade</text>
   <text x="802" y="366" font-size="10" fill="#8D6E63" text-anchor="middle">JTA · ActivityContext</text>
-
-  <!-- ===== GAP 2: Core ↔ RA ===== -->
-  <!-- INBOUND: blue dashed UP — RA fires event to Core -->
-  <line x1="160" y1="470" x2="160" y2="416" stroke="#1565C0" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#aup)"/>
-  <line x1="400" y1="470" x2="400" y2="416" stroke="#1565C0" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#aup)"/>
-  <line x1="680" y1="470" x2="680" y2="416" stroke="#1565C0" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#aup)"/>
-  <line x1="860" y1="470" x2="860" y2="416" stroke="#1565C0" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#aup)"/>
-
+  <!-- GAP 2: INBOUND (RA → Core) blue dashed UP -->
+  <line x1="160" y1="470" x2="160" y2="424" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
+  <line x1="400" y1="470" x2="400" y2="424" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
+  <line x1="680" y1="470" x2="680" y2="424" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
+  <line x1="860" y1="470" x2="860" y2="424" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
+  <polygon points="154,436 166,436 160,424" fill="#1565C0"/>
+  <polygon points="394,436 406,436 400,424" fill="#1565C0"/>
+  <polygon points="674,436 686,436 680,424" fill="#1565C0"/>
+  <polygon points="854,436 866,436 860,424" fill="#1565C0"/>
   <rect x="38" y="428" width="330" height="30" rx="5" fill="#E3F2FD" stroke="#90CAF9" stroke-width="1"/>
   <text x="203" y="448" font-size="12" font-weight="700" fill="#1565C0" text-anchor="middle">▲ INBOUND: Bytes → classify() → fireEvent()</text>
-
-  <!-- OUTBOUND: red solid DOWN — Core sends command to RA -->
-  <line x1="295" y1="395" x2="295" y2="460" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="460" y1="395" x2="460" y2="460" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="625" y1="395" x2="625" y2="460" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="790" y1="395" x2="790" y2="460" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-
+  <!-- GAP 2: OUTBOUND (Core → RA) red solid DOWN -->
+  <line x1="295" y1="395" x2="295" y2="453" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="460" y1="395" x2="460" y2="453" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="625" y1="395" x2="625" y2="453" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="790" y1="395" x2="790" y2="453" stroke="#E65100" stroke-width="2.5"/>
+  <polygon points="289,441 301,441 295,453" fill="#E65100"/>
+  <polygon points="454,441 466,441 460,453" fill="#E65100"/>
+  <polygon points="619,441 631,441 625,453" fill="#E65100"/>
+  <polygon points="784,441 796,441 790,453" fill="#E65100"/>
   <rect x="638" y="428" width="244" height="30" rx="5" fill="#FFF8E1" stroke="#FFB74D" stroke-width="1"/>
   <text x="760" y="448" font-size="12" font-weight="700" fill="#E65100" text-anchor="middle">▼ OUTBOUND: sendCommand() → encode</text>
-
-  <!-- ===== RA LAYER ===== -->
+  <!-- RA LAYER -->
   <rect x="40" y="470" width="880" height="110" rx="8" fill="url(#raG)" stroke="#1E88E5" stroke-width="1.5" filter="url(#sh)"/>
-
   <rect x="55" y="477" width="500" height="24" rx="4" fill="#1E88E5" opacity="0.12"/>
   <text x="70" y="494" font-size="13" font-weight="700" fill="#1565C0">RESOURCE ADAPTOR LAYER — 3-Port Contract (Endpoint + Command + Bootstrap)</text>
 
-  <!-- RA boxes -->
   <rect x="55" y="524" width="168" height="41" rx="6" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shL)"/>
   <text x="139" y="542" font-size="12" font-weight="600" fill="#1565C0" text-anchor="middle">📡 ra-sip-servlet</text>
   <text x="139" y="557" font-size="9" fill="#78909C" text-anchor="middle">UDP/TCP/TLS · DNS · STUN/ICE</text>
@@ -162,44 +144,39 @@
   <rect x="775" y="524" width="125" height="41" rx="6" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shL)"/>
   <text x="837" y="542" font-size="12" font-weight="600" fill="#1565C0" text-anchor="middle">🐪 ra-camel</text>
   <text x="837" y="557" font-size="9" fill="#78909C" text-anchor="middle">Generic bridge</text>
-
-  <!-- ===== GAP 3: RA → Adapter (outbound only) ===== -->
-  <line x1="139" y1="565" x2="139" y2="612" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="324" y1="565" x2="324" y2="612" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="509" y1="565" x2="509" y2="612" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="684" y1="565" x2="684" y2="612" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-  <line x1="837" y1="565" x2="837" y2="612" stroke="#E65100" stroke-width="3" marker-end="url(#adn)"/>
-
-  <rect x="310" y="578" width="340" height="28" rx="5" fill="#FFF8E1" stroke="#FFB74D" stroke-width="1"/>
-  <text x="480" y="597" font-size="12" font-weight="700" fill="#E65100" text-anchor="middle">▼ OUTBOUND: encode → Transport.send(bytes, peer)</text>
-
-  <!-- ===== ADAPTER LAYER ===== -->
+  <!-- GAP 3: OUTBOUND (RA → Adapter) red solid DOWN -->
+  <line x1="139" y1="565" x2="139" y2="605" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="324" y1="565" x2="324" y2="605" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="509" y1="565" x2="509" y2="605" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="684" y1="565" x2="684" y2="605" stroke="#E65100" stroke-width="2.5"/>
+  <line x1="837" y1="565" x2="837" y2="605" stroke="#E65100" stroke-width="2.5"/>
+  <polygon points="133,593 145,593 139,605" fill="#E65100"/>
+  <polygon points="318,593 330,593 324,605" fill="#E65100"/>
+  <polygon points="503,593 515,593 509,605" fill="#E65100"/>
+  <polygon points="678,593 690,593 684,605" fill="#E65100"/>
+  <polygon points="831,593 843,593 837,605" fill="#E65100"/>
+  <rect x="310" y="573" width="340" height="28" rx="5" fill="#FFF8E1" stroke="#FFB74D" stroke-width="1"/>
+  <text x="480" y="592" font-size="12" font-weight="700" fill="#E65100" text-anchor="middle">▼ OUTBOUND: encode → Transport.send(bytes, peer)</text>
+  <!-- ADAPTER LAYER -->
   <rect x="40" y="619" width="880" height="60" rx="8" fill="url(#netG)" stroke="#8E24AA" stroke-width="1.5" filter="url(#sh)"/>
-
   <text x="55" y="641" font-size="13" font-weight="700" fill="#6A1B9A">ADAPTER —</text>
-
   <rect x="150" y="626" width="125" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
   <text x="212" y="642" font-size="10" font-weight="700" fill="#6A1B9A" text-anchor="middle">☕ Quarkus ★</text>
-
   <rect x="285" y="626" width="125" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
   <text x="347" y="642" font-size="10" fill="#8E24AA" text-anchor="middle">🍃 Spring Boot</text>
-
   <rect x="420" y="626" width="125" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
   <text x="482" y="642" font-size="10" fill="#8E24AA" text-anchor="middle">⚡ Embedded J25</text>
-
   <rect x="555" y="626" width="125" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
   <text x="617" y="642" font-size="10" fill="#8E24AA" text-anchor="middle">📦 Jakarta EE</text>
-
   <rect x="690" y="626" width="210" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
   <text x="795" y="642" font-size="10" fill="#8E24AA" text-anchor="middle">🔥 GraalVM Native (in progress)</text>
-
-  <!-- ===== LEGEND with VERTICAL arrows ===== -->
+  <!-- LEGEND -->
   <rect x="40" y="688" width="880" height="28" rx="6" fill="#ECEFF1" stroke="#CFD8DC" stroke-width="0.8"/>
-  <!-- Vertical DOWN arrow for outbound -->
-  <line x1="55" y1="695" x2="55" y2="710" stroke="#E65100" stroke-width="3" marker-end="url(#leg-down)"/>
-  <text x="75" y="707" font-size="11" font-weight="600" fill="#546E7A">OUTBOUND: SBB → RA → Network</text>
-  <!-- Vertical UP arrow for inbound -->
-  <line x1="310" y1="710" x2="310" y2="695" stroke="#1565C0" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#leg-up)"/>
-  <text x="330" y="707" font-size="11" font-weight="600" fill="#546E7A">INBOUND: Network → RA → SBB</text>
+  <polygon points="54,695 66,695 60,707" fill="#E65100"/>
+  <line x1="60" y1="694" x2="60" y2="707" stroke="#E65100" stroke-width="2.5"/>
+  <text x="80" y="707" font-size="11" font-weight="600" fill="#546E7A">OUTBOUND: SBB → RA → Network</text>
+  <polygon points="314,710 326,710 320,698" fill="#1565C0"/>
+  <line x1="320" y1="710" x2="320" y2="698" stroke="#1565C0" stroke-width="2.5" stroke-dasharray="8,5"/>
+  <text x="340" y="707" font-size="11" font-weight="600" fill="#546E7A">INBOUND: Network → RA → SBB</text>
   <text x="690" y="707" font-size="11" font-weight="600" fill="#FF6B35">micro-jainslee 1.2.0 · github.com/nhanth87/jain-slee</text>
 </svg>

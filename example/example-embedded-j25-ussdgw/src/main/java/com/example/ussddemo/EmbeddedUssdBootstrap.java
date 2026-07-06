@@ -31,6 +31,8 @@ import com.microjainslee.ra.httpclient.HttpCallbackClientRa;
 import com.microjainslee.ra.httpclient.HttpCallbackRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
+import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -77,6 +79,7 @@ public final class EmbeddedUssdBootstrap {
         wireHttpServerRa(httpPort);
         wireHttpCallbackRa();
         wireGrpcMenuRa(grpcHost, grpcPort);
+        wirePrometheusRa();
         bindEventMappings();
         LOG.info("Embedded USSD bootstrap complete (httpPort={}, grpc={}:{})", httpPort, grpcHost, grpcPort);
     }
@@ -202,6 +205,14 @@ public final class EmbeddedUssdBootstrap {
         grpcMenuEndpoint.setActivityContextLookup(lookup);
         container.registerRa(grpcMenuEndpoint, grpcMenuEndpoint);
         LOG.info("gRPC menu RA wired to {}:{}", host, port);
+    }
+
+    private void wirePrometheusRa() {
+        var prometheusRa = new PrometheusResourceAdaptor();
+        prometheusRa.setPort(9090);
+        var prometheusEndpoint = new PrometheusRaEndpoint(prometheusRa);
+        container.registerRa(prometheusEndpoint);
+        LOG.info("Prometheus exporter RA registered on port {}", prometheusRa.port());
     }
 
     private void bindEventMappings() {
