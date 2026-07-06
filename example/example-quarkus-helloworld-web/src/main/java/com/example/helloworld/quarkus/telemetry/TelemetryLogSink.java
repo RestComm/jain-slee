@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 /**
  * Durable telemetry sink — batches compact operational summaries and flushes
@@ -47,6 +48,10 @@ public final class TelemetryLogSink implements AutoCloseable {
     private volatile long oldestBufferedAt;
     private volatile boolean running;
     private Thread worker;
+
+    /** Where a flushed batch is emitted. Defaults to the batch logger; tests
+     *  swap it to capture emitted batches without a Log4j appender. */
+    private volatile Consumer<String> emitter = SINK::info;
 
     public TelemetryLogSink(TelemetryPort telemetry) {
         this(telemetry, 10_000L, 30, 60_000L);
@@ -134,8 +139,13 @@ public final class TelemetryLogSink implements AutoCloseable {
             lock.unlock();
         }
         // One batched log event carrying n JSON lines.
-        SINK.info(sb.toString().stripTrailing());
+        emitter.accept(sb.toString().stripTrailing());
         LOG.debug("[telemetry] flushed batch of {} sample(s)", n);
+    }
+
+    /** Test seam — redirect flushed batches to a capturing consumer. */
+    void emitter(Consumer<String> emitter) {
+        this.emitter = emitter;
     }
 
     /**
@@ -144,7 +154,7 @@ public final class TelemetryLogSink implements AutoCloseable {
      * analysis and alerting, not forensic replay (that stays in Prometheus and
      * the alarm ring buffer).
      */
-    private static String summarize(TelemetrySnapshot snap) {
+    static String summarize(TelemetrySnapshot snap) {
         var r = snap.resources();
         long totalActive = snap.sbbs().stream().mapToLong(s -> s.active()).sum();
         long totalErrors = snap.sbbs().stream().mapToLong(s -> s.errors()).sum();

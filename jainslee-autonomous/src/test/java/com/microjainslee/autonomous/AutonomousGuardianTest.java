@@ -23,7 +23,8 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Self-protection contract: zero threads, escalation ladder ordering,
- * cooldowns, participant fault isolation, and container attachment.
+ * cooldowns, participant fault isolation, container attachment,
+ * start/stop lifecycle, watermark validation, and hook behavior.
  */
 public class AutonomousGuardianTest {
 
@@ -55,6 +56,8 @@ public class AutonomousGuardianTest {
         };
     }
 
+    // ── lifecycle ────────────────────────────────────────────────────
+
     @Test
     public void startCreatesNoThreads() {
         int before = Thread.activeCount();
@@ -72,6 +75,56 @@ public class AutonomousGuardianTest {
     }
 
     @Test
+    public void startIsIdempotent() {
+        AutonomousGuardian g = guardian();
+        g.start();
+        assertTrue(g.isStarted());
+        g.start(); // second call must be a no-op
+        assertTrue(g.isStarted());
+        g.stop();
+        assertFalse(g.isStarted());
+    }
+
+    @Test
+    public void stopWhenNotStartedIsSafe() {
+        AutonomousGuardian g = guardian();
+        // stop() on a non-started guardian must not throw
+        g.stop();
+        assertFalse(g.isStarted());
+        // Double-stop idempotency
+        g.stop();
+        assertFalse(g.isStarted());
+    }
+
+    @Test
+    public void closeWrapsStop() {
+        AutonomousGuardian g = guardian();
+        g.start();
+        assertTrue(g.isStarted());
+        g.close();
+        assertFalse(g.isStarted());
+    }
+
+    // ── configuration validation ─────────────────────────────────────
+
+    @Test(expected = IllegalArgumentException.class)
+    public void watermarksMustBeAscending() {
+        new AutonomousGuardian().watermarks(0.88, 0.75, 0.96); // critical < elevated
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void watermarksMustNotExceedOne() {
+        new AutonomousGuardian().watermarks(0.75, 0.88, 1.01);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void watermarksCannotBeEqual() {
+        new AutonomousGuardian().watermarks(0.75, 0.75, 0.96);
+    }
+
+    // ── escalation ladder ────────────────────────────────────────────
+
+    @Test
     public void escalationLadderMapsUsageToLevels() {
         AutonomousGuardian g = guardian().watermarks(0.75, 0.88, 0.96);
         assertEquals(PressureLevel.NORMAL, g.evaluate(0.50));
@@ -79,6 +132,28 @@ public class AutonomousGuardianTest {
         assertEquals(PressureLevel.CRITICAL, g.evaluate(0.90));
         assertEquals(PressureLevel.EMERGENCY, g.evaluate(0.99));
     }
+
+    @Test
+    public void boundaryValuesMapCorrectly() {
+        AutonomousGuardian g = guardian().watermarks(0.75, 0.88, 0.96);
+        assertEquals(PressureLevel.ELEVATED, g.evaluate(0.75));  // exactly at threshold
+        assertEquals(PressureLevel.CRITICAL, g.evaluate(0.88));
+        assertEquals(PressureLevel.EMERGENCY, g.evaluate(0.96));
+        assertEquals(PressureLevel.EMERGENCY, g.evaluate(1.0));  // max
+    }
+
+    @Test
+    public void lastLevelTracksCurrentPressure() {
+        AutonomousGuardian g = guardian();
+        g.evaluate(0.50);
+        assertEquals(PressureLevel.NORMAL, g.lastLevel());
+        g.evaluate(0.80);
+        assertEquals(PressureLevel.ELEVATED, g.lastLevel());
+        g.evaluate(0.99);
+        assertEquals(PressureLevel.EMERGENCY, g.lastLevel());
+    }
+
+    // ── participant execution ────────────────────────────────────────
 
     @Test
     public void participantsRunUnderPressureButNotWhenNormal() {
@@ -126,6 +201,35 @@ public class AutonomousGuardianTest {
     }
 
     @Test
+    public void reliefRunCountIncrementsUnderPressure() {
+        AutonomousGuardian g = guardian();
+        g.register(recording("a", new CopyOnWriteArrayList<>()));
+        assertEquals(0, g.reliefRunCount());
+        g.evaluate(0.50);
+        assertEquals(0, g.reliefRunCount()); // NORMAL → no run
+        g.evaluate(0.80);
+        assertEquals(1, g.reliefRunCount());
+        g.evaluate(0.99);
+        assertEquals(2, g.reliefRunCount());
+    }
+
+    @Test
+    public void participantsReturnsImmutableSnapshot() {
+        AutonomousGuardian g = guardian();
+        g.register(recording("a", new CopyOnWriteArrayList<>()));
+        List<MemoryReliefParticipant> snapshot = g.participants();
+        assertEquals(1, snapshot.size());
+        try {
+            snapshot.add(recording("b", new CopyOnWriteArrayList<>()));
+            assertTrue("List.copyOf returns unmodifiable — add should have thrown", false);
+        } catch (UnsupportedOperationException expected) {
+            // Expected: List.copyOf produces an unmodifiable list
+        }
+    }
+
+    // ── hooks ────────────────────────────────────────────────────────
+
+    @Test
     public void emergencyHookFiresOnlyAtEmergency() {
         AtomicInteger hookCalls = new AtomicInteger();
         AutonomousGuardian g = guardian().onEmergency(level -> hookCalls.incrementAndGet());
@@ -138,12 +242,47 @@ public class AutonomousGuardianTest {
     }
 
     @Test
-    public void pressureEvaluateHookBridgesToTelemetry() {
+    public void emergencyHookIsCooldownProtected() {
+        AtomicInteger hookCalls = new AtomicInteger();
+        AutonomousGuardian g = new AutonomousGuardian()
+                .actionCooldownMillis(60_000)
+                .gcCooldownMillis(Long.MAX_VALUE)
+                .onEmergency(level -> hookCalls.incrementAndGet());
+        toClose.add(g);
+
+        g.evaluate(0.99);
+        g.evaluate(0.99);
+        g.evaluate(0.99);
+        assertEquals("emergency hook must respect cooldown", 1, hookCalls.get());
+    }
+
+    @Test
+    public void pressureEvaluateHookFiresOnPressure() {
         AtomicInteger evals = new AtomicInteger();
         AutonomousGuardian g = guardian().onPressureEvaluate(evals::incrementAndGet);
         g.evaluate(0.80);
         assertEquals(1, evals.get());
     }
+
+    @Test
+    public void pressureEvaluateHookDoesNotFireAtNormal() {
+        AtomicInteger evals = new AtomicInteger();
+        AutonomousGuardian g = guardian().onPressureEvaluate(evals::incrementAndGet);
+        g.evaluate(0.10);
+        assertEquals(0, evals.get());
+    }
+
+    @Test
+    public void faultyEmergencyHookDoesNotPropagate() {
+        AutonomousGuardian g = guardian().onEmergency(level -> {
+            throw new RuntimeException("hook failure");
+        });
+        // Must not propagate exception
+        PressureLevel result = g.evaluate(0.99);
+        assertEquals(PressureLevel.EMERGENCY, result);
+    }
+
+    // ── container attachment ─────────────────────────────────────────
 
     @Test
     public void attachRegistersStandardContainerParticipants() {
@@ -167,5 +306,24 @@ public class AutonomousGuardianTest {
         } finally {
             container.stop();
         }
+    }
+
+    // ── GC cooldown ──────────────────────────────────────────────────
+
+    @Test
+    public void gcCooldownPreventsRepeatedSystemGc() {
+        // Set gc cooldown very high, action cooldown to zero so relief runs freely
+        AutonomousGuardian g = new AutonomousGuardian()
+                .actionCooldownMillis(0)
+                .gcCooldownMillis(Long.MAX_VALUE);
+        toClose.add(g);
+        List<PressureLevel> calls = new CopyOnWriteArrayList<>();
+        g.register(recording("a", calls));
+
+        // Multiple CRITICAL evaluations — relief runs each time but GC is blocked
+        g.evaluate(0.90);
+        g.evaluate(0.92);
+        g.evaluate(0.94);
+        assertEquals("relief must run each time (no action cooldown)", 3, calls.size());
     }
 }

@@ -21,6 +21,11 @@ import com.microjainslee.ra.sipservlet.events.IceFailedEvent;
 import com.microjainslee.ra.sipservlet.events.SipInviteEvent;
 import com.microjainslee.ra.sipservlet.events.SipRegisterEvent;
 import com.microjainslee.ra.sipservlet.events.SipResponseEvent;
+import com.microjainslee.telemetry.MicrometerTelemetryPort;
+import com.microjainslee.telemetry.TelemetryPort;
+
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -45,12 +50,14 @@ public final class SipGatewayBootstrap {
     MicroSleeContainer container;
 
     private volatile SipServletRaEndpoint sipEndpoint;
+    private volatile TelemetryPort telemetryPort;
 
     @PostConstruct
     void init() {
         if (container.getState() != MicroSleeContainer.State.STARTED) {
             container.start();
         }
+        wireTelemetry();
         registerSbbTypes();
         bindInitialEventSelector();
         wireSipRa();
@@ -61,6 +68,9 @@ public final class SipGatewayBootstrap {
 
     @PreDestroy
     void shutdown() {
+        if (telemetryPort instanceof MicrometerTelemetryPort mtp) {
+            mtp.stop();
+        }
         if (sipEndpoint != null) {
             sipEndpoint.deactivate();
         }
@@ -95,6 +105,13 @@ public final class SipGatewayBootstrap {
 
         container.registerRa(sipEndpoint, sipEndpoint);
         LOG.info("SIP RA registered on UDP:{} TCP:{}", config.udpPort(), config.tcpPort());
+    }
+
+    private void wireTelemetry() {
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        telemetryPort = new MicrometerTelemetryPort(registry, container);
+        ((MicrometerTelemetryPort) telemetryPort).start();
+        LOG.info("[telemetry] MicrometerTelemetryPort armed (zero-CPU passive collection)");
     }
 
     private void wirePrometheusRa() {

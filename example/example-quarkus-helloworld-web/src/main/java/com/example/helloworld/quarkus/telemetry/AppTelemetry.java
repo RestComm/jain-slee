@@ -92,7 +92,7 @@ public final class AppTelemetry implements AutoCloseable {
     private void mountRoutes(Vertx vertx) {
         router = Router.router(vertx);
 
-        // Steampunk dashboard UI (served from jainslee-telemetry-vertx JAR).
+        // Steampunk dashboard UI (served from jainslee-monitor JAR).
         router.route("/telemetry/*").handler(StaticHandler.create("META-INF/resources"));
         router.route("/telemetry").handler(ctx -> ctx.reroute("/telemetry/index.html"));
 

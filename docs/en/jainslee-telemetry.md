@@ -1,15 +1,15 @@
 # jainslee-telemetry — Zero-CPU Observability & Metrics Engine
 
-> **Module:** `jainslee-telemetry`
+> **Modules:** `jainslee-telemetry` (+ `jainslee-telemetry-vertx` for HTTP REST API)
 >
 > **Replaces:** JAIN SLEE 1.1 AlarmFacility, UsageFacility, TraceFacility
 >
-> **Note:** Self-healing / autonomous reconfiguration is handled by
-> [`jainslee-autonomous`](./jainslee-autonomous.md). Telemetry is **data
-> collection only** — SBB stats, RA stats, errors, resources, spunk/stale
-> detection. It feeds data to `jainslee-autonomous` for decision-making.
+> **Note:** The `AutoReconfigEngine` (self-healing) lives inside the telemetry
+> module itself — it triggers on JVM memory-threshold notifications + Prometheus
+> scrape piggyback, with zero timer threads. The [`jainslee-autonomous`](./jainslee-autonomous.md)
+> module adds higher-level autonomous decision-making on top.
 >
-> **Philosophy:** Passive collection, zero polling, AtomicLong counters, single daemon VT scheduler
+> **Philosophy:** Passive collection, zero polling, AtomicLong counters, **zero timer threads**
 
 ---
 
@@ -21,12 +21,14 @@ for micro-jainslee. Instead of the heavyweight JMX MBeans, JMS-based alarms, and
 
 polling-based usage tracking required by JAIN SLEE 1.1, this module uses:
 
-- **AtomicLong counters** — zero-lock, zero-contention metric accumulation
+- **AtomicLong / LongAdder counters** — zero-lock, zero-contention metric accumulation
 - **Ring buffers** — bounded, lock-free error and alarm history
-- **Single daemon Virtual Thread** — one VT schedules all periodic scans (resource,
-
-  stale detection, auto-reconfig evaluate) at 30s intervals
-- **Micrometer + Prometheus** — industry-standard metrics export, no custom wire format
+- **Zero-CPU lazy capture** — ResourceMonitor captures only on read (Prometheus scrape,
+  dashboard poll); no background threads, zero CPU at idle
+- **JVM memory-threshold notifications** — AutoReconfigEngine is event-driven,
+  wakes only when tenured pool exceeds 85% after GC
+- **Micrometer + Prometheus** — 23 core Micrometer gauges registered on startup,
+  industry-standard metrics export, no custom wire format
 - **Passive callbacks from EventRouter** — no polling, no interception, just a
 
   one-line `.record()` after each event dispatch
@@ -338,6 +340,79 @@ is tracked per-condition with a `Map<Condition, Long>` of last-fire timestamps.
 
 ---
 
+## Core Micrometer Metrics (Prometheus)
+
+`MicrometerTelemetryPort` registers 23 core gauges on startup. All are backed
+by the passive collectors — zero-CPU when not scraped.
+
+| Prometheus Metric                    | Source             | Description                        |
+|--------------------------------------|--------------------|------------------------------------|
+| `jainslee_sbb_entities_total`        | SbbCollector       | Total SBB entities created         |
+| `jainslee_sbb_entities_active`       | SbbCollector       | Currently active SBB entities      |
+| `jainslee_sbb_events_total`          | SbbCollector       | Total events processed             |
+| `jainslee_sbb_events_per_second`     | SbbCollector       | Event throughput (60s window)      |
+| `jainslee_sbb_errors_total`          | SbbCollector       | Total processing errors            |
+| `jainslee_sbb_spunks_total`          | SbbCollector       | Total anomaly detections           |
+| `jainslee_sbb_stale_entities`        | SbbCollector       | Stale (idle) entity count          |
+| `jainslee_sbb_leaked_entities`       | SbbCollector       | Leaked entity count                |
+| `jainslee_sbb_healthy`               | SbbCollector       | 1=healthy, 0=unhealthy             |
+| `jainslee_heap_used_mb`              | ResourceMonitor    | Heap used (MB)                     |
+| `jainslee_heap_max_mb`               | ResourceMonitor    | Heap max (MB)                      |
+| `jainslee_heap_usage_percent`        | ResourceMonitor    | Heap usage percentage              |
+| `jainslee_cpu_load_percent`          | ResourceMonitor    | Process CPU load percentage        |
+| `jainslee_threads_active`            | ResourceMonitor    | Active platform threads            |
+| `jainslee_threads_virtual`           | ResourceMonitor    | Virtual thread count               |
+| `jainslee_gc_count`                  | ResourceMonitor    | Total GC collections               |
+| `jainslee_gc_time_ms`                | ResourceMonitor    | Total GC time (ms)                 |
+| `jainslee_open_fds`                  | ResourceMonitor    | Open file descriptors              |
+| `jainslee_ra_events_fired_total`     | RaCollector        | Total RA events fired              |
+| `jainslee_ra_commands_sent_total`    | RaCollector        | Total commands sent to RAs         |
+| `jainslee_ra_failures_total`         | RaCollector        | Total RA failures                  |
+| `jainslee_stale_tracked_entities`    | StaleDetector      | Entities tracked for staleness     |
+| `jainslee_alarms_active`             | AlarmEngine        | Currently active (uncleared) alarms|
+
+---
+
+## jainslee-telemetry-vertx — HTTP REST Server
+
+The `jainslee-telemetry-vertx` module provides a standalone Vert.x HTTP server
+that exposes all telemetry data as REST endpoints — ready for Prometheus scraping,
+dashboard polling, and health checks.
+
+### Dependency
+
+```xml
+<dependency>
+    <groupId>com.microjainslee</groupId>
+    <artifactId>jainslee-telemetry-vertx</artifactId>
+    <version>${microjainslee.version}</version>
+</dependency>
+```
+
+### Usage
+
+```java
+var registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+var telemetry = new MicrometerTelemetryPort(registry, container);
+telemetry.start();
+
+var server = new TelemetryVertxServer(telemetry, 8090);
+server.start();  // listens on :8090
+```
+
+### Endpoints
+
+| Method | Path                                  | Description                    |
+|--------|---------------------------------------|--------------------------------|
+| GET    | `/metrics`                            | Prometheus OpenMetrics scrape  |
+| GET    | `/api/telemetry/snapshot`             | Full JSON snapshot             |
+| GET    | `/api/telemetry/alarms`               | Active alarms (JSON array)     |
+| GET    | `/api/telemetry/alarms/history?minutes=60` | Alarm history             |
+| GET    | `/api/telemetry/health`               | Health status (UP/DEGRADED)    |
+| GET    | `/api/telemetry/custom`               | Custom app-defined metrics     |
+
+---
+
 ## Integration Guide
 
 ### Step 1: Add Dependency
@@ -350,47 +425,53 @@ is tracked per-condition with a `Map<Condition, Long>` of last-fire timestamps.
 [[ORCA_RAW_HTML_BLOCK:%3C%2Fdependency%3E]]
 [[ORCA_RAW_HTML_BLOCK:%3Cdependency%3E]]
     [[ORCA_RAW_HTML_INLINE:%3CgroupId%3E]]com.microjainslee[[ORCA_RAW_HTML_INLINE:%3C%2FgroupId%3E]]
-    [[ORCA_RAW_HTML_INLINE:%3CartifactId%3E]]jainslee-telemetry-vertx[[ORCA_RAW_HTML_INLINE:%3C%2FartifactId%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3CartifactId%3E]]jainslee-monitor[[ORCA_RAW_HTML_INLINE:%3C%2FartifactId%3E]]
     [[ORCA_RAW_HTML_INLINE:%3Cversion%3E]]${microjainslee.version}[[ORCA_RAW_HTML_INLINE:%3C%2Fversion%3E]]
 [[ORCA_RAW_HTML_BLOCK:%3C%2Fdependency%3E]]
 ```
 
 ### Step 2: Wire in Bootstrap
 
+Use the drop-in `AppTelemetry` module (from the app template) — one call wires
+collectors, Prometheus, the batched Log4j sink and the dashboard:
+
 ```java
 @PostConstruct
 void init() {
     container.start();
-
-    // 1. Create telemetry engine
-    var registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-    var telemetry = new MicrometerTelemetryPort(registry, container);
-    container.bindTelemetryPort(telemetry);
-
-    // 2. Start collectors
-    telemetry.sbbCollector().start();
-    telemetry.raCollector().start();
-    telemetry.resourceMonitor().start(30, TimeUnit.SECONDS);
-    telemetry.spunkDetector().start();
-    telemetry.staleDetector().start(60, TimeUnit.SECONDS);
-
-    // 3. Start auto-reconfig (optional but recommended)
-    telemetry.autoReconfig().start(30, TimeUnit.SECONDS);
-    telemetry.setAutoReconfigEnabled(true);
-
-    // 4. Wire EventRouter to feed telemetry
-    container.getEventRouter().setTelemetryPort(telemetry);
-
-    // 5. Mount dashboard routes
-    var router = Router.router(vertx);
-    router.route("/telemetry/*")
-        .handler(StaticHandler.create("webroot/telemetry"));
-    router.get("/api/telemetry/snapshot")
-        .handler(ctx -> ctx.json(telemetry.snapshot()));
-    router.get("/api/telemetry/metrics")
-        .handler(ctx -> ctx.end(telemetry.scrape()));
+    TelemetryPort telemetry = appTelemetry.install(container, vertx);
+    // Prometheus RA on :9090, dashboard + REST on :8090, telemetry.log batch sink running.
 }
 ```
+
+`AppTelemetry.install()` under the hood:
+
+```java
+var registry  = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+var telemetry = new MicrometerTelemetryPort(registry, container);
+telemetry.start();                       // arms zero-CPU resource monitor + auto-reconfig
+
+new TelemetryLogSink(telemetry).start(); // batched JSON-lines Log4j sink
+
+var promRa = new PrometheusResourceAdaptor();
+promRa.setPort(9090);
+var promEndpoint = new PrometheusRaEndpoint(promRa);
+container.registerRa(promEndpoint, promEndpoint);  // endpoint is both ports
+
+Router router = Router.router(vertx);
+router.route("/telemetry/*").handler(StaticHandler.create("META-INF/resources"));
+router.get("/api/telemetry/snapshot").handler(ctx -> ctx.json(telemetry.snapshot()));
+router.get("/api/telemetry/metrics").handler(ctx -> ctx.end(telemetry.scrape()));
+vertx.createHttpServer().requestHandler(router).listen(8090);
+```
+
+> **⚠️ EventRouter feeding — known gap.** The passive SBB/spunk/stale collectors
+> are fed by a one-line `.record()` call from the `EventRouter` after each
+> dispatch (see *Step 3*). That hook is **not yet present in `jainslee-core`**,
+> so today the per-SBB counters read zero while the **ResourceMonitor** (heap,
+> CPU, GC, threads), **AlarmEngine**, **AutoReconfigEngine** and **custom
+> metrics** are fully live. Wiring the EventRouter hook is the single change that
+> lights up the remaining collectors — see the integration point below.
 
 ### Step 3: EventRouter Integration Points
 
@@ -568,6 +649,51 @@ Enable or disable the AutoReconfigEngine.
     "errorCollector": "OK"
   }
 }
+```
+
+---
+
+## Export strategy — Prometheus + batched Log4j (and why not Elasticsearch)
+
+Telemetry exports **two complementary ways at once**, chosen for a native
+Quarkus/GraalVM target:
+
+| Concern | Choice | Why |
+|---------|--------|-----|
+| **Live metrics** | **Prometheus** (Micrometer + exporter RA) | Pull-based, industry standard, zero custom wire format, no fat client, native-friendly. Already wired. |
+| **Durable event log** | **Batched Log4j2 JSON sink** | Prometheus forgets everything on restart and is not an event log. The sink writes one compact JSON line per sample to `telemetry.log` via an **async** appender, flushed in **batches**. Zero new deps. |
+| **Elasticsearch / Loki / Splunk** | **Via the log file + a sidecar** — *not* a direct client | An embedded ES client is heavyweight and reflection-heavy — hostile to GraalVM native images. Ship `telemetry.log` with Filebeat / Promtail / Vector instead: same destination, none of the weight. |
+
+### The batched Log4j sink
+
+`TelemetryLogSink` (app template) runs one daemon virtual thread. Every
+`sampleInterval` it reduces the full snapshot to a compact operational summary
+(heap %, CPU, active SBBs, EPS, errors, spunks, leaks, alarms — **no** stack
+traces or per-entity detail) and buffers it. The buffer is flushed as a single
+Log4j event once it reaches `batchSize` **or** `maxBatchAge` elapses — whichever
+comes first:
+
+```java
+new TelemetryLogSink(telemetry,
+        /* sampleIntervalMillis */ 10_000,
+        /* batchSize */            30,
+        /* maxBatchAgeMillis */    60_000).start();
+```
+
+`log4j2.xml` routes the dedicated `microjainslee.telemetry` logger to its own
+async rolling file, never the console:
+
+```xml
+<Logger name="microjainslee.telemetry" level="INFO" additivity="false">
+    <AppenderRef ref="telemetryAsync"/>   <!-- Async → RollingFile telemetry.log -->
+</Logger>
+```
+
+```json
+// one line in telemetry.log
+{"ts":1751800000000,"heapUsedMb":128,"heapPct":25.0,"cpu":0.15,"vThreads":1042,
+ "sbbActive":42,"sbbErrors":0,"eps":1234.5,"spunks":0,"staleLeaks":0,"alarms":0,
+ "autoReconfig":true,"sbbs":[{"type":"HelloWorldSbb","active":42,"eps":1234.5}]}
 ```
 
 ---

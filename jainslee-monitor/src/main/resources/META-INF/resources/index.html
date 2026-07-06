@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚙ micro-jainslee Monitoring Window</title>
+<style>
+:root {
+  --bg-primary:    #0a0a0f;
+  --bg-card:       #1a1a2e;
+  --bg-card-alt:   #141428;
+  --bg-input:      #0d0d18;
+  --border-brass:  #c9a84c;
+  --border-brass-dim: #7a6530;
+  --neon-cyan:     #00d4ff;
+  --neon-green:    #00ff88;
+  --neon-red:      #ff4444;
+  --neon-yellow:   #ffcc00;
+  --neon-orange:   #ff8c00;
+  --text-primary:  #e0d6c2;
+  --text-secondary:#8a7a5a;
+  --text-dim:      #5a4a3a;
+  --font-mono:     'Courier New','Consolas','Liberation Mono',monospace;
+  --font-serif:    Georgia,'Times New Roman',serif;
+  --glow-cyan:     0 0 12px rgba(0,212,255,0.3);
+  --glow-brass:    0 0 8px rgba(201,168,76,0.25);
+  --glow-red:      0 0 10px rgba(255,68,68,0.4);
+  --glow-green:    0 0 14px rgba(0,255,136,0.45);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--font-mono);font-size:13px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg-primary)}
+::-webkit-scrollbar-thumb{background:var(--border-brass-dim);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-brass)}
+
+#topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:linear-gradient(180deg,#1a1a2e 0%,#12121f 100%);border-bottom:2px solid var(--border-brass);box-shadow:0 2px 20px rgba(201,168,76,0.15)}
+#topbar .title{font-family:var(--font-serif);font-size:18px;font-weight:bold;color:var(--border-brass);letter-spacing:1px;display:flex;align-items:center;gap:10px}
+#topbar .title .gear-icon{display:inline-block;width:28px;height:28px;background:radial-gradient(circle,var(--border-brass) 20%,transparent 22%),conic-gradient(from 0deg,var(--border-brass-dim) 0deg 30deg,var(--border-brass) 30deg 60deg,var(--border-brass-dim) 60deg 90deg,var(--border-brass) 90deg 120deg,var(--border-brass-dim) 120deg 150deg,var(--border-brass) 150deg 180deg,var(--border-brass-dim) 180deg 210deg,var(--border-brass) 210deg 240deg,var(--border-brass-dim) 240deg 270deg,var(--border-brass) 270deg 300deg,var(--border-brass-dim) 300deg 330deg,var(--border-brass) 330deg 360deg);border-radius:50%;animation:gear-rotate 4s linear infinite}
+@keyframes gear-rotate{to{transform:rotate(360deg)}}
+#topbar .center-group{display:flex;align-items:center;gap:16px}
+#status-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+#status-dot.online{background:var(--neon-green);box-shadow:0 0 10px var(--neon-green);animation:pulse-dot 2s infinite}
+#status-dot.offline{background:var(--neon-red);box-shadow:0 0 10px var(--neon-red)}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.5}}
+#status-label{color:var(--neon-green);font-size:11px;letter-spacing:2px}
+#uptime-display{color:var(--text-secondary);font-size:11px}
+#clock{color:var(--neon-cyan);font-size:14px;font-family:var(--font-mono);letter-spacing:1px}
+
+/* ── Tab bar ── */
+#tabbar{display:flex;gap:4px;padding:10px 16px 0;max-width:1600px;margin:0 auto}
+.tab-btn{background:linear-gradient(180deg,#1a1a2e 0%,#12121f 100%);border:1px solid var(--border-brass-dim);border-bottom:none;color:var(--text-secondary);font-family:var(--font-serif);font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:10px 26px;border-radius:8px 8px 0 0;cursor:pointer;transition:all 0.2s;position:relative;top:1px}
+.tab-btn:hover{color:var(--border-brass);box-shadow:var(--glow-brass)}
+.tab-btn.active{background:var(--bg-card);border-color:var(--border-brass);color:var(--border-brass);box-shadow:0 -4px 16px rgba(201,168,76,0.15)}
+.tab-btn .tab-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:8px;background:var(--text-dim)}
+.tab-btn .tab-dot.green{background:var(--neon-green);box-shadow:0 0 6px var(--neon-green)}
+.tab-btn .tab-dot.amber{background:var(--neon-yellow);box-shadow:0 0 6px var(--neon-yellow)}
+.tab-btn .tab-dot.red{background:var(--neon-red);box-shadow:0 0 6px var(--neon-red);animation:pulse-dot 1s infinite}
+#tab-rule{max-width:1600px;margin:0 auto;border-bottom:2px solid var(--border-brass);padding:0 16px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Dashboard grid (telemetry tab) ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1.3fr 1fr;grid-template-rows:auto auto;gap:12px;padding:12px 16px;max-width:1600px;margin:0 auto}
+.card{background:var(--bg-card);border:1px solid var(--border-brass-dim);border-radius:6px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s}
+.card:hover{transform:scale(1.015);box-shadow:var(--glow-brass),var(--glow-cyan);border-color:var(--border-brass)}
+.card-header{background:linear-gradient(180deg,#2d1f0e 0%,#1f1408 100%);padding:8px 12px;font-family:var(--font-serif);font-size:13px;font-weight:bold;color:var(--border-brass);letter-spacing:1px;border-bottom:1px solid var(--border-brass-dim);display:flex;align-items:center;gap:6px;text-transform:uppercase}
+.card-header::before{content:'⚙';font-size:10px;animation:gear-rotate 6s linear infinite;display:inline-block}
+.card-body{padding:10px 12px}
+.dash-col{display:flex;flex-direction:column;gap:12px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-tile{background:var(--bg-card-alt);border:1px solid var(--border-brass-dim);border-radius:4px;padding:10px;text-align:center;transition:all 0.3s}
+.stat-tile:hover{border-color:var(--neon-cyan);box-shadow:var(--glow-cyan)}
+.stat-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-secondary);margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:bold;color:var(--neon-cyan);font-family:var(--font-mono);text-shadow:0 0 8px rgba(0,212,255,0.4)}
+.stat-value.value-changed{animation:value-pop 0.3s ease-out}
+@keyframes value-pop{0%{transform:scale(1.2);color:var(--neon-green)}100%{transform:scale(1);color:var(--neon-cyan)}}
+
+.data-table-wrap{max-height:280px;overflow-y:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{position:sticky;top:0;z-index:2;background:var(--bg-card-alt);color:var(--border-brass);padding:5px 6px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border-brass)}
+.data-table td{padding:4px 6px;border-bottom:1px solid rgba(201,168,76,0.1)}
+.data-table tbody tr:hover td{background:rgba(201,168,76,0.08)}
+tr.row-spunk td{color:var(--neon-yellow)}
+tr.row-error td{color:var(--neon-red);background:rgba(255,68,68,0.08)}
+.state-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.state-dot.active{background:var(--neon-green);box-shadow:0 0 5px var(--neon-green)}
+.state-dot.inactive{background:var(--text-dim)}
+.state-dot.error{background:var(--neon-red);box-shadow:0 0 5px var(--neon-red);animation:pulse-dot 1s infinite}
+
+.gauges-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.gauge{position:relative;width:130px;height:70px;display:flex;flex-direction:column;align-items:center}
+.gauge-arc{position:relative;width:110px;height:55px;overflow:hidden;border-radius:110px 110px 0 0;background:#0d0d1a;border:2px solid var(--border-brass-dim);border-bottom:none}
+.gauge-arc-fill{position:absolute;bottom:0;left:0;width:110px;height:55px;border-radius:110px 110px 0 0;background:conic-gradient(from 270deg at 50% 100%,var(--neon-green) 0deg,var(--neon-green) calc(var(--gauge-pct,0)*1.8deg),transparent calc(var(--gauge-pct,0)*1.8deg));transition:background 0.6s ease}
+.gauge-arc-fill.warn{background:conic-gradient(from 270deg at 50% 100%,var(--neon-orange) 0deg,var(--neon-orange) calc(var(--gauge-pct,0)*1.8deg),transparent calc(var(--gauge-pct,0)*1.8deg))}
+.gauge-arc-fill.danger{background:conic-gradient(from 270deg at 50% 100%,var(--neon-red) 0deg,var(--neon-red) calc(var(--gauge-pct,0)*1.8deg),transparent calc(var(--gauge-pct,0)*1.8deg))}
+.gauge-arc-center{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:60px;height:30px;background:var(--bg-card);border-radius:60px 60px 0 0;border:1px solid var(--border-brass-dim);border-bottom:none}
+.gauge-label{margin-top:6px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--border-brass);font-family:var(--font-serif)}
+.gauge-value{font-size:15px;font-weight:bold;color:var(--neon-cyan);font-family:var(--font-mono);text-shadow:0 0 6px rgba(0,212,255,0.3)}
+.gauge-value.over-threshold{color:var(--neon-red);text-shadow:0 0 6px rgba(255,68,68,0.4)}
+.thread-display{background:var(--bg-card-alt);border:1px solid var(--border-brass-dim);border-radius:4px;padding:12px 20px;text-align:center;min-width:110px}
+.thread-display .thread-value{font-size:32px;font-weight:bold;color:var(--neon-cyan);font-family:var(--font-mono);text-shadow:0 0 12px rgba(0,212,255,0.5)}
+.thread-display .thread-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--border-brass);font-family:var(--font-serif)}
+.sparkline-container{background:var(--bg-card-alt);border:1px solid var(--border-brass-dim);border-radius:4px;padding:8px 10px}
+.sparkline-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--border-brass);font-family:var(--font-serif)}
+#sparkline-value{font-family:var(--font-mono);font-size:13px;color:var(--neon-cyan)}
+#sparkline{display:flex;align-items:flex-end;gap:2px;height:100px;width:100%;background:rgba(0,0,0,0.3);border-radius:3px;padding:4px;overflow:hidden}
+.spark-bar{flex:1;min-width:3px;background:linear-gradient(180deg,var(--neon-cyan) 0%,rgba(0,212,255,0.3) 100%);border-radius:2px 2px 0 0;box-shadow:0 0 4px rgba(0,212,255,0.3);transition:height 0.4s ease}
+
+.alarm-item{display:grid;grid-template-columns:50px 1fr 40px;gap:2px 8px;padding:6px 8px;margin-bottom:4px;border-radius:4px;background:var(--bg-card-alt);border-left:3px solid var(--border-brass-dim);font-size:10px;transition:all 0.3s}
+.alarm-item:hover{border-left-color:var(--border-brass);background:rgba(201,168,76,0.06)}
+.alarm-badge{grid-row:1/3;grid-column:1;align-self:center;padding:2px 4px;border-radius:3px;font-size:8px;font-weight:bold;text-align:center;letter-spacing:0.5px;text-transform:uppercase}
+.alarm-item.level-fatal{border-left-color:var(--neon-red);animation:alarm-pulse 1.5s infinite}
+.alarm-item.level-critical{border-left-color:var(--neon-red)}
+.alarm-item.level-warning{border-left-color:var(--neon-yellow)}
+.alarm-item.level-info{border-left-color:var(--neon-cyan)}
+.alarm-badge.level-fatal{background:var(--neon-red);color:#000}
+.alarm-badge.level-critical{background:rgba(255,68,68,0.3);color:var(--neon-red);border:1px solid var(--neon-red)}
+.alarm-badge.level-warning{background:rgba(255,204,0,0.2);color:var(--neon-yellow);border:1px solid var(--neon-yellow)}
+.alarm-badge.level-info{background:rgba(0,212,255,0.15);color:var(--neon-cyan);border:1px solid var(--neon-cyan)}
+@keyframes alarm-pulse{0%,100%{box-shadow:0 0 4px var(--neon-red)}50%{box-shadow:0 0 16px var(--neon-red)}}
+.alarm-source{grid-row:1;grid-column:2;color:var(--text-secondary);font-weight:bold}
+.alarm-msg{grid-row:2;grid-column:2;color:var(--text-primary);font-size:10px}
+.alarm-time{grid-row:1;grid-column:3;color:var(--text-dim);font-size:9px;text-align:right}
+.alarm-clear{grid-row:2;grid-column:3;background:none;border:1px solid var(--border-brass-dim);color:var(--border-brass);font-size:8px;padding:1px 4px;border-radius:3px;cursor:pointer;font-family:var(--font-mono);transition:all 0.2s}
+.alarm-clear:hover{background:var(--border-brass);color:#000}
+.empty-note{text-align:center;padding:20px;color:var(--neon-green);font-family:var(--font-serif);font-size:13px}
+.missing-note{text-align:center;padding:30px 20px;color:var(--text-secondary);font-family:var(--font-serif);font-size:13px;line-height:1.8}
+.custom-metric-row{display:flex;align-items:center;gap:8px;padding:4px 8px;margin-bottom:2px;border-radius:3px;background:var(--bg-card-alt);font-size:11px}
+.custom-metric-row:hover{background:rgba(201,168,76,0.08)}
+.metric-icon{font-size:12px;width:20px;text-align:center}
+.metric-name{flex:1;color:var(--text-secondary);font-family:var(--font-mono)}
+.metric-value{color:var(--neon-cyan);font-weight:bold;min-width:60px;text-align:right}
+
+.toggle-wrap{display:flex;align-items:center;gap:10px}
+.toggle-switch{position:relative;display:inline-block;width:52px;height:28px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--bg-input);border:2px solid var(--border-brass-dim);border-radius:14px;transition:all 0.3s}
+.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:2px;bottom:2px;background:var(--border-brass-dim);border-radius:50%;transition:all 0.3s}
+.toggle-switch input:checked+.toggle-slider{border-color:var(--neon-cyan);box-shadow:var(--glow-cyan)}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(24px);background:var(--neon-cyan);box-shadow:0 0 8px var(--neon-cyan)}
+.toggle-status{font-size:11px;font-family:var(--font-serif);color:var(--text-secondary);letter-spacing:1px}
+.toggle-status.active{color:var(--neon-cyan)}
+.btn-brass{background:linear-gradient(180deg,#3d2a0e 0%,#2d1f0e 100%);border:2px solid var(--border-brass);color:var(--border-brass);font-family:var(--font-serif);font-size:12px;font-weight:bold;letter-spacing:1.5px;padding:8px 24px;border-radius:4px;cursor:pointer;transition:all 0.2s;text-transform:uppercase}
+.btn-brass:hover{background:linear-gradient(180deg,#5a3d18 0%,#3d2a0e 100%);border-color:var(--neon-cyan);color:var(--neon-cyan);box-shadow:var(--glow-cyan)}
+.btn-brass:active{transform:scale(0.97)}
+.btn-brass:disabled{opacity:0.4;cursor:not-allowed}
+.select-brass{background:var(--bg-input);border:1px solid var(--border-brass-dim);color:var(--neon-cyan);font-family:var(--font-mono);font-size:12px;padding:6px 10px;border-radius:3px}
+.select-brass:focus{outline:none;border-color:var(--neon-cyan);box-shadow:var(--glow-cyan)}
+
+/* ── Autonomous tab ── */
+.auto-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;padding:12px 16px;max-width:1200px;margin:0 auto}
+.traffic-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:24px 10px}
+.traffic-light{width:150px;height:150px;border-radius:50%;border:4px solid var(--border-brass-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:26px;font-weight:bold;letter-spacing:3px;background:var(--bg-card-alt);transition:all 0.5s}
+.traffic-light.green{border-color:var(--neon-green);color:var(--neon-green);box-shadow:var(--glow-green),inset 0 0 30px rgba(0,255,136,0.15)}
+.traffic-light.amber{border-color:var(--neon-yellow);color:var(--neon-yellow);box-shadow:0 0 14px rgba(255,204,0,0.45),inset 0 0 30px rgba(255,204,0,0.12)}
+.traffic-light.red{border-color:var(--neon-red);color:var(--neon-red);box-shadow:var(--glow-red),inset 0 0 30px rgba(255,68,68,0.15);animation:alarm-pulse 1.5s infinite}
+.traffic-light.unknown{color:var(--text-dim)}
+.reason-list{width:100%;max-height:130px;overflow-y:auto}
+.reason-item{padding:5px 10px;margin-bottom:4px;background:var(--bg-card-alt);border-left:3px solid var(--neon-yellow);border-radius:3px;font-size:11px}
+.kv-row{display:flex;justify-content:space-between;padding:6px 10px;border-bottom:1px solid rgba(201,168,76,0.1);font-size:12px}
+.kv-row .k{color:var(--text-secondary);text-transform:uppercase;font-size:10px;letter-spacing:1px}
+.kv-row .v{color:var(--neon-cyan);font-weight:bold}
+.ladder{padding:8px 10px;font-size:11px;line-height:2}
+.ladder .lvl{display:inline-block;width:96px;font-weight:bold}
+.ladder .lvl.elevated{color:var(--neon-yellow)}
+.ladder .lvl.critical{color:var(--neon-orange)}
+.ladder .lvl.emergency{color:var(--neon-red)}
+.ladder .active-level{background:rgba(201,168,76,0.12);border-radius:3px}
+
+/* ── AI tab ── */
+.ai-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;padding:12px 16px;max-width:1400px;margin:0 auto}
+.ai-controls .config-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ai-controls .config-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);min-width:90px}
+.mode-pill{display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:bold;letter-spacing:1px}
+.mode-pill.advisory{border:1px solid var(--neon-cyan);color:var(--neon-cyan)}
+.mode-pill.semi_auto{border:1px solid var(--neon-yellow);color:var(--neon-yellow)}
+.mode-pill.full_auto{border:1px solid var(--neon-red);color:var(--neon-red)}
+.risk-item{display:grid;grid-template-columns:70px 1fr 46px;gap:6px;padding:6px 8px;margin-bottom:4px;background:var(--bg-card-alt);border-radius:4px;font-size:11px;align-items:center}
+.risk-badge{padding:2px 4px;border-radius:3px;font-size:8px;font-weight:bold;text-align:center;text-transform:uppercase}
+.risk-badge.low{background:rgba(0,212,255,0.15);color:var(--neon-cyan);border:1px solid var(--neon-cyan)}
+.risk-badge.medium{background:rgba(255,204,0,0.15);color:var(--neon-yellow);border:1px solid var(--neon-yellow)}
+.risk-badge.high{background:rgba(255,140,0,0.2);color:var(--neon-orange);border:1px solid var(--neon-orange)}
+.risk-badge.critical{background:rgba(255,68,68,0.25);color:var(--neon-red);border:1px solid var(--neon-red)}
+.rec-item{padding:6px 8px;margin-bottom:4px;background:var(--bg-card-alt);border-left:3px solid var(--neon-cyan);border-radius:3px;font-size:11px}
+.rec-item .rec-action{color:var(--border-brass);font-weight:bold}
+.rec-item .rec-conf{float:right;color:var(--neon-cyan)}
+.report-output{background:var(--bg-input);border:1px solid var(--border-brass-dim);border-radius:4px;padding:12px;min-height:220px;max-height:420px;overflow-y:auto;white-space:pre-wrap;font-size:12px;line-height:1.6}
+.report-btns{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.ai-summary{background:var(--bg-card-alt);border:1px solid var(--border-brass-dim);border-radius:4px;padding:10px;font-size:12px;line-height:1.6;margin-bottom:10px}
+.spinner-inline{display:inline-block;width:12px;height:12px;border:2px solid var(--border-brass-dim);border-top-color:var(--neon-cyan);border-radius:50%;animation:gear-rotate 0.8s linear infinite;vertical-align:middle;margin-left:8px}
+
+#refresh-indicator{position:fixed;bottom:12px;right:12px;width:18px;height:18px;border:2px solid var(--border-brass-dim);border-top-color:var(--neon-cyan);border-radius:50%;opacity:0;transition:opacity 0.2s}
+#refresh-indicator.spinning{opacity:1;animation:gear-rotate 0.8s linear infinite}
+@media(max-width:1200px){.dash-grid{grid-template-columns:1fr 1fr}.auto-grid,.ai-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.dash-grid{grid-template-columns:1fr}#topbar{flex-wrap:wrap;gap:6px}.tab-btn{padding:8px 12px;font-size:11px}}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="title">
+    <span class="gear-icon"></span>
+    micro-jainslee Monitoring Window
+  </div>
+  <div class="center-group">
+    <span id="status-dot" class="online"></span>
+    <span id="status-label">SYSTEM ONLINE</span>
+    <span style="color:var(--text-dim)">|</span>
+    <span id="uptime-display">Uptime: --</span>
+  </div>
+  <div id="clock">--:--:--</div>
+</div>
+
+<div id="tabbar">
+  <button class="tab-btn active" data-tab="telemetry">📡 Telemetry <span class="tab-dot" id="dot-telemetry"></span></button>
+  <button class="tab-btn" data-tab="autonomous">🧠 Autonomous <span class="tab-dot" id="dot-autonomous"></span></button>
+  <button class="tab-btn" data-tab="ai">🤖 AI Agent <span class="tab-dot" id="dot-ai"></span></button>
+</div>
+<div id="tab-rule"></div>
+
+<!-- ════════ TAB 1: TELEMETRY ════════ -->
+<div class="tab-panel active" id="tab-telemetry">
+<div class="dash-grid">
+
+  <div class="dash-col">
+    <div class="card">
+      <div class="card-header">SBB Overview</div>
+      <div class="card-body">
+        <div class="stats-grid">
+          <div class="stat-tile"><div class="stat-label">Active Entities</div><div class="stat-value" id="sbb-total">0</div></div>
+          <div class="stat-tile"><div class="stat-label">Events / sec</div><div class="stat-value" id="sbb-eps">0</div></div>
+          <div class="stat-tile"><div class="stat-label">p99 Latency</div><div class="stat-value" id="sbb-latency">0µs</div></div>
+          <div class="stat-tile"><div class="stat-label">Errors</div><div class="stat-value" id="sbb-errors">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">SBB Per-Type</div>
+      <div class="card-body" style="padding:4px">
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Type</th><th>Ent.</th><th>EPS</th><th>p99</th><th>Err</th></tr>
+            </thead>
+            <tbody id="sbb-table-body">
+              <tr><td colspan="5" style="text-align:center;color:var(--text-dim)">Awaiting data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-col">
+    <div class="card">
+      <div class="card-header">Resource Utilization</div>
+      <div class="card-body">
+        <div class="gauges-row">
+          <div class="gauge">
+            <div class="gauge-arc">
+              <div class="gauge-arc-fill" id="cpu-gauge-fill" style="--gauge-pct:0"></div>
+              <div class="gauge-arc-center"></div>
+            </div>
+            <div class="gauge-label">CPU</div>
+            <div class="gauge-value" id="cpu-value">0%</div>
+          </div>
+          <div class="gauge">
+            <div class="gauge-arc">
+              <div class="gauge-arc-fill" id="ram-gauge-fill" style="--gauge-pct:0"></div>
+              <div class="gauge-arc-center"></div>
+            </div>
+            <div class="gauge-label">HEAP</div>
+            <div class="gauge-value" id="ram-value">0 / 0 MB</div>
+          </div>
+          <div class="thread-display">
+            <div class="thread-value" id="thread-value">0</div>
+            <div class="thread-label">V-Threads</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Event Rate History</div>
+      <div class="card-body">
+        <div class="sparkline-container">
+          <div class="sparkline-header">
+            <span>Events / second (last 60 samples)</span>
+            <span id="sparkline-value">0 eps</span>
+          </div>
+          <div id="sparkline"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Configuration</div>
+      <div class="card-body">
+        <div class="toggle-wrap">
+          <span class="stat-label" style="min-width:100px">Auto-Reconfig</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="auto-reconfig-toggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-status active" id="reconfig-status">ENABLED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-col">
+    <div class="card">
+      <div class="card-header">Resource Adaptors</div>
+      <div class="card-body" style="padding:4px">
+        <div class="data-table-wrap" style="max-height:240px">
+          <table class="data-table">
+            <thead>
+              <tr><th>RA Name</th><th>State</th><th>Port</th><th>Events</th></tr>
+            </thead>
+            <tbody id="ra-table-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-dim)">Awaiting data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">App Metrics</div>
+      <div class="card-body" style="padding:8px">
+        <div id="custom-metrics-list">
+          <span class="empty-note">No app-defined metrics yet</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Active Alarms</div>
+      <div class="card-body" style="padding:8px">
+        <div id="alarms-list" style="max-height:260px;overflow-y:auto">
+          <div class="empty-note">✓ No active alarms</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════ TAB 2: AUTONOMOUS ════════ -->
+<div class="tab-panel" id="tab-autonomous">
+<div class="auto-grid">
+
+  <div class="dash-col">
+    <div class="card">
+      <div class="card-header">Node Health Verdict</div>
+      <div class="card-body">
+        <div class="traffic-wrap">
+          <div class="traffic-light unknown" id="health-light">--</div>
+          <div class="reason-list" id="health-reasons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-col">
+    <div class="card">
+      <div class="card-header">Health Signals</div>
+      <div class="card-body" id="auto-signals">
+        <div class="kv-row"><span class="k">Heap Usage</span><span class="v" id="auto-heap">--</span></div>
+        <div class="kv-row"><span class="k">CPU Load</span><span class="v" id="auto-cpu">--</span></div>
+        <div class="kv-row"><span class="k">SBB Errors</span><span class="v" id="auto-errors">--</span></div>
+        <div class="kv-row"><span class="k">Spunk Alerts</span><span class="v" id="auto-spunks">--</span></div>
+        <div class="kv-row"><span class="k">Last Evaluated</span><span class="v" id="auto-ts">--</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Memory Guardian</div>
+      <div class="card-body">
+        <div class="kv-row"><span class="k">Pressure Level</span><span class="v" id="guardian-level">--</span></div>
+        <div class="kv-row"><span class="k">Relief Runs</span><span class="v" id="guardian-relief">--</span></div>
+        <div class="ladder" id="guardian-ladder">
+          <div data-level="ELEVATED"><span class="lvl elevated">ELEVATED</span> heap ≥ 75% → trim caches, expire buffers</div>
+          <div data-level="CRITICAL"><span class="lvl critical">CRITICAL</span> heap ≥ 88% → compact arenas + guarded GC</div>
+          <div data-level="EMERGENCY"><span class="lvl emergency">EMERGENCY</span> heap ≥ 96% → shed load (app hook)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="auto-missing-card" style="display:none">
+      <div class="card-body">
+        <div class="missing-note">🧠 The <b>autonomous</b> module is not installed in this app.<br>
+        Add the <code>autonomous/</code> package and mount <code>/api/autonomous/health</code> to enable self-healing.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════ TAB 3: AI AGENT ════════ -->
+<div class="tab-panel" id="tab-ai">
+<div class="ai-grid">
+
+  <div class="dash-col">
+    <div class="card ai-controls">
+      <div class="card-header">Agent Control</div>
+      <div class="card-body">
+        <div class="config-row">
+          <span class="config-label">Agent</span>
+          <div class="toggle-wrap">
+            <label class="toggle-switch">
+              <input type="checkbox" id="ai-enabled-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-status" id="ai-enabled-status">DISABLED</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Mode</span>
+          <select class="select-brass" id="ai-mode-select">
+            <option value="ADVISORY">ADVISORY — report only</option>
+            <option value="SEMI_AUTO">SEMI_AUTO — high-confidence only</option>
+            <option value="FULL_AUTO">FULL_AUTO — all validated actions</option>
+          </select>
+        </div>
+        <div class="config-row">
+          <button class="btn-brass" id="ai-analyze-btn">🔍 Analyze Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Agent Status</div>
+      <div class="card-body">
+        <div class="kv-row"><span class="k">Available</span><span class="v" id="ai-available">--</span></div>
+        <div class="kv-row"><span class="k">Model</span><span class="v" id="ai-model">--</span></div>
+        <div class="kv-row"><span class="k">Mode</span><span class="v" id="ai-mode-pill">--</span></div>
+        <div class="kv-row"><span class="k">Cycles</span><span class="v" id="ai-cycles">--</span></div>
+        <div class="kv-row"><span class="k">Skipped (healthy)</span><span class="v" id="ai-skipped">--</span></div>
+        <div class="kv-row"><span class="k">Analyses</span><span class="v" id="ai-analyses">--</span></div>
+        <div class="kv-row"><span class="k">Actions Executed</span><span class="v" id="ai-actions">--</span></div>
+      </div>
+    </div>
+
+    <div class="card" id="ai-missing-card" style="display:none">
+      <div class="card-body">
+        <div class="missing-note">🤖 The <b>AI agent</b> is not installed in this app.<br>
+        Add <code>jainslee-ai</code> + the <code>microjainslee.ai.*</code> properties to enable it.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-col">
+    <div class="card">
+      <div class="card-header">Latest Analysis</div>
+      <div class="card-body">
+        <div class="ai-summary" id="ai-summary">No analysis yet — enable the agent or press Analyze Now.</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--border-brass);margin:6px 0">Risks</div>
+        <div id="ai-risks"><span class="empty-note" style="padding:6px">none</span></div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--border-brass);margin:6px 0">Recommendations</div>
+        <div id="ai-recs"><span class="empty-note" style="padding:6px">none</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Reports</div>
+      <div class="card-body">
+        <div class="report-btns">
+          <button class="btn-brass" data-audience="user">👤 User</button>
+          <button class="btn-brass" data-audience="dev">🛠 Dev</button>
+          <button class="btn-brass" data-audience="boss">💼 Boss</button>
+          <span id="report-spinner" style="display:none"><span class="spinner-inline"></span></span>
+        </div>
+        <div class="report-output" id="report-output">Pick an audience to generate a live report from the current snapshot.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div id="refresh-indicator"></div>
+
+<script src="monitoring.js"></script>
+</body>
+</html>

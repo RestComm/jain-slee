@@ -93,6 +93,11 @@ public final class AppAutonomous implements AutoCloseable {
         return health;
     }
 
+    /** The wired guardian — handed to the AI agent as its control surface. */
+    public AutonomousGuardian guardian() {
+        return guardian;
+    }
+
     @Override
     public void close() {
         if (health != null) {

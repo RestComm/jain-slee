@@ -30,7 +30,6 @@ import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -95,14 +94,7 @@ public class HelloWorldBootstrap {
                 // ── Telemetry Engine (zero-CPU, passive collection) ──
                 PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
                 telemetryPort = new MicrometerTelemetryPort(registry, container);
-                container.bindTelemetryPort(telemetryPort);
-
-                // Start passive collectors (single daemon VT each)
-                telemetryPort.resourceMonitor().start(30, TimeUnit.SECONDS);
-                telemetryPort.autoReconfig().start(30, TimeUnit.SECONDS);
-
-                // Wire EventRouter → telemetry (passive SBB event tracking)
-                container.getEventRouter().setTelemetryPort(telemetryPort);
+                ((MicrometerTelemetryPort) telemetryPort).start();
 
                 // Expose telemetry port to the REST controller
                 helloContext.setTelemetryPort(telemetryPort);

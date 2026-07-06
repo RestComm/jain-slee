@@ -127,7 +127,7 @@ dao động. Engine đánh giá mỗi 30 giây trên một daemon VT duy nhất.
 
 ### Dashboard GUI
 
-Module `jainslee-telemetry-vertx` phục vụ một dashboard chủ đề steampunk
+Module `jainslee-monitor` phục vụ một dashboard chủ đề steampunk
 tại `/telemetry/`. Tệp `index.html` + `telemetry.js` đơn, không bước build,
 polling 2 giây `/api/telemetry/snapshot`. SVG arc gauges cho heap/CPU,
 biểu đồ sparkline, xác nhận alarm, và thanh trượt cấu hình runtime.

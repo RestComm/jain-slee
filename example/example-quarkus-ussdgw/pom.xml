@@ -79,7 +79,7 @@
         <dependency>
             <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-autonomous</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>${microjainslee.version}</version>
         </dependency>
         <dependency>
             <groupId>com.microjainslee</groupId>

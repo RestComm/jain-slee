@@ -10,25 +10,40 @@
     </parent>
     <artifactId>jainslee-telemetry-vertx</artifactId>
     <packaging>jar</packaging>
-    <name>micro-jainslee :: Telemetry GUI (Vert.x)</name>
-    <description>
-        Steampunk-themed telemetry dashboard served via Vert.x StaticHandler.
-        Single index.html + single telemetry.js — zero build step, zero npm.
-        R&amp;D only.
-    </description>
+    <name>micro-jainslee :: Telemetry Vert.x HTTP Server</name>
+    <description>Vert.x HTTP server exposing Prometheus /metrics, JSON snapshot API, alarm API, and health endpoint backed by MicrometerTelemetryPort.</description>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.release>25</maven.compiler.release>
         <vertx.version>4.5.10</vertx.version>
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-telemetry</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
             <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -37,13 +52,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.14.0</version>
                 <configuration>
-                    <!-- Ensure META-INF/resources/ lands at the JAR root for
-                         Vert.x StaticHandler classpath resolution -->
+                    <source>25</source>
+                    <target>25</target>
                 </configuration>
             </plugin>
         </plugins>

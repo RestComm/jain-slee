@@ -125,7 +125,7 @@ oscillation. The engine evaluates every 30 seconds on a single daemon VT.
 
 ### Dashboard GUI
 
-The `jainslee-telemetry-vertx` module serves a steampunk-themed dashboard
+The `jainslee-monitor` module serves a steampunk-themed dashboard
 at `/telemetry/`. Single `index.html` + `telemetry.js`, zero build step,
 2-second polling of `/api/telemetry/snapshot`. SVG arc gauges for heap/CPU,
 sparkline charts, alarm acknowledgment, and runtime config sliders.

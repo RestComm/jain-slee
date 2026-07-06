@@ -345,7 +345,7 @@ cùng điều kiện đó sẽ bị bỏ qua ngay cả khi ngưỡng vẫn bị 
 [[ORCA_RAW_HTML_BLOCK:%3C%2Fdependency%3E]]
 [[ORCA_RAW_HTML_BLOCK:%3Cdependency%3E]]
     [[ORCA_RAW_HTML_INLINE:%3CgroupId%3E]]com.microjainslee[[ORCA_RAW_HTML_INLINE:%3C%2FgroupId%3E]]
-    [[ORCA_RAW_HTML_INLINE:%3CartifactId%3E]]jainslee-telemetry-vertx[[ORCA_RAW_HTML_INLINE:%3C%2FartifactId%3E]]
+    [[ORCA_RAW_HTML_INLINE:%3CartifactId%3E]]jainslee-monitor[[ORCA_RAW_HTML_INLINE:%3C%2FartifactId%3E]]
     [[ORCA_RAW_HTML_INLINE:%3Cversion%3E]]${microjainslee.version}[[ORCA_RAW_HTML_INLINE:%3C%2Fversion%3E]]
 [[ORCA_RAW_HTML_BLOCK:%3C%2Fdependency%3E]]
 ```

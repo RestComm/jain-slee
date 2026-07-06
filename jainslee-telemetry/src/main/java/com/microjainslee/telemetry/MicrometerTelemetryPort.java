@@ -9,7 +9,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+// Note: io.micrometer.core.instrument.Gauge is used fully-qualified
+// inside registerCoreMetrics() to avoid shadowing by TelemetryPort.Gauge.
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +41,6 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
     private final ConcurrentHashMap<String, TelemetryPort.Counter> customCounters = new ConcurrentHashMap<>();
     /** Registered custom gauges: name→Gauge */
     private final ConcurrentHashMap<String, TelemetryPort.Gauge> customGauges = new ConcurrentHashMap<>();
-
     private final AtomicBoolean autoReconfigEnabled = new AtomicBoolean(true);
 
     public MicrometerTelemetryPort(PrometheusMeterRegistry registry,
@@ -55,7 +57,149 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
         this.autoReconfig = new AutoReconfigEngine(sbbCollector, errorCollector,
                 resourceMonitor, staleDetector, alarmEngine, container);
         this.prometheusExporter = new PrometheusExporter(registry);
+        registerCoreMetrics(registry);
         LOG.info("MicrometerTelemetryPort created");
+    }
+
+    /**
+     * Register core telemetry metrics as Micrometer gauges so they appear in
+     * Prometheus scrape output alongside custom app-defined metrics.
+     * All gauges are passive (zero-CPU when not scraped).
+     */
+    private void registerCoreMetrics(MeterRegistry registry) {
+        Tags empty = Tags.empty();
+
+        // ── SBB pool metrics ──
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_entities_total",
+                        sbbCollector, SbbCollector::getTotalEntities)
+                .description("Total SBB entities created since start")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_entities_active",
+                        sbbCollector, SbbCollector::getActiveEntities)
+                .description("Currently active SBB entities (pool size)")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_events_total",
+                        sbbCollector, SbbCollector::getEventsProcessed)
+                .description("Total events processed by SBBs")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_events_per_second",
+                        sbbCollector, SbbCollector::getEventsPerSecond)
+                .description("Event throughput (60s sliding window)")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_errors_total",
+                        sbbCollector, SbbCollector::getErrorCount)
+                .description("Total SBB processing errors")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_spunks_total",
+                        sbbCollector, SbbCollector::getSpunkCount)
+                .description("Total spunk (anomaly) detections")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_stale_entities",
+                        sbbCollector, SbbCollector::getStaleEntities)
+                .description("Stale (idle) SBB entities")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_leaked_entities",
+                        sbbCollector, SbbCollector::getLeakedEntities)
+                .description("Leaked SBB entities")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_sbb_healthy",
+                        sbbCollector, c -> c.isHealthy() ? 1.0 : 0.0)
+                .description("SBB health indicator")
+                .strongReference(true).tags(empty).register(registry);
+
+        // ── Resource / JVM metrics ──
+        io.micrometer.core.instrument.Gauge.builder("jainslee_heap_used_mb",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? (double) snap.heapUsedMb() : 0.0;
+                        })
+                .description("Heap memory used (MB)")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_heap_max_mb",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? (double) snap.heapMaxMb() : 0.0;
+                        })
+                .description("Heap memory max (MB)")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_heap_usage_percent",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? snap.heapUsagePercent() : 0.0;
+                        })
+                .description("Heap usage percentage")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_cpu_load_percent",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? snap.cpuLoad() : -1.0;
+                        })
+                .description("Process CPU load percentage")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_threads_active",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? (double) snap.activeThreads() : 0.0;
+                        })
+                .description("Active platform threads")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_threads_virtual",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? (double) snap.virtualThreads() : -1.0;
+                        })
+                .description("Virtual threads (SBB entity pool size)")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_gc_count",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? (double) snap.gcCount() : 0.0;
+                        })
+                .description("Total GC collections")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_gc_time_ms",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? (double) snap.gcTimeMs() : 0.0;
+                        })
+                .description("Total GC time (milliseconds)")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_open_fds",
+                        resourceMonitor, rm -> {
+                            var snap = rm.snapshot();
+                            return snap != null ? (double) snap.openFileDescriptors() : -1.0;
+                        })
+                .description("Open file descriptors")
+                .strongReference(true).tags(empty).register(registry);
+
+        // ── RA metrics ──
+        io.micrometer.core.instrument.Gauge.builder("jainslee_ra_events_fired_total",
+                        raCollector, ra -> ra.stats().stream()
+                                .mapToDouble(RaCollector.RaStats::eventsFired).sum())
+                .description("Total events fired by all RAs")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_ra_commands_sent_total",
+                        raCollector, ra -> ra.stats().stream()
+                                .mapToDouble(RaCollector.RaStats::commandsSent).sum())
+                .description("Total commands sent to all RAs")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_ra_failures_total",
+                        raCollector, ra -> ra.stats().stream()
+                                .mapToDouble(RaCollector.RaStats::failures).sum())
+                .description("Total RA failures")
+                .strongReference(true).tags(empty).register(registry);
+
+        // ── Stale / Alarm metrics ──
+        io.micrometer.core.instrument.Gauge.builder("jainslee_stale_tracked_entities",
+                        staleDetector, StaleDetector::trackedEntityCount)
+                .description("Entities tracked for staleness")
+                .strongReference(true).tags(empty).register(registry);
+        io.micrometer.core.instrument.Gauge.builder("jainslee_alarms_active",
+                        alarmEngine, a -> (double) a.active().size())
+                .description("Currently active alarms")
+                .strongReference(true).tags(empty).register(registry);
+
+        LOG.info("Registered 23 core Micrometer gauges");
     }
 
     public void start() {
@@ -121,7 +265,7 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
     @Override
     public TelemetryPort.Gauge customGauge(String name, Supplier<Number> supplier, String... tagPairs) {
         return customGauges.computeIfAbsent(name, k -> {
-            var g = io.micrometer.core.instrument.Gauge.builder(k, supplier, s -> s.get().doubleValue())
+            io.micrometer.core.instrument.Gauge.builder(k, supplier, s -> s.get().doubleValue())
                     .tags(toTags(tagPairs))
                     .register(registry);
             return () -> supplier.get();
@@ -140,7 +284,7 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
         return Collections.unmodifiableList(list);
     }
 
-    private static Tags toTags(String... tagPairs) {
+    static Tags toTags(String... tagPairs) {
         if (tagPairs == null || tagPairs.length == 0) return Tags.empty();
         Tags tags = Tags.empty();
         for (int i = 0; i < tagPairs.length - 1; i += 2) {
@@ -173,4 +317,7 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
     }
 
     public MicroSleeContainer container() { return container; }
+
+    /** Exposed for testing and vertx HTTP endpoint — the Prometheus registry. */
+    public PrometheusMeterRegistry registry() { return registry; }
 }

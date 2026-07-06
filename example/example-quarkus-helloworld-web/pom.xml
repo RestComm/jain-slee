@@ -94,9 +94,16 @@
             <artifactId>jainslee-autonomous</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>
+
+        <!-- micro-jainslee AI agent: LLM ops advisor (DeepSeek/OpenAI-compatible) -->
         <dependency>
             <groupId>com.microjainslee</groupId>
-            <artifactId>jainslee-telemetry-vertx</artifactId>
+            <artifactId>jainslee-ai</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-monitor</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>
         <dependency>

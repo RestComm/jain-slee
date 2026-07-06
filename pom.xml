@@ -68,7 +68,9 @@
         <module>vendor-ras</module>
         <module>jainslee-telemetry</module>
         <module>jainslee-telemetry-vertx</module>
+        <module>jainslee-monitor</module>
         <module>jainslee-autonomous</module>
+        <module>jainslee-ai</module>
     </modules>
 
     <profiles>

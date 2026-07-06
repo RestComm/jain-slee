@@ -16,6 +16,7 @@ package com.microjainslee.autonomous;
  * <p>Implementations must be fast, idempotent and safe to call from a
  * JMX notification thread. They must never call back into the guardian.</p>
  */
+@FunctionalInterface
 public interface MemoryReliefParticipant {
 
     /** Stable name for logs/metrics. */

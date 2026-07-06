@@ -50,7 +50,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   VT scheduler (30s evaluate). Micrometer + Prometheus metrics export.
   Auto-reconfig on memory/CPU/load/error/stale/RA-crash conditions
   with independent cooldown timers.
-- **`jainslee-telemetry-vertx`** — Steampunk-cyberpunk telemetry dashboard
+- **`jainslee-monitor`** — Steampunk-cyberpunk telemetry dashboard
   GUI. Single `index.html` + `telemetry.js`, zero build step. Served via
   Vert.x StaticHandler at `/telemetry/`. SVG arc gauges (heap/CPU),
   sparkline charts, alarm acknowledgment panel, runtime config sliders.

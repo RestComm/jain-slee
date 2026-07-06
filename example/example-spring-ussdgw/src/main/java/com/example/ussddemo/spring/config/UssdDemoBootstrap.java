@@ -42,6 +42,11 @@ import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
 import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
 import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
+import com.microjainslee.telemetry.MicrometerTelemetryPort;
+import com.microjainslee.telemetry.TelemetryPort;
+
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -172,6 +177,13 @@ public class UssdDemoBootstrap {
             @Override
             public void start() {
                 demoContext.setContainer(container);
+
+                // ── Telemetry Engine (zero-CPU, passive collection) ──
+                PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+                TelemetryPort telemetryPort = new MicrometerTelemetryPort(registry, container);
+                ((MicrometerTelemetryPort) telemetryPort).start();
+                LOG.info("[telemetry] MicrometerTelemetryPort armed (zero-CPU passive collection)");
+
                 seedProfiles();
                 registerSbbTypes();
                 bindEventMappings();
@@ -179,7 +191,9 @@ public class UssdDemoBootstrap {
                 running = true;
                 LOG.info("USSD demo bootstrap complete (HTTP RA port={})", httpPort);
             }
-            @Override public void stop() { running = false; }
+            @Override public void stop() {
+                running = false;
+            }
             @Override public boolean isRunning() { return running; }
         };
     }

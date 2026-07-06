@@ -56,21 +56,49 @@ public final class AutonomousGuardian implements AutoCloseable {
 
     private static final Logger LOG = LogManager.getLogger(AutonomousGuardian.class);
 
+    /** JVM memory bean used for heap-usage readings and threshold notifications. */
     private final MemoryMXBean memoryBean;
+
+    /** Registered relief participants consulted under pressure (thread-safe list). */
     private final List<MemoryReliefParticipant> participants = new CopyOnWriteArrayList<>();
+
+    /** Per-action-key cooldown timestamps (key → last-fire epoch-millis). */
     private final Map<String, AtomicLong> cooldowns = new ConcurrentHashMap<>();
 
+    /** Heap-usage ratio (0.0–1.0) at which ELEVATED actions begin. Default 0.75. */
     private volatile double elevatedPercent = 0.75;
-    private volatile double criticalPercent = 0.88;
-    private volatile double emergencyPercent = 0.96;
-    private volatile long actionCooldownMillis = 60_000L;
-    private volatile long gcCooldownMillis = 300_000L;
-    private volatile Consumer<PressureLevel> emergencyHook;
-    private volatile Runnable pressureEvaluateHook; // e.g. AutoReconfigEngine::evaluateNow
 
+    /** Heap-usage ratio (0.0–1.0) at which CRITICAL actions begin. Default 0.88. */
+    private volatile double criticalPercent = 0.88;
+
+    /** Heap-usage ratio (0.0–1.0) at which EMERGENCY actions begin. Default 0.96. */
+    private volatile double emergencyPercent = 0.96;
+
+    /** Minimum interval (ms) between relief-run invocations. Default 60s. */
+    private volatile long actionCooldownMillis = 60_000L;
+
+    /** Minimum interval (ms) between guarded System.gc() calls. Default 5 min. */
+    private volatile long gcCooldownMillis = 300_000L;
+
+    /** Application hook invoked only at EMERGENCY level (load-shedding, alarms). */
+    private volatile Consumer<PressureLevel> emergencyHook;
+
+    /**
+     * Optional telemetry bridge invoked on every pressure evaluation
+     * (e.g. {@code AutoReconfigEngine::evaluateNow}).
+     */
+    private volatile Runnable pressureEvaluateHook;
+
+    /** JMX notification listener registered with the memory bean (passive, no thread). */
     private NotificationListener listener;
+
+    /** Whether the guardian is armed (JMX listener registered). */
     private volatile boolean started;
+
+    /** Monotonic counter of relief-run cycles completed. */
     private final AtomicLong reliefRuns = new AtomicLong();
+
+    /** Last computed pressure level (volatile snapshot for telemetry reads). */
     private volatile PressureLevel lastLevel = PressureLevel.NORMAL;
 
     public AutonomousGuardian() {

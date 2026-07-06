@@ -1,6 +1,6 @@
 # Telemetry GUI — Steampunk Dashboard
 
-> **Module:** `jainslee-telemetry-vertx`
+> **Module:** `jainslee-monitor`
 > **Theme:** Steampunk × Cyberpunk fusion — đồng thau, đồng đỏ, nền tối, điểm nhấn neon
 > **Delivery:** Một file `index.html` + `telemetry.js`, không cần bước build, được phục vụ qua Vert.x StaticHandler
 

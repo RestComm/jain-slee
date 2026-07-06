@@ -64,8 +64,8 @@ public final class SbbCollector {
     public void onEntityCreated(String sbbType, String entityId) {
         totalEntities.increment();
         activeEntities.incrementAndGet();
-        PerTypeStats stats = perTypeStats.get(sbbType);
-        if (stats != null) stats.active.incrementAndGet();
+        PerTypeStats stats = perTypeStats.computeIfAbsent(sbbType, k -> new PerTypeStats());
+        stats.active.incrementAndGet();
     }
 
     public void onEntityReleased(String sbbType, String entityId) {
@@ -76,14 +76,14 @@ public final class SbbCollector {
 
     public void onError(String sbbType, String entityId) {
         errorCount.increment();
-        PerTypeStats stats = perTypeStats.get(sbbType);
-        if (stats != null) stats.errors.increment();
+        PerTypeStats stats = perTypeStats.computeIfAbsent(sbbType, k -> new PerTypeStats());
+        stats.errors.increment();
     }
 
     public void onSpunk(String sbbType, String entityId) {
         spunkCount.increment();
-        PerTypeStats stats = perTypeStats.get(sbbType);
-        if (stats != null) stats.spunks.increment();
+        PerTypeStats stats = perTypeStats.computeIfAbsent(sbbType, k -> new PerTypeStats());
+        stats.spunks.increment();
     }
 
     public void markStaleEntities(long count) { staleEntities.set(count); }

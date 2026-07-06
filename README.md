@@ -6,14 +6,49 @@
 >
 > Zero JBoss. Zero WildFly. Zero JMX. Just Java 25 virtual threads + LMAX Disruptor.
 
+## Why micro-jainslee?
+
+
+|                     | micro-jainslee               | Restcomm JAIN SLEE 1.1 |
+| ------------------- | ---------------------------- | ---------------------- |
+| **Lines of code**   | **~17,000** (95% less)       | ~350,000               |
+| **Container**       | **None — embeds in Quarkus** | JBoss/WildFly 10/ XML       |
+| **Startup time**    | **&lt; 2 seconds**           | 30–60 seconds          |
+| **Event bus**       | **LMAX Disruptor (6M ev/s)** | JMX MBeans + JMS       |
+| **Concurrency**     | **Virtual threads (Loom)**   | Platform threads       |
+| **GraalVM Native**  | **In progress**              | Impossible             |
+| **Memory baseline** | **~30 MB**                   | ~500 MB                |
+| **Deployment**      | **1 JAR + mvn quarkus:dev**  | WAR/EAR to app server  |
 ---
 
-## 🧠 It heals itself. 📡 It watches itself. At zero idle cost.
+> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10× lighter, 100× faster to start, and embeddable anywhere**. We stand on the shoulders of giants (ye!).
+
+---
+
+## LongLive JAIN SLEE 1.1 — the embeddable telecom runtime
+
+micro-jainslee is a clean-room, embeddable **JAIN SLEE 1.1 (JSR-240)**
+implementation built natively for Java 25. No JBoss. No WildFly. No JMX.
+No XML deployment descriptors. Just a single JAR you drop into any Spring Boot
+or Quarkus application.
+
+It keeps the proven event-driven, asynchronous, component-based telecom
+programming model alive — **LongLive JAIN SLEE 1.1** — rebuilt from the ground
+up on Virtual Threads + LMAX Disruptor. Cold start under 2 seconds.
+100,000+ events/second on commodity hardware. GraalVM native-image ready.
+
+You don't deploy your app onto a SLEE container. You embed the SLEE runtime
+into your app.
+
+---
+
+## Self-Driving Node — three optional subsystems, zero idle cost
 
 Most telecom runtimes hand you a metrics endpoint and wish you luck at 3 a.m.
-micro-jainslee ships two first-class subsystems that turn a bare event
-dispatcher into a **self-driving node** — and both are **zero-CPU when idle**:
-no polling loops, no timer thread pools, no JMX MBean farm.
+micro-jainslee ships three first-class subsystems that turn a bare event
+dispatcher into a **self-driving node** — all **zero-CPU when idle**:
+no polling loops, no timer thread pools, no JMX MBean farm. And every one of
+them is **optional** — an app can run with nothing but the core container.
 
 ### `jainslee-autonomous` — the guardian that refuses to let the node die
 
@@ -58,48 +93,62 @@ Every app can register its own counters/gauges at runtime — SS7, Diameter, SIP
 USSD — and they appear in the scrape, the snapshot and the dashboard with **zero
 extra wiring**.
 
-### Drop-in template — two directories, copy and go
+### `jainslee-ai` — the ops engineer that never sleeps
 
-Both subsystems are wired through two self-contained packages you copy straight
-into any micro-jainslee app (see `example-quarkus-helloworld-web`):
+An **LLM-powered AI agent** (DeepSeek by default — any OpenAI-compatible
+endpoint, including fully local Ollama/vLLM) that reads the telemetry snapshot,
+diagnoses the node, and acts through the guardian under **five layers of
+guardrails**: pre-AI health filter (zero token cost on a quiet node), action
+allow-list, confidence gating, cooldowns, and a circuit breaker. Pure JDK
+`HttpClient` — no LangChain, no framework, native-image friendly.
+
+```text
+ADVISORY   → analyze + report only (start here, build trust)
+SEMI_AUTO  → executes only HIGH-confidence validated actions
+FULL_AUTO  → the node runs itself; you read the reports
+```
+
+And it writes **three different reports from the same data**:
+
+```text
+GET /api/ai/report?audience=user   → 👤 plain-language service status, no jargon
+GET /api/ai/report?audience=dev    → 🛠 metrics, anomalies, root causes, next actions
+GET /api/ai/report?audience=boss   → 💼 ten lines: availability, risk, business impact
+```
+
+### 🖥 Monitoring Window — one GUI, three tabs
+
+`jainslee-monitor` serves a zero-build steampunk dashboard at
+`/telemetry`: **📡 Telemetry** (live gauges, SBB/RA tables, alarms),
+**🧠 Autonomous** (GREEN/AMBER/RED traffic light, guardian escalation ladder),
+**🤖 AI Agent** (enable toggle, trust-mode selector, live analysis, one-click
+User/Dev/Boss reports). Tabs whose module isn't installed show an install hint
+instead of breaking.
+
+### Drop-in template — copy the directories you want
+
+All wiring lives in two self-contained packages you copy into any app
+(see `example-quarkus-helloworld-web`) — take both, one, or neither:
 
 ```text
 myapp/src/main/java/com/example/myapp/
 ├── telemetry/
-│   ├── AppTelemetry.java        ← one install() call: collectors + Prometheus + dashboard + log sink
+│   ├── AppTelemetry.java        ← one install() call: collectors + Prometheus + GUI + log sink
 │   └── TelemetryLogSink.java    ← batched JSON-lines Log4j2 sink
 └── autonomous/
     ├── AppAutonomous.java       ← guardian + health evaluator, one install() call
-    └── HealthEvaluator.java     ← GREEN / AMBER / RED scoring over the telemetry snapshot
+    ├── HealthEvaluator.java     ← GREEN / AMBER / RED scoring over the telemetry snapshot
+    └── AppAiAgent.java          ← AI agent wiring + /api/ai/* REST surface
 ```
 
 ```java
-telemetry = appTelemetry.install(container, vertx);   // observe everything
-appAutonomous.install(container, telemetry);           // heal everything
-appAutonomous.mountRoutes(appTelemetry.router());      // GET /api/autonomous/health
+telemetry = appTelemetry.install(container, vertx);        // observe everything
+appAutonomous.install(container, telemetry);                // heal everything
+appAiAgent.install(aiConfig, telemetry, guardian);          // explain everything
 ```
 
-> 📖 Deep dives: [`docs/jainslee-autonomous.md`](docs/jainslee-autonomous.md) ·
-> [`docs/jainslee-telemetry.md`](docs/jainslee-telemetry.md)
-
----
-
-## Why micro-jainslee?
-
-
-|                     | micro-jainslee               | Restcomm JAIN SLEE 1.1 |
-| ------------------- | ---------------------------- | ---------------------- |
-| **Lines of code**   | **~17,000** (95% less)       | ~350,000               |
-| **Container**       | **None — embeds in Quarkus** | JBoss/WildFly 10/ XML       |
-| **Startup time**    | **&lt; 2 seconds**           | 30–60 seconds          |
-| **Event bus**       | **LMAX Disruptor (6M ev/s)** | JMX MBeans + JMS       |
-| **Concurrency**     | **Virtual threads (Loom)**   | Platform threads       |
-| **GraalVM Native**  | **In progress**              | Impossible             |
-| **Memory baseline** | **~30 MB**                   | ~500 MB                |
-| **Deployment**      | **1 JAR + mvn quarkus:dev**  | WAR/EAR to app server  |
----
-
-> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10× lighter, 100× faster to start, and embeddable anywhere**. We stand on the shoulders of giants (ye!).
+> 📖 Deep dives: [`docs/en/jainslee-autonomous.md`](docs/en/jainslee-autonomous.md) ·
+> [`docs/en/jainslee-telemetry.md`](docs/en/jainslee-telemetry.md)
 
 ---
 

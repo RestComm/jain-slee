@@ -1,6 +1,6 @@
 # Telemetry GUI — Steampunk Dashboard
 
-> **Module:** `jainslee-telemetry-vertx`
+> **Module:** `jainslee-monitor`
 > **Theme:** Steampunk × Cyberpunk fusion — brass, copper, dark backgrounds, neon accents
 > **Delivery:** Single `index.html` + `telemetry.js`, zero build step, served via Vert.x StaticHandler
 
