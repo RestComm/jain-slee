@@ -1,16 +1,11 @@
 package com.microjainslee.telemetry;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.atomic.LongAdder;
 
-/**
- * Passive collector for SBB entity statistics — zero-CPU, lock-free counters,
- * callback-driven with no polling loops.
- */
 public final class SbbCollector {
 
     private final LongAdder totalEntities = new LongAdder();
@@ -22,10 +17,13 @@ public final class SbbCollector {
     private final AtomicLong leakedEntities = new AtomicLong();
 
     private static final int EPS_WINDOW_SECONDS = 60;
-    private final AtomicReferenceArray<long[]> epsWindow =
-            new AtomicReferenceArray<>(EPS_WINDOW_SECONDS);
+    private final AtomicReferenceArray<long[]> epsWindow
+            = new AtomicReferenceArray<>(EPS_WINDOW_SECONDS);
 
-    private final ConcurrentHashMap<String, PerTypeStats> perTypeStats =
+    private final ConcurrentHashMap<String, PerTypeStats> perTypeStats
+            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Double> baselineEps
+            = new ConcurrentHashMap<>();
 
     public record PerType(String sbbType, long active, long errors, long spunks,
                           double eps, long p99us) {}
@@ -54,8 +52,6 @@ public final class SbbCollector {
         }
     }
 
-
-    /** Called by EventRouter after each event dispatch. */
     public void onEventProcessed(String sbbType, String entityId,
                                   long latencyNs, long memDeltaBytes) {
         eventsProcessed.increment();
@@ -97,7 +93,9 @@ public final class SbbCollector {
         return baselineEps.getOrDefault(sbbType, 0.0);
     }
 
-    // ── Read methods ──
+    public void setBaselineEps(String sbbType, double eps) {
+        baselineEps.put(sbbType, eps);
+    }
 
     public long getTotalEntities() { return totalEntities.sum(); }
     public long getActiveEntities() { return activeEntities.get(); }
@@ -151,12 +149,3 @@ public final class SbbCollector {
         tick[0]++;
     }
 }
-
-
-    public void setBaselineEps(String sbbType, double eps) {
-        baselineEps.put(sbbType, eps);
-    }
-
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Double> baselineEps =
-            new ConcurrentHashMap<>();

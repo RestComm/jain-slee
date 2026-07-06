@@ -10,14 +10,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.microjainslee.core.MicroSleeContainer;
 
-/**
- * Full-featured TelemetryPort implementation backed by Micrometer.
- * Passive collection only — callbacks from EventRouter/RA endpoints.
- * Single daemon VT for periodic evaluation (ResourceMonitor + AutoReconfigEngine).
- */
 public final class MicrometerTelemetryPort implements TelemetryPort {
 
-    private static final Logger LOG = LogManager.getLogger(MicrometerTelemetryPort.class);
+    private static final Logger LOG
+            = LogManager.getLogger(MicrometerTelemetryPort.class);
 
     private final SbbCollector sbbCollector;
     private final RaCollector raCollector;
@@ -31,7 +27,6 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
     private final MicroSleeContainer container;
 
     private final AtomicBoolean autoReconfigEnabled = new AtomicBoolean(true);
-
 
     public MicrometerTelemetryPort(PrometheusMeterRegistry registry,
                                     MicroSleeContainer container) {
@@ -58,8 +53,8 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
     public void stop() {
         resourceMonitor.stop();
         autoReconfig.stop();
-
-    // ── TelemetryPort ──
+        LOG.info("MicrometerTelemetryPort stopped");
+    }
 
     @Override public SbbCollector sbbCollector() { return sbbCollector; }
     @Override public RaCollector raCollector() { return raCollector; }
@@ -107,6 +102,3 @@ public final class MicrometerTelemetryPort implements TelemetryPort {
 
     public MicroSleeContainer container() { return container; }
 }
-
-        LOG.info("MicrometerTelemetryPort stopped");
-    }

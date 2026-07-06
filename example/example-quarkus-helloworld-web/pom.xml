@@ -81,6 +81,23 @@
             <version>${microjainslee.version}</version>
         </dependency>
 
+        <!-- micro-jainslee telemetry -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-telemetry</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-telemetry-vertx</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.14.0</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>io.quarkus</groupId>

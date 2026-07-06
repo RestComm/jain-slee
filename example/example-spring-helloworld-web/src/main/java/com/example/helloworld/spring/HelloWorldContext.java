@@ -11,12 +11,13 @@
 package com.example.helloworld.spring;
 
 import com.microjainslee.core.MicroSleeContainer;
+import com.microjainslee.telemetry.TelemetryPort;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Spring-managed singleton that holds the container and session-tracking state.
+ * Spring-managed singleton that holds the container, telemetry port, and session-tracking state.
  * Provides static accessors so SBBs mirror the embedded HelloWorld patterns.
  *
  * <p>Populated by {@code HelloWorldBootstrap} during Spring context startup.</p>
@@ -25,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class HelloWorldContext {
 
     private static volatile MicroSleeContainer container;
+    private static volatile TelemetryPort telemetryPort;
     private static volatile HelloWorldContext instance;
 
     private final ConcurrentHashMap<String, SessionRecord> sessions = new ConcurrentHashMap<>();
@@ -39,6 +41,10 @@ public final class HelloWorldContext {
         return require(container, "container");
     }
 
+    public static TelemetryPort telemetryPort() {
+        return require(telemetryPort, "telemetryPort");
+    }
+
     public static HelloWorldContext context() {
         return require(instance, "context");
     }
@@ -47,6 +53,10 @@ public final class HelloWorldContext {
 
     public void setContainer(MicroSleeContainer c) {
         container = c;
+    }
+
+    public void setTelemetryPort(TelemetryPort tp) {
+        telemetryPort = tp;
     }
 
     // ---- session tracking ----

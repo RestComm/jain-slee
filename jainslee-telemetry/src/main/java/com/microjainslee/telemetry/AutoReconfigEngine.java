@@ -13,10 +13,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.microjainslee.core.MicroSleeContainer;
 
-/**
- * Auto-reconfiguration engine — evaluates telemetry every 30s and triggers
- * corrective actions on the container.
- */
 public final class AutoReconfigEngine {
 
     private static final Logger LOG = LogManager.getLogger(AutoReconfigEngine.class);
@@ -28,15 +24,19 @@ public final class AutoReconfigEngine {
     private final AlarmEngine alarmEngine;
     private final MicroSleeContainer container;
 
-    private final ConcurrentHashMap<String, AtomicLong> cooldowns = new ConcurrentHashMap<>();
-    private static final long COOLDOWN_MS = 120_000L; // 2 min
+    private final ConcurrentHashMap<String, AtomicLong> cooldowns
+            = new ConcurrentHashMap<>();
+    private static final long COOLDOWN_MS = 120_000L;
 
     private ScheduledExecutorService scheduler;
     private volatile boolean started;
 
-    public AutoReconfigEngine(SbbCollector sbbCollector, ErrorCollector errorCollector,
-                               ResourceMonitor resourceMonitor, StaleDetector staleDetector,
-                               AlarmEngine alarmEngine, MicroSleeContainer container) {
+    public AutoReconfigEngine(SbbCollector sbbCollector,
+                               ErrorCollector errorCollector,
+                               ResourceMonitor resourceMonitor,
+                               StaleDetector staleDetector,
+                               AlarmEngine alarmEngine,
+                               MicroSleeContainer container) {
         this.sbbCollector = sbbCollector;
         this.errorCollector = errorCollector;
         this.resourceMonitor = resourceMonitor;
@@ -70,6 +70,8 @@ public final class AutoReconfigEngine {
             checkStaleEntities();
         } catch (Exception e) {
             LOG.warn("AutoReconfigEngine evaluate() error: {}", e.getMessage(), e);
+        }
+    }
 
     private void checkMemoryPressure() {
         var snap = resourceMonitor.snapshot();
@@ -78,17 +80,20 @@ public final class AutoReconfigEngine {
             if (!cooldownPermits("emergency_gc")) return;
             alarmEngine.fire(AlarmEngine.TelemetryAlarmLevel.CRITICAL,
                     "AutoReconfig", "heap>95%, emergency cleanup",
-                    Map.of("heapUsedMb", snap.heapUsedMb(), "heapMaxMb", snap.heapMaxMb()));
+                    Map.of("heapUsedMb", snap.heapUsedMb(),
+                           "heapMaxMb", snap.heapMaxMb()));
             System.gc();
             LOG.warn("AutoReconfig: heap>95% — emergency GC triggered");
         } else if (snap.heapUsagePercent() > 85) {
             if (!cooldownPermits("reduce_pool_mem")) return;
             int currentMax = container.getConfiguration().getSbbPoolMax();
-            int newMax = Math.max(container.getConfiguration().getSbbPoolMin(), currentMax / 2);
+            int newMax = Math.max(
+                    container.getConfiguration().getSbbPoolMin(),
+                    currentMax / 2);
             alarmEngine.fire(AlarmEngine.TelemetryAlarmLevel.WARNING,
                     "AutoReconfig", "heap>85%, reducing SBB pool",
                     Map.of("oldMax", currentMax, "newMax", newMax,
-                            "heapUsagePercent", snap.heapUsagePercent()));
+                           "heapUsagePercent", snap.heapUsagePercent()));
             LOG.warn("AutoReconfig: heap>85% — pool reduced to {}", newMax);
         }
     }
@@ -99,9 +104,11 @@ public final class AutoReconfigEngine {
         if (snap.cpuLoad() > 80) {
             if (!cooldownPermits("cpu_pressure")) return;
             alarmEngine.fire(AlarmEngine.TelemetryAlarmLevel.WARNING,
-                    "AutoReconfig", "CPU>80%", Map.of("cpuLoad", snap.cpuLoad()));
-            LOG.warn("AutoReconfig: CPU>80% — consider reducing RA event loops");
+                    "AutoReconfig", "CPU>80%",
+                    Map.of("cpuLoad", snap.cpuLoad()));
+            LOG.warn("AutoReconfig: CPU>80%");
         }
+    }
 
     private void checkSbbLoadSpike() {
         for (var sbb : sbbCollector.perType()) {
@@ -111,14 +118,14 @@ public final class AutoReconfigEngine {
                 continue;
             }
             if (sbb.eps() > baseline * 3) {
-                if (!cooldownPermits("load_spike_" + sbb.sbbType())) return;
+                if (!cooldownPermits("load_spike_" + sbb.sbbType())) continue;
                 int currentMax = container.getConfiguration().getSbbPoolMax();
                 alarmEngine.fire(AlarmEngine.TelemetryAlarmLevel.INFO,
                         "AutoReconfig",
                         sbb.sbbType() + " load spike (eps=" + sbb.eps()
                                 + " > baseline " + baseline + "x3)",
                         Map.of("sbbType", sbb.sbbType(), "eps", sbb.eps(),
-                                "baseline", baseline, "oldMax", currentMax));
+                               "baseline", baseline, "oldMax", currentMax));
                 LOG.info("AutoReconfig: {} load spike", sbb.sbbType());
             }
         }
@@ -127,11 +134,13 @@ public final class AutoReconfigEngine {
     private void checkErrorStorm() {
         for (var e : errorCollector.errorRateByType().entrySet()) {
             if (e.getValue() > 100) {
-                if (!cooldownPermits("error_storm_" + e.getKey())) return;
+                if (!cooldownPermits("error_storm_" + e.getKey())) continue;
                 alarmEngine.fire(AlarmEngine.TelemetryAlarmLevel.CRITICAL,
                         "AutoReconfig",
-                        "Error storm: " + e.getKey() + " (" + e.getValue() + " errors/min)",
-                        Map.of("exceptionType", e.getKey(), "count", e.getValue()));
+                        "Error storm: " + e.getKey() + " (" + e.getValue()
+                                + " errors/min)",
+                        Map.of("exceptionType", e.getKey(),
+                               "count", e.getValue()));
                 LOG.error("AutoReconfig: Error storm — {} ({} errors/min)",
                         e.getKey(), e.getValue());
             }
@@ -153,16 +162,11 @@ public final class AutoReconfigEngine {
     }
 
     private boolean cooldownPermits(String actionKey) {
-        AtomicLong last = cooldowns.computeIfAbsent(actionKey, k -> new AtomicLong(0));
+        AtomicLong last = cooldowns.computeIfAbsent(actionKey,
+                k -> new AtomicLong(0));
         long now = System.currentTimeMillis();
         long prev = last.get();
         if (now - prev < COOLDOWN_MS) return false;
         return last.compareAndSet(prev, now);
     }
 }
-
-    }
-
-        }
-    }
-

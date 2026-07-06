@@ -12,6 +12,7 @@ package com.example.helloworld.spring.config;
 
 import com.example.helloworld.spring.HelloWorldContext;
 import com.example.helloworld.spring.sbbs.HelloWorldSbb;
+import com.example.helloworld.spring.sbbs.TelemetrySbb;
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.core.SbbLifecycleManager;
@@ -20,8 +21,14 @@ import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
 import com.microjainslee.ra.httpserver.collab.HttpServerSessionStore;
 import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
+import com.microjainslee.telemetry.MicrometerTelemetryPort;
+import com.microjainslee.telemetry.TelemetryPort;
+
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +53,7 @@ public class HelloWorldBootstrap {
 
     private final ConcurrentHashMap<String, SessionRecord> sessions = new ConcurrentHashMap<>();
     private volatile HttpServerRaEndpoint httpEndpoint;
+    private volatile TelemetryPort telemetryPort;
 
     @Bean
     public HttpServerResourceAdaptor httpServerRa() {
@@ -80,6 +88,22 @@ public class HelloWorldBootstrap {
             @Override
             public void start() {
                 helloContext.setContainer(container);
+
+                // ── Telemetry Engine (zero-CPU, passive collection) ──
+                PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+                telemetryPort = new MicrometerTelemetryPort(registry, container);
+                container.bindTelemetryPort(telemetryPort);
+
+                // Start passive collectors (single daemon VT each)
+                telemetryPort.resourceMonitor().start(30, TimeUnit.SECONDS);
+                telemetryPort.autoReconfig().start(30, TimeUnit.SECONDS);
+
+                // Wire EventRouter → telemetry (passive SBB event tracking)
+                container.getEventRouter().setTelemetryPort(telemetryPort);
+
+                // Expose telemetry port to the REST controller
+                helloContext.setTelemetryPort(telemetryPort);
+
                 registerSbbTypes();
                 bindEventMappings();
                 bindInitialEventSelector();
@@ -123,7 +147,9 @@ public class HelloWorldBootstrap {
     private void registerSbbTypes() {
         container.registerSbbType(HelloWorldSbb.class,
                 () -> new HelloWorldSbb(container, helloContext));
-        LOG.info("Registered pooled SBB type: HelloWorldSbb");
+        container.registerSbbType(TelemetrySbb.class,
+                () -> new TelemetrySbb(container, telemetryPort));
+        LOG.info("Registered pooled SBB types: HelloWorldSbb, TelemetrySbb");
     }
 
     private void bindEventMappings() {

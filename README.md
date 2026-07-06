@@ -45,7 +45,7 @@ No XML. No deployment descriptors. No annotation scanning.
 
 ## 🚀 100,000 SBB Stress Test
 
-```
+```text
 TEST: 100,000 SBB entities, each handling 1 event
 RESULT: 1.8 seconds (55,000 events/sec)
 ENVIRONMENT: Virtual threads on LMAX Disruptor, JDK 25
@@ -67,7 +67,7 @@ ENVIRONMENT: Virtual threads on LMAX Disruptor, JDK 25
 
 Every example follows this exact pattern — copy, rename, add your logic:
 
-```
+```text
 myapp/
 ├── pom.xml                              ← 2 deps: adapter-quarkus + your RA
 ├── src/main/resources/
@@ -97,7 +97,7 @@ Every Resource Adaptor has exactly 3 ports:
 | **3. Events**    | `RaBootstrapPort` | RA → SLEE (`fireEvent`)                  |
 
 
-```
+```text
 Network bytes → RA → fireEvent → EventRouter → SBB.onEvent()
                                        ↑
 SBB → sendCommand → RA → encode → Network bytes
@@ -211,6 +211,42 @@ Core modules:
 | `jainslee-cluster`   | Infinispan/JGroups clustering (optional)                                       |
 | `adapter-quarkus`    | ★ Quarkus CDI extension (main target)                                          |
 | `adapter-springboot` | Spring Boot adapter (low priority)                                             |
+
+
+### Telemetry & Self-Healing (`jainslee-telemetry`)
+
+Zero-CPU passive telemetry engine: SbbCollector, RaCollector, ErrorCollector,
+ResourceMonitor, SpunkDetector, StaleDetector, AlarmEngine, AutoReconfigEngine.
+Prometheus metrics. Steampunk dashboard GUI.
+
+| Module | Description |
+|--------|-------------|
+| `jainslee-telemetry` | TelemetryPort API + Micrometer implementation (SBB stats, RA stats, error tracking, CPU/memory monitoring, spunk detection, auto-reconfig on memory/load/error thresholds) |
+| `jainslee-telemetry-vertx` | Steampunk dashboard GUI (single index.html + telemetry.js, served via Vert.x StaticHandler) |
+
+| Feature | Description |
+|---------|-------------|
+| SBB Collection | Events/sec, latency (avg/p99), error count, per-type breakdown |
+| RA Collection | State, port, events fired, commands received |
+| Error Tracking | Ring buffer (1000), error rate by type, storm detection |
+| Resource Monitor | CPU, RAM, threads, GC, via single daemon VT (30s interval) |
+| Spunk Detection | Anomalous SBB: blocking >100ms, mem spike >100MB |
+| Stale Detection | Entity idle >5min warning, >30min auto-release |
+| Alarm Engine | INFO/WARNING/CRITICAL/FATAL, acknowledge, history |
+| Auto-Reconfig ⚡ | Memory>85% → halve pool, CPU>80% → reduce threads, Load spike 3× → expand pool, Error storm → suspend SBB |
+
+```bash
+# Access telemetry dashboard
+open http://localhost:8080/telemetry/
+
+# Prometheus metrics
+curl http://localhost:8080/api/telemetry/metrics
+
+# Full snapshot
+curl http://localhost:8080/api/telemetry/snapshot
+```
+
+> 📖 Full guide: [`docs/jainslee-telemetry.md`](docs/jainslee-telemetry.md) · Dashboard: [`docs/telemetry-gui.md`](docs/telemetry-gui.md)
 
 
 ---
