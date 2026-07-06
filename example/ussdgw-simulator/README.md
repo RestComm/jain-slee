@@ -22,9 +22,9 @@ Run **one** example at a time:
 
 | Example | Port | Base URL |
 |---------|------|----------|
-| `example-quarkus` | **8080** | `http://127.0.0.1:8080` |
-| `example-spring` | **8081** | `http://127.0.0.1:8081` |
-| `example-embedded-j25` | **8082** | `http://127.0.0.1:8082` |
+| `example-quarkus-ussdgw` | **8080** | `http://127.0.0.1:8080` |
+| `example-spring-ussdgw` | **8081** | `http://127.0.0.1:8081` |
+| `example-embedded-j25-ussdgw` | **8082** | `http://127.0.0.1:8082` |
 
 ### Build and run
 
@@ -76,9 +76,9 @@ Chỉ chạy **một** example tại một thời điểm:
 
 | Example | Port | Base URL |
 |---------|------|----------|
-| `example-quarkus` | **8080** | `http://127.0.0.1:8080` |
-| `example-spring` | **8081** | `http://127.0.0.1:8081` |
-| `example-embedded-j25` | **8082** | `http://127.0.0.1:8082` |
+| `example-quarkus-ussdgw` | **8080** | `http://127.0.0.1:8080` |
+| `example-spring-ussdgw` | **8081** | `http://127.0.0.1:8081` |
+| `example-embedded-j25-ussdgw` | **8082** | `http://127.0.0.1:8082` |
 
 ### Build và chạy
 

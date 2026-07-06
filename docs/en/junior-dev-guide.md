@@ -66,7 +66,7 @@ micro-jainslee/
 │   ├── adapter-springboot/  # (low priority)
 │   └── adapter-jakartaee/   # (low priority)
 ├── vendor-ras/          # Bundled RAs: ra-sip-servlet, ra-diameter, ra-http-*, ra-grpc-*
-└── example/             # Sample apps: example-quarkus (USSD), example-quarkus-sip (SIP GW)…
+└── example/             # Sample apps: example-quarkus-ussdgw (USSD), example-quarkus-sip (SIP GW)…
 ```
 
 **Architectural constraints (must not violate):**
@@ -88,7 +88,7 @@ mvn -Pexamples test            # run all tests (400+)
 cd example/example-quarkus-sip && mvn quarkus:dev
 
 # Run USSD demo
-cd example/example-quarkus && mvn quarkus:dev
+cd example/example-quarkus-ussdgw && mvn quarkus:dev
 ```
 
 ---
@@ -117,7 +117,7 @@ Mapping matches **parent classes too** — mapping `SipEvent.class` catches all 
 
 IES answers *"which session/entity does this event belong to?"* (JSLEE 1.1 §7.5). SBBs declare it via annotation:
 
-> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
+> 📄 File: example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
 ```java
 @InitialEventSelect(name = "ussd-session-convergence")
 public InitialEventSelectResult selectInitialEvent(InitialEventSelectCondition c) {
@@ -184,7 +184,7 @@ When a protocol session ends (BYE, timeout…), the RA **must** call `bootstrapP
 
 - **SBB unit test**: call `onEvent(event, aci)` directly with a real ACI from `container.createActivityContext("test")` — SBBs are POJOs.
 - **Integration**: set up a real `MicroSleeContainer` in `@Before` (fast, <100ms), register type + RA, fire event, assert with latch. Standard example: `SipEndToEndTest` (ra-sip-servlet) — real UDP socket → SBB → real response.
-- **Smoke E2E**: `UssdDemoSmokeTest` (example-quarkus) — HTTP begin → chain of 3 SBBs → poll COMPLETED.
+- **Smoke E2E**: `UssdDemoSmokeTest` (example-quarkus-ussdgw) — HTTP begin → chain of 3 SBBs → poll COMPLETED.
 - Quick single test run: `mvn -pl <module> test -Dtest='TestName#methodName'`.
 
 ---
@@ -232,8 +232,8 @@ When a protocol session ends (BYE, timeout…), the RA **must** call `bootstrapP
 | File | What you'll learn |
 |---|---|
 | `example/example-quarkus-sip/src/main/java/.../bootstrap/SipGatewayBootstrap.java` | SIP app: registerSbbType → createIesDispatcher → mapEventToSbb → registerRa |
-| `example/example-quarkus/src/main/java/.../bootstrap/UssdDemoBootstrap.java` | USSD app: same pattern + collaborator injection |
-| `example/example-quarkus/src/test/java/.../bootstrap/UssdDemoSmokeTest.java` | Plain-JUnit smoke test without CDI |
+| `example/example-quarkus-ussdgw/src/main/java/.../bootstrap/UssdDemoBootstrap.java` | USSD app: same pattern + collaborator injection |
+| `example/example-quarkus-ussdgw/src/test/java/.../bootstrap/UssdDemoSmokeTest.java` | Plain-JUnit smoke test without CDI |
 
 ### Adapter (Quarkus extension)
 

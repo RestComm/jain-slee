@@ -490,7 +490,7 @@ curl http://localhost:18080/health
 
 ## 9. Test
 
-Hiện tại example này chưa có unit test riêng. Các smoke test pattern từ `example-quarkus` (`UssdDemoSmokeTest`) có thể áp dụng:
+Hiện tại example này chưa có unit test riêng. Các smoke test pattern từ `example-quarkus-ussdgw` (`UssdDemoSmokeTest`) có thể áp dụng:
 
 - Port configurable về 0 (ephemeral) để test không tranh chấp port.
 - Bootstrap expose accessor cho endpoint để test lấy port thật.

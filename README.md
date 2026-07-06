@@ -1052,7 +1052,7 @@ mvn -B -ntp install -DskipTests \
   -am
 
 # 2) Start the Quarkus demo (terminal 1)
-cd example/example-quarkus
+cd example/example-quarkus-ussdgw
 mvn quarkus:dev
 
 # 3) Fire a simulated SS7 USSD begin (terminal 2)

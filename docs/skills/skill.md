@@ -131,7 +131,7 @@ Every RA follows the **WRAPPER + DELEGATE** pattern:
 - `docs/junior-dev-guide.md` — Complete developer guide (Phụ lục C: app pattern, Phụ lục F: RA checklist)
 - `vendor-ras/ra-http-server/` — Reference RA implementation
 - `vendor-ras/ra-grpc-client/` — Reference gRPC RA implementation
-- `example/example-embedded-j25/` — Reference app implementation
+- `example/example-embedded-j25-ussdgw/` — Reference app implementation
 - `.clinerules` — Workspace auto-load rules for Cline
 
 ---
@@ -165,5 +165,5 @@ Rules:
 - SBBs: implements Sbb + SleeEventHandler, switch pattern matching
 - RAs: WRAPPER+DELEGATE pattern, NEVER new Disruptor<>(), use bootstrap.fireEvent()
 - RA commands: sealed interface extends OutboundCommand
-- Reference: micro-jainslee workspace at vendor-ras/ra-http-server/ and example/example-embedded-j25/
+- Reference: micro-jainslee workspace at vendor-ras/ra-http-server/ and example/example-embedded-j25-ussdgw/
 ```

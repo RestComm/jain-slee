@@ -1,7 +1,7 @@
 # 📕 Application Wiring Guide (Quarkus)
 
 > Hướng dẫn wire SBB + RA thành một app micro-jainslee hoàn chỉnh trên Quarkus.
-> Reference: `example/example-quarkus-sip` (SIP gateway) và `example/example-quarkus` (USSD).
+> Reference: `example/example-quarkus-sip` (SIP gateway) và `example/example-quarkus-ussdgw` (USSD).
 >
 > Last updated: 2026-07-06
 
@@ -133,7 +133,7 @@ public final class SipGatewayBootstrap {
 
 SBB thường cần gọi service của app (session store, config…). Đưa qua **constructor trong factory**, kiểu interface:
 
-> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoContext.java
+> 📄 File: example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoContext.java
 ```java
 // app định nghĩa interface hẹp
 public interface UssdDemoContext {
@@ -147,7 +147,7 @@ container.registerSbbType(HttpServerSbb.class,
 ```
 
 Quy tắc:
-- Tham số kiểu **interface** (`UssdDemoContext`), không phải class bootstrap cụ thể — để test tự mock được (bài học từ example-spring truyền `null`).
+- Tham số kiểu **interface** (`UssdDemoContext`), không phải class bootstrap cụ thể — để test tự mock được (bài học từ example-spring-ussdgw truyền `null`).
 - ❌ Không dùng static singleton/holder trong SBB.
 - SBB có `@InitialEventSelect` cần **thêm** no-arg ctor (IES temp instance) — các field collaborator để null trong ctor đó là chấp nhận được vì IES method không được dùng chúng.
 
@@ -173,7 +173,7 @@ printf 'OPTIONS sip:gw@127.0.0.1 SIP/2.0\r\nVia: SIP/2.0/UDP 127.0.0.1:9999;bran
 USSD demo:
 
 ```bash
-cd example/example-quarkus && mvn quarkus:dev
+cd example/example-quarkus-ussdgw && mvn quarkus:dev
 curl -X POST http://127.0.0.1:8080/api/ussd/begin \
      -H 'Content-Type: application/json' \
      -d '{"msisdn":"251911000001","ussdString":"*123#"}'
@@ -188,7 +188,7 @@ curl http://127.0.0.1:8080/api/ussd/sessions/<sessionId>
 
 Bootstrap nên test được bằng plain JUnit — mẫu: `UssdDemoSmokeTest`:
 
-> 📄 File: example/example-quarkus/src/test/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoSmokeTest.java
+> 📄 File: example/example-quarkus-ussdgw/src/test/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoSmokeTest.java
 ```java
 @BeforeEach
 void setUp() {
@@ -259,10 +259,10 @@ example/example-quarkus-sip/
 │       └── RegistrationUpdatedEvent.java               ← app-defined event (registration changed)
 ```
 
-### USSD Demo app (`example/example-quarkus/`)
+### USSD Demo app (`example/example-quarkus-ussdgw/`)
 
 ```
-example/example-quarkus/
+example/example-quarkus-ussdgw/
 ├── pom.xml
 ├── README.md
 ├── src/main/proto/

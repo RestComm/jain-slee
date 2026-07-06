@@ -6,16 +6,16 @@
 | Project | Role | Port |
 |---------|------|------|
 | [`grpc-simulator/`](grpc-simulator/) | gRPC USSD AS (`ResolveMenu`) | **9090** |
-| [`example-quarkus/`](example-quarkus/) | Quarkus 3 + HTTP RA | **8080** |
-| [`example-spring/`](example-spring/) | Spring Boot 3 + HTTP RA | **8081** |
-| [`example-embedded-j25/`](example-embedded-j25/) | Plain Java 25 + HTTP RA | **8082** |
+| [`example-quarkus-ussdgw/`](example-quarkus-ussdgw/) | Quarkus 3 + HTTP RA | **8080** |
+| [`example-spring-ussdgw/`](example-spring-ussdgw/) | Spring Boot 3 + HTTP RA | **8081** |
+| [`example-embedded-j25-ussdgw/`](example-embedded-j25-ussdgw/) | Plain Java 25 + HTTP RA | **8082** |
 | [`ussdgw-simulator/`](ussdgw-simulator/) | USSD GW HTTP client | ephemeral callback |
 
 Each example is a **standalone Maven project** (copy-not-share). Per-project run/test guides:
 
-- [example-embedded-j25/README.md](example-embedded-j25/README.md) — EN + VI
-- [example-quarkus/README.md](example-quarkus/README.md) — EN + VI
-- [example-spring/README.md](example-spring/README.md) — EN + VI
+- [example-embedded-j25-ussdgw/README.md](example-embedded-j25-ussdgw/README.md) — EN + VI
+- [example-quarkus-ussdgw/README.md](example-quarkus-ussdgw/README.md) — EN + VI
+- [example-spring-ussdgw/README.md](example-spring-ussdgw/README.md) — EN + VI
 - [grpc-simulator/README.md](grpc-simulator/README.md) — EN + VI
 - [ussdgw-simulator/README.md](ussdgw-simulator/README.md) — EN + VI
 
@@ -110,9 +110,9 @@ java -cp target/grpc-simulator.jar:$(mvn -q dependency:build-classpath -Dmdep.ou
   com.example.grpcsimulator.GrpcSimulatorMain 9090
 
 # Terminal B — pick ONE example (see per-project README)
-# Quarkus:   cd example/example-quarkus && mvn quarkus:dev
-# Spring:    cd example/example-spring && mvn spring-boot:run
-# Embedded:  cd example/example-embedded-j25 && mvn package && java -jar target/example-embedded-j25.jar
+# Quarkus:   cd example/example-quarkus-ussdgw && mvn quarkus:dev
+# Spring:    cd example/example-spring-ussdgw && mvn spring-boot:run
+# Embedded:  cd example/example-embedded-j25-ussdgw && mvn package && java -jar target/example-embedded-j25-ussdgw.jar
 
 # Terminal C — fire USSD session
 cd example/ussdgw-simulator && mvn -B -ntp package
@@ -130,9 +130,9 @@ java -cp target/grpc-simulator.jar:$(mvn -q dependency:build-classpath -Dmdep.ou
   com.example.grpcsimulator.GrpcSimulatorMain 9090
 
 # Terminal B — chọn MỘT example (xem README từng project)
-# Quarkus:   cd example/example-quarkus && mvn quarkus:dev
-# Spring:    cd example/example-spring && mvn spring-boot:run
-# Embedded:  cd example/example-embedded-j25 && mvn package && java -jar target/example-embedded-j25.jar
+# Quarkus:   cd example/example-quarkus-ussdgw && mvn quarkus:dev
+# Spring:    cd example/example-spring-ussdgw && mvn spring-boot:run
+# Embedded:  cd example/example-embedded-j25-ussdgw && mvn package && java -jar target/example-embedded-j25-ussdgw.jar
 
 # Terminal C — bắn phiên USSD
 cd example/ussdgw-simulator && mvn -B -ntp package
@@ -151,16 +151,16 @@ From `jain-slee/jain-slee/example/` — no external processes needed (tests use 
 
 ```bash
 cd example/grpc-simulator          && mvn -B -ntp test   # 4 tests
-cd example/example-embedded-j25    && mvn -B -ntp test   # 7 tests
-cd example/example-quarkus         && mvn -B -ntp test   # 2 tests
-cd example/example-spring          && mvn -B -ntp test   # 2 tests
+cd example/example-embedded-j25-ussdgw    && mvn -B -ntp test   # 7 tests
+cd example/example-quarkus-ussdgw         && mvn -B -ntp test   # 2 tests
+cd example/example-spring-ussdgw          && mvn -B -ntp test   # 2 tests
 ```
 
 One-liner:
 
 ```bash
 cd jain-slee/jain-slee/example && \
-  for d in grpc-simulator example-embedded-j25 example-quarkus example-spring; do \
+  for d in grpc-simulator example-embedded-j25-ussdgw example-quarkus-ussdgw example-spring-ussdgw; do \
     echo "=== $d ===" && (cd "$d" && mvn -B -ntp test -q) || exit 1; \
   done && echo "All example tests passed."
 ```
@@ -171,16 +171,16 @@ Từ thư mục `example/` — test tự dùng stub trong process, **không cầ
 
 ```bash
 cd example/grpc-simulator          && mvn -B -ntp test   # 4 test
-cd example/example-embedded-j25    && mvn -B -ntp test   # 7 test
-cd example/example-quarkus         && mvn -B -ntp test   # 2 test
-cd example/example-spring          && mvn -B -ntp test   # 2 test
+cd example/example-embedded-j25-ussdgw    && mvn -B -ntp test   # 7 test
+cd example/example-quarkus-ussdgw         && mvn -B -ntp test   # 2 test
+cd example/example-spring-ussdgw          && mvn -B -ntp test   # 2 test
 ```
 
 Lệnh gộp:
 
 ```bash
 cd jain-slee/jain-slee/example && \
-  for d in grpc-simulator example-embedded-j25 example-quarkus example-spring; do \
+  for d in grpc-simulator example-embedded-j25-ussdgw example-quarkus-ussdgw example-spring-ussdgw; do \
     echo "=== $d ===" && (cd "$d" && mvn -B -ntp test -q) || exit 1; \
   done && echo "Tất cả test example đã pass."
 ```
@@ -191,9 +191,9 @@ cd jain-slee/jain-slee/example && \
 
 | Example | Run (EN) | Test (EN) | Chạy (VI) | Test (VI) |
 |---------|----------|-----------|------------|-----------|
-| embedded-j25 | [`README`](example-embedded-j25/README.md#english--run) | `mvn test` (7) | [`README`](example-embedded-j25/README.md#tiếng-việt--chạy-thử) | `mvn test` |
-| quarkus | [`README`](example-quarkus/README.md#english--run) | `mvn test` (2) | [`README`](example-quarkus/README.md#tiếng-việt--chạy-thử) | `mvn test` |
-| spring | [`README`](example-spring/README.md#english--run) | `mvn test` (2) | [`README`](example-spring/README.md#tiếng-việt--chạy-thử) | `mvn test` |
+| embedded-j25 | [`README`](example-embedded-j25-ussdgw/README.md#english--run) | `mvn test` (7) | [`README`](example-embedded-j25-ussdgw/README.md#tiếng-việt--chạy-thử) | `mvn test` |
+| quarkus | [`README`](example-quarkus-ussdgw/README.md#english--run) | `mvn test` (2) | [`README`](example-quarkus-ussdgw/README.md#tiếng-việt--chạy-thử) | `mvn test` |
+| spring | [`README`](example-spring-ussdgw/README.md#english--run) | `mvn test` (2) | [`README`](example-spring-ussdgw/README.md#tiếng-việt--chạy-thử) | `mvn test` |
 | grpc-simulator | [`README`](grpc-simulator/README.md#english--run) | `mvn test` (4) | [`README`](grpc-simulator/README.md#tiếng-việt--chạy-thử) | `mvn test` |
 | ussdgw-simulator | [`README`](ussdgw-simulator/README.md#english--build-and-run) | manual E2E | [`README`](ussdgw-simulator/README.md#tiếng-việt--build-và-chạy) | E2E thủ công |
 

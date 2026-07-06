@@ -61,9 +61,9 @@ public final class Ss7UssdSimulatorMain {
         if (args.length == 0 || "-h".equals(args[0]) || "--help".equals(args[0])) {
             System.out.println("Usage: Ss7UssdSimulatorMain <baseUrl> [msisdn] [ussdString]");
             System.out.println("  baseUrl examples:");
-            System.out.println("    http://127.0.0.1:8080  (example-quarkus)");
-            System.out.println("    http://127.0.0.1:8081  (example-spring)");
-            System.out.println("    http://127.0.0.1:8082  (example-embedded-j25)");
+            System.out.println("    http://127.0.0.1:8080  (example-quarkus-ussdgw)");
+            System.out.println("    http://127.0.0.1:8081  (example-spring-ussdgw)");
+            System.out.println("    http://127.0.0.1:8082  (example-embedded-j25-ussdgw)");
             System.exit(args.length == 0 ? 1 : 0);
         }
         String baseUrl = args[0];

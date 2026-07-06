@@ -117,7 +117,7 @@ Generates a **3-port contract** Resource Adaptor (WRAPPER + DELEGATE).
 
 ## References
 
-- `example/example-embedded-j25/` — complete working app
+- `example/example-embedded-j25-ussdgw/` — complete working app
 - `vendor-ras/ra-http-server/` — reference RA (HttpServerRaEndpoint + HttpServerResourceAdaptor)
 - `vendor-ras/ra-grpc-client/` — reference gRPC RA
 - `docs/junior-dev-guide.md` — Phụ lục C (app pattern), Phụ lục F (RA checklist)

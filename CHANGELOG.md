@@ -10,6 +10,49 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased] - 2026-06-28 - Removed legacy vendor Mobicents directories (api/, container/, release/) — replaced by micro-jainslee built from scratch with JAIN SLEE 1.1 spec subset (jainslee-api, jainslee-core, jainslee-tx, jainslee-codegen, jainslee-cluster, jainslee-tck-harness, jainslee-ra-spi). Vendored reference code preserved in git history.
 
+
+## [Unreleased] — 2026-07-06 — 3-Port Contract + RA Restructure + HelloWorld Templates
+
+### Added
+
+- **3-Port Contract (PolyVoice Pattern)** — `RaEndpointPort`, `RaCommandPort`,
+  `RaBootstrapPort` interfaces for clean RA lifecycle/command/bootstrap
+  separation. `@InjectRa(name)` annotation for SBB field injection.
+  Wrapper+Delegate pattern for all RAs.
+- **ra-http-server restructure** — New `collab/`, `command/`, `events/` sub-packages.
+  `HttpServerResourceAdaptor` made generic: removed USSD routes, only
+  `GET /health` + `ANY /{path}` fires `HttpWebRequestEvent`. Added
+  `sendHttpResponse()` for outbound HTTP. `HttpServerCommand` to `sealed interface`.
+- **HttpWebRequestEvent** — `@EventType` with `sessionId`, `method`, `path`,
+  `headers`, `body`, `userAgent` for generic HTTP request handling.
+- **ra-http-client restructure** — New `collab/`, `command/`, `events/` sub-packages.
+  `HttpCallbackCommand` to `sealed interface` + `CallbackRequest` record.
+  Retry logic (exponential backoff), `HttpClientSessionStore`,
+  `HttpCallbackCompletedEvent`. Uses `java.net.http.HttpClient`.
+- **example-quarkus-helloworld-web** — Quarkus template app: `bootstrap/`,
+  `command/`, `events/`, `rest/`, `sbbs/` structure. `index.html` in
+  `META-INF/resources/` (WAR hosting). "Hello World {userAgent}" feature.
+- **example-spring-helloworld-web** — Spring Boot mirror: `@SpringBootApplication`,
+  `@Configuration`+`SmartLifecycle`, `@RestController`, `static/index.html`.
+  Same userAgent feature.
+- **design-ideas/war-hosting-test.md** — Design doc for WAR/static hosting.
+
+### Changed
+
+- **ra-http-server** — `HttpServerSessionStore`, `HttpServerSessionPreparer`
+  to `collab/`. `HttpServerCommand` to `command/`. `HttpBeginEventFactory`
+  to `events/`. Imports updated across all examples.
+- **ra-http-client** — `HttpCallbackCommand` to `command/`. New
+  `collab/HttpClientSessionStore`, `events/HttpCallbackCompletedEvent`.
+- **USSD examples** (`example-quarkus-ussdgw`, `example-spring-ussdgw`,
+  `example-embedded-j25-ussdgw`) updated for generic RA: USSD events now app-level.
+- **example/hello-world-web/** removed, replaced by structured templates.
+
+### Deprecated
+
+- USSD-specific endpoints in `ra-http-server`. Apps must handle USSD via
+  `HttpWebRequestEvent` or REST controllers.
+
 ## [Unreleased]
 
 ### Changed

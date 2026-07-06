@@ -78,7 +78,7 @@ container.mapEventToSbb(SipByeEvent.class,    "ProxySbb");
 
 Khi cần **một entity giữ state cho cả session** (VD: USSD dialog nhiều bước), khai báo `@InitialEventSelect`:
 
-> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
+> 📄 File: example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
 ```java
 public class UssdSessionSbb implements Sbb, SleeEventHandler {
 
@@ -119,7 +119,7 @@ Ngữ nghĩa spec (§7.5.5):
 
 Nếu muốn state được store/load qua CMP store (phục vụ recovery/cluster), dùng abstract class + `@CmpField`:
 
-> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/Ss7UssdIngressSbb.java
+> 📄 File: example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/Ss7UssdIngressSbb.java
 ```java
 @SbbAnnotation(name = "UssdSession", vendor = "com.example", version = "1.0")
 public abstract class UssdSessionSbb extends CmpBackedSbb implements SleeEventHandler {
@@ -153,7 +153,7 @@ Tất cả là `default` no-op — chỉ override cái cần. **Đừng** làm v
 
 ## 6. Timer
 
-> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/GrpcClientSbb.java
+> 📄 File: example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/GrpcClientSbb.java
 ```java
 // đặt timer 30s — TimerFiredEvent sẽ được deliver về SBB local object này
 long timerId = container.getTimerPort().setTimer(30_000, sbbLocalObject);
@@ -210,17 +210,17 @@ Child bị cascade-remove khi parent remove.
 | [`RegistrationSbb.java`](../../example/example-quarkus-sip/src/main/java/com/example/sipgateway/sbbs/RegistrationSbb.java) | REGISTER handler + AOR store | `RegisterAorCommand`, `RegistrationUpdatedEvent`, maintains in-memory AOR map |
 | [`IceNegotiationSbb.java`](../../example/example-quarkus-sip/src/main/java/com/example/sipgateway/sbbs/IceNegotiationSbb.java) | ICE/STUN candidate exchange | `IceCandidateEvent`, `IceCompletedEvent`, `IceFailedEvent`, `StartIce` command |
 
-### USSD Demo SBBs (`example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/`)
+### USSD Demo SBBs (`example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/`)
 
 | File | Role | Key patterns |
 |---|---|---|
-| [`HttpServerSbb.java`](../../example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java) | HTTP-to-USSD adapter | `@InitialEventSelect` convergence by msisdn, `UssdDemoContext` collaborator injected via constructor |
-| [`Ss7UssdIngressSbb.java`](../../example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/Ss7UssdIngressSbb.java) | SS7 MAP USSD ingress | Production ingress path, `@InitialEventSelect` with different convergence name |
-| [`GrpcClientSbb.java`](../../example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/GrpcClientSbb.java) | gRPC menu lookup (child SBB) | Child SBB pattern: `childRelation.create()`, `container.attach()`, handles `GrpcMenuRequestEvent`/`GrpcMenuResponseEvent` |
+| [`HttpServerSbb.java`](../../example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java) | HTTP-to-USSD adapter | `@InitialEventSelect` convergence by msisdn, `UssdDemoContext` collaborator injected via constructor |
+| [`Ss7UssdIngressSbb.java`](../../example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/Ss7UssdIngressSbb.java) | SS7 MAP USSD ingress | Production ingress path, `@InitialEventSelect` with different convergence name |
+| [`GrpcClientSbb.java`](../../example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/GrpcClientSbb.java) | gRPC menu lookup (child SBB) | Child SBB pattern: `childRelation.create()`, `container.attach()`, handles `GrpcMenuRequestEvent`/`GrpcMenuResponseEvent` |
 
 ### Bootstrap wiring reference
 
 | File | Role |
 |---|---|
 | [`SipGatewayBootstrap.java`](../../example/example-quarkus-sip/src/main/java/com/example/sipgateway/bootstrap/SipGatewayBootstrap.java) | registerSbbType → createIesDispatcher → mapEventToSbb → registerRa |
-| [`UssdDemoBootstrap.java`](../../example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoBootstrap.java) | Same pattern, with collaborator injection via constructor factory |
+| [`UssdDemoBootstrap.java`](../../example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/bootstrap/UssdDemoBootstrap.java) | Same pattern, with collaborator injection via constructor factory |

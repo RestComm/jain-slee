@@ -71,15 +71,15 @@
     <profiles>
         <!-- mvn -Pexamples ... builds the example apps in the same reactor so
              CI catches runtime/API changes that would break them. Kept out
-             of the default build because example-quarkus needs the Quarkus
+             of the default build because example-quarkus-ussdgw needs the Quarkus
              platform BOM download on first run. -->
         <profile>
             <id>examples</id>
             <modules>
-                <module>example/example-embedded-j25</module>
-                <module>example/example-quarkus</module>
+                <module>example/example-embedded-j25-ussdgw-ussdgw</module>
+                <module>example/example-quarkus-ussdgw</module>
                 <module>example/example-quarkus-sip</module>
-                <module>example/example-spring</module>
+                <module>example/example-spring-ussdgw</module>
             </modules>
         </profile>
     </profiles>

@@ -69,7 +69,7 @@ micro-jainslee/
 │   ├── adapter-springboot/  # (low priority)
 │   └── adapter-jakartaee/   # (low priority)
 ├── vendor-ras/          # RA có sẵn: ra-sip-servlet, ra-diameter, ra-http-*, ra-grpc-*
-└── example/             # App mẫu: example-quarkus (USSD), example-quarkus-sip (SIP GW)…
+└── example/             # App mẫu: example-quarkus-ussdgw (USSD), example-quarkus-sip (SIP GW)…
 ```
 
 **Ràng buộc kiến trúc (không được vi phạm):**
@@ -92,7 +92,7 @@ mvn -Pexamples test            # chạy toàn bộ test (400+)
 cd example/example-quarkus-sip && mvn quarkus:dev
 
 # Chạy USSD demo
-cd example/example-quarkus && mvn quarkus:dev
+cd example/example-quarkus-ussdgw && mvn quarkus:dev
 ```
 
 ---
@@ -123,7 +123,7 @@ Mapping match theo **cả class cha** — map `SipEvent.class` sẽ bắt mọi 
 
 IES trả lời câu hỏi *"event này thuộc về session/entity nào?"* (JSLEE 1.1 §7.5). SBB khai báo bằng annotation:
 
-> 📄 File: example/example-quarkus/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
+> 📄 File: example/example-quarkus-ussdgw/src/main/java/com/example/ussddemo/quarkus/sbbs/HttpServerSbb.java
 
 ```java
 @InitialEventSelect(name = "ussd-session-convergence")
@@ -197,7 +197,7 @@ Khi protocol session kết thúc (BYE, timeout…), RA **phải** gọi `bootstr
 
 - **Unit test SBB**: gọi thẳng `onEvent(event, aci)` với ACI thật từ `container.createActivityContext("test")` — SBB là POJO.
 - **Integration**: dựng `MicroSleeContainer` thật trong `@Before` (nhanh, &lt;100ms), đăng ký type + RA, bắn event, assert bằng latch. Mẫu chuẩn: `SipEndToEndTest` (ra-sip-servlet) — UDP socket thật → SBB → response thật.
-- **Smoke E2E**: `UssdDemoSmokeTest` (example-quarkus) — HTTP begin → chuỗi 3 SBB → poll COMPLETED.
+- **Smoke E2E**: `UssdDemoSmokeTest` (example-quarkus-ussdgw) — HTTP begin → chuỗi 3 SBB → poll COMPLETED.
 - Chạy nhanh 1 test: `mvn -pl [[ORCA_RAW_HTML_INLINE:%3Cmodule%3E]] test -Dtest='TenTest#tenMethod'`.
 
 ---
@@ -250,8 +250,8 @@ Khi protocol session kết thúc (BYE, timeout…), RA **phải** gọi `bootstr
 | File                                                                               | What you'll learn                                                           |
 | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `example/example-quarkus-sip/src/main/java/.../bootstrap/SipGatewayBootstrap.java` | SIP app: registerSbbType → createIesDispatcher → mapEventToSbb → registerRa |
-| `example/example-quarkus/src/main/java/.../bootstrap/UssdDemoBootstrap.java`       | USSD app: same pattern + collaborator injection                             |
-| `example/example-quarkus/src/test/java/.../bootstrap/UssdDemoSmokeTest.java`       | Plain-JUnit smoke test without CDI                                          |
+| `example/example-quarkus-ussdgw/src/main/java/.../bootstrap/UssdDemoBootstrap.java`       | USSD app: same pattern + collaborator injection                             |
+| `example/example-quarkus-ussdgw/src/test/java/.../bootstrap/UssdDemoSmokeTest.java`       | Plain-JUnit smoke test without CDI                                          |
 
 
 ### Adapter (Quarkus extension)

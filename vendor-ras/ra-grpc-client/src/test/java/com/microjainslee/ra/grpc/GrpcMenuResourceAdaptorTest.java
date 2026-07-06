@@ -143,7 +143,7 @@ public class GrpcMenuResourceAdaptorTest {
         // Look up sessionId -> ACI via the container's naming facility so the
         // RA can find the session ACI on requestMenu. This matches the
         // production bootstrap (UssdSbbWiring wires a similar lookup in
-        // example-quarkus, -spring, -embedded).
+        // example-quarkus-ussdgw, -spring, -embedded).
         ra.setActivityContextLookup(container.getActivityContextNamingFacility()::lookup);
         ra.raConfigure();
         ra.raActive();
