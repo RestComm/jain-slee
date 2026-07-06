@@ -246,3 +246,82 @@ body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--fo
       </div>
     </div>
   </div>
+
+
+  <div id="right-col">
+    <div class="card">
+      <div class="card-header">Resource Adaptors</div>
+      <div class="card-body" style="padding:4px">
+        <div id="ra-table-wrap">
+          <table id="ra-table">
+            <thead>
+              <tr><th>RA Name</th><th>State</th><th>Port</th><th>Evt/s</th></tr>
+            </thead>
+            <tbody id="ra-table-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-dim)">Awaiting data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Active Alarms</div>
+      <div class="card-body" style="padding:8px">
+        <div id="alarms-list">
+          <div class="no-alarms">✓ No active alarms</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bottom-row">
+    <div class="card" id="config-panel">
+      <div class="card-header">Configuration</div>
+      <div class="card-body">
+        <div class="config-row">
+          <span class="config-label">Auto-Reconfig</span>
+          <div class="toggle-wrap">
+            <label class="toggle-switch">
+              <input type="checkbox" id="auto-reconfig-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-status active" id="reconfig-status">ENABLED</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">SBB Pool</span>
+          <input class="config-input" id="cfg-pool-min" type="number" value="4" min="1" max="64" placeholder="Min">
+          <span class="config-unit">min</span>
+          <input class="config-input" id="cfg-pool-max" type="number" value="32" min="1" max="256" placeholder="Max">
+          <span class="config-unit">max</span>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Buffer</span>
+          <input class="config-input" id="cfg-buffer" type="number" value="1024" min="64" max="65536" placeholder="Size">
+          <span class="config-unit">events</span>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Virtual Threads</span>
+          <div class="toggle-wrap">
+            <label class="toggle-switch">
+              <input type="checkbox" id="cfg-vt" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-status active" id="vt-status">ON</span>
+          </div>
+        </div>
+        <div class="config-row" style="margin-top:8px">
+          <button class="btn-brass" id="btn-apply" onclick="applyConfig()">⚙ Apply Config</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="refresh-indicator"></div>
+
+<script src="telemetry.js"></script>
+</body>
+</html>

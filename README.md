@@ -1,16 +1,6 @@
 # micro-jainslee —  The Fastest Event - Dispatcher Framework
 
-![Java 25 LTS](https://img.shields.io/badge/Java-25_LTS-orange)
-
-![Virtual Threads](https://img.shields.io/badge/Threads-Virtual-green)
-
-![Disruptor](https://img.shields.io/badge/Event%20Bus-LMAX%20Disruptor-red)
-
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
-
-![Tests](https://img.shields.io/badge/tests-394%20pass-blue)
-
-![License](https://img.shields.io/badge/license-Dual_(GPLv3_|_Commercial)-blueviolet)
+![Java 25 LTS](https://img.shields.io/badge/Java-25_LTS-orange) ![Virtual Threads](https://img.shields.io/badge/Threads-Virtual-green) ![Disruptor](https://img.shields.io/badge/Event%20Bus-LMAX%20Disruptor-red) ![Build](https://img.shields.io/badge/build-passing-brightgreen) ![Tests](https://img.shields.io/badge/tests-394%20pass-blue) ![License](https://img.shields.io/badge/license-Dual_(GPLv3_|_Commercial)-blueviolet)
 
 > **The only embeddable JAIN SLEE 1.1 runtime that dispatches 100,000 SBB entity events in under 2 seconds.**
 >
@@ -204,7 +194,7 @@ cd example/example-quarkus-sip && mvn quarkus:dev
 
 ## Architecture
 
-![micro-jainslee Architecture](docs/images/micro-jainslee-architecture.svg)
+<p align="center"><img src="docs/images/micro-jainslee-architecture.svg" alt="micro-jainslee Architecture" width="880"/></p>
 
 Core modules:
 

@@ -1,187 +1,199 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" width="960" height="720" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif">
   <defs>
-    <linearGradient id="headerGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#FF6B35"/>
-      <stop offset="100%" stop-color="#D4521E"/>
+    <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF6B35"/><stop offset="100%" stop-color="#D4521E"/>
     </linearGradient>
-    <linearGradient id="appGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#E8F5E9"/>
-      <stop offset="100%" stop-color="#C8E6C9"/>
+    <linearGradient id="app" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8F5E9"/><stop offset="100%" stop-color="#C8E6C9"/>
     </linearGradient>
-    <linearGradient id="coreGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FFF3E0"/>
-      <stop offset="100%" stop-color="#FFE0B2"/>
+    <linearGradient id="core" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF3E0"/><stop offset="100%" stop-color="#FFE0B2"/>
     </linearGradient>
-    <linearGradient id="raGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#E3F2FD"/>
-      <stop offset="100%" stop-color="#BBDEFB"/>
+    <linearGradient id="ra" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E3F2FD"/><stop offset="100%" stop-color="#BBDEFB"/>
     </linearGradient>
-    <linearGradient id="netGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#F3E5F5"/>
-      <stop offset="100%" stop-color="#E1BEE7"/>
+    <linearGradient id="net" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F3E5F5"/><stop offset="100%" stop-color="#E1BEE7"/>
     </linearGradient>
-    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
-      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.12"/>
-    </filter>
-    <filter id="shadowLight" x="-2%" y="-2%" width="104%" height="106%">
-      <feDropShadow dx="0" dy="0.5" stdDeviation="1" flood-opacity="0.08"/>
-    </filter>
-    <marker id="arrowDown" markerWidth="8" markerHeight="8" refX="4" refY="7" orient="auto">
-      <path d="M0,0 L4,6 L8,0" fill="#FF6B35" stroke="none"/>
+    <filter id="sh"><feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-opacity="0.10"/></filter>
+    <filter id="shL"><feDropShadow dx="0" dy="0.5" stdDeviation="1" flood-opacity="0.06"/></filter>
+    <marker id="adn" markerWidth="10" markerHeight="10" refX="5" refY="9" orient="auto">
+      <path d="M0,0 L5,7 L10,0" fill="#E65100" stroke="none"/>
     </marker>
-    <marker id="arrowUp" markerWidth="8" markerHeight="8" refX="4" refY="1" orient="auto">
-      <path d="M0,6 L4,0 L8,6" fill="#1565C0" stroke="none"/>
+    <marker id="aup" markerWidth="10" markerHeight="10" refX="5" refY="1" orient="auto">
+      <path d="M0,7 L5,0 L10,7" fill="#1565C0" stroke="none"/>
     </marker>
   </defs>
 
-  <!-- Background -->
-  <rect width="900" height="620" fill="#FAFBFC" rx="4"/>
+  <!-- bg -->
+  <rect width="960" height="720" fill="#F8F9FA"/>
 
-  <!-- TITLE BAR -->
-  <rect x="0" y="0" width="900" height="44" fill="url(#headerGrad)" rx="4"/>
-  <rect x="0" y="22" width="900" height="22" fill="url(#headerGrad)"/>
-  <text x="20" y="29" fill="white" font-size="17" font-weight="700">⚡ micro-jainslee Architecture — JAIN SLEE 1.1 Embeddable Runtime</text>
+  <!-- TITLE -->
+  <rect x="0" y="0" width="960" height="48" fill="url(#hdr)" rx="6"/>
+  <rect x="0" y="30" width="960" height="18" fill="url(#hdr)"/>
+  <text x="24" y="31" fill="white" font-size="18" font-weight="700">⚡ micro-jainslee Architecture — JAIN SLEE 1.1 Embeddable Runtime</text>
 
-  <!-- =============  APP LAYER  ============= -->
-  <rect x="35" y="60" width="830" height="105" rx="6" fill="url(#appGrad)" stroke="#43A047" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="55" y="83" font-size="13" font-weight="700" fill="#2E7D32">APPLICATION LAYER — Service Building Blocks (SBBs)</text>
-  <text x="55" y="99" font-size="11" fill="#558B2F">Pure business logic — never opens a socket, never parses a protocol</text>
+  <!-- ============ APP LAYER ============ -->
+  <rect x="40" y="65" width="880" height="115" rx="8" fill="url(#app)" stroke="#43A047" stroke-width="1.5" filter="url(#sh)"/>
+
+  <!-- app layer header badge -->
+  <rect x="55" y="72" width="280" height="24" rx="4" fill="#43A047" opacity="0.18"/>
+  <text x="70" y="89" font-size="13" font-weight="700" fill="#2E7D32">APPLICATION LAYER — Service Building Blocks</text>
+  <text x="70" y="108" font-size="11" fill="#558B2F">Pure business logic · never opens a socket · never parses a protocol</text>
 
   <!-- SBB boxes -->
-  <rect x="60" y="110" width="130" height="40" rx="5" fill="white" stroke="#66BB6A" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="125" y="134" font-size="12" font-weight="600" fill="#2E7D32" text-anchor="middle">ProxySbb</text>
+  <rect x="55" y="122" width="144" height="44" rx="6" fill="white" stroke="#66BB6A" stroke-width="1" filter="url(#shL)"/>
+  <text x="127" y="149" font-size="13" font-weight="600" fill="#2E7D32" text-anchor="middle">ProxySbb</text>
 
-  <rect x="210" y="110" width="130" height="40" rx="5" fill="white" stroke="#66BB6A" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="275" y="134" font-size="12" font-weight="600" fill="#2E7D32" text-anchor="middle">RegistrationSbb</text>
+  <rect x="215" y="122" width="144" height="44" rx="6" fill="white" stroke="#66BB6A" stroke-width="1" filter="url(#shL)"/>
+  <text x="287" y="149" font-size="13" font-weight="600" fill="#2E7D32" text-anchor="middle">RegistrationSbb</text>
 
-  <rect x="360" y="110" width="130" height="40" rx="5" fill="white" stroke="#66BB6A" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="425" y="134" font-size="12" font-weight="600" fill="#2E7D32" text-anchor="middle">IceNegotiationSbb</text>
+  <rect x="375" y="122" width="144" height="44" rx="6" fill="white" stroke="#66BB6A" stroke-width="1" filter="url(#shL)"/>
+  <text x="447" y="149" font-size="13" font-weight="600" fill="#2E7D32" text-anchor="middle">IceNegotiationSbb</text>
 
-  <rect x="510" y="110" width="130" height="40" rx="5" fill="white" stroke="#A5D6A7" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="575" y="134" font-size="12" fill="#66BB6A" text-anchor="middle">GrpcClientSbb</text>
+  <rect x="535" y="122" width="144" height="44" rx="6" fill="white" stroke="#A5D6A7" stroke-width="1" filter="url(#shL)"/>
+  <text x="607" y="149" font-size="13" fill="#66BB6A" text-anchor="middle">GrpcClientSbb</text>
 
-  <rect x="660" y="110" width="130" height="40" rx="5" fill="white" stroke="#A5D6A7" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="725" y="134" font-size="12" fill="#66BB6A" text-anchor="middle">HttpServerSbb</text>
+  <rect x="695" y="122" width="144" height="44" rx="6" fill="white" stroke="#A5D6A7" stroke-width="1" filter="url(#shL)"/>
+  <text x="767" y="149" font-size="13" fill="#66BB6A" text-anchor="middle">HttpServerSbb</text>
 
-  <!-- App label top-right -->
-  <rect x="660" y="66" width="190" height="22" rx="3" fill="#43A047" opacity="0.15"/>
-  <text x="755" y="81" font-size="10" fill="#2E7D32" text-anchor="middle">@InjectRa → sendCommand()</text>
+  <!-- @InjectRa badge -->
+  <rect x="690" y="72" width="210" height="22" rx="3" fill="#43A047" opacity="0.12"/>
+  <text x="795" y="88" font-size="10" font-weight="600" fill="#2E7D32" text-anchor="middle">@InjectRa → sendCommand()</text>
 
-  <!-- Down arrows SBB → core -->
-  <line x1="125" y1="150" x2="125" y2="190" stroke="#FF6B35" stroke-width="2" marker-end="url(#arrowDown)"/>
-  <line x1="275" y1="150" x2="275" y2="190" stroke="#FF6B35" stroke-width="2" marker-end="url(#arrowDown)"/>
-  <line x1="425" y1="150" x2="425" y2="190" stroke="#FF6B35" stroke-width="2" marker-end="url(#arrowDown)"/>
-  <line x1="575" y1="150" x2="575" y2="190" stroke="#FF6B35" stroke-width="2" marker-end="url(#arrowDown)"/>
-  <line x1="725" y1="150" x2="725" y2="190" stroke="#FF6B35" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <!-- ============ ARROW ZONE: SBB → CORE ============ -->
+  <!-- down arrows -->
+  <line x1="127" y1="166" x2="127" y2="218" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="287" y1="166" x2="287" y2="218" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="447" y1="166" x2="447" y2="218" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="607" y1="166" x2="607" y2="218" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="767" y1="166" x2="767" y2="218" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
 
-  <!-- sendCommand label -->
-  <text x="430" y="175" font-size="9" fill="#E65100" text-anchor="middle">sendCommand() · sealed command hierarchy</text>
+  <!-- OUTBOUND label box -->
+  <rect x="310" y="180" width="280" height="30" rx="6" fill="#FFF8E1" stroke="#FFB74D" stroke-width="1"/>
+  <text x="450" y="200" font-size="12" font-weight="700" fill="#E65100" text-anchor="middle">▼ sendCommand() · Sealed Command Hierarchy</text>
 
-  <!-- =============  CORE LAYER  ============= -->
-  <rect x="35" y="195" width="830" height="150" rx="6" fill="url(#coreGrad)" stroke="#FF9800" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="55" y="218" font-size="13" font-weight="700" fill="#E65100">CORE RUNTIME — jainslee-core</text>
-  <text x="55" y="234" font-size="11" fill="#EF6C00">LMAX Disruptor ring buffer · Virtual Thread per entity · 55K events/sec</text>
+  <!-- ============ CORE LAYER ============ -->
+  <rect x="40" y="225" width="880" height="165" rx="8" fill="url(#core)" stroke="#FF9800" stroke-width="1.5" filter="url(#sh)"/>
 
-  <!-- Core internal boxes -->
-  <rect x="60" y="248" width="190" height="82" rx="5" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="155" y="268" font-size="12" font-weight="600" fill="#E65100" text-anchor="middle">EventRouter</text>
-  <text x="155" y="284" font-size="9" fill="#8D6E63" text-anchor="middle">LMAX Disruptor</text>
-  <text x="155" y="298" font-size="9" fill="#8D6E63" text-anchor="middle">mapEventToSbb lookup</text>
-  <text x="155" y="312" font-size="9" fill="#8D6E63" text-anchor="middle">RingBuffer 2048</text>
-  <text x="155" y="326" font-size="9" fill="#8D6E63" text-anchor="middle">6M events/sec burst</text>
+  <rect x="55" y="232" width="280" height="24" rx="4" fill="#FF9800" opacity="0.16"/>
+  <text x="70" y="249" font-size="13" font-weight="700" fill="#E65100">CORE RUNTIME — jainslee-core</text>
+  <text x="70" y="268" font-size="11" fill="#EF6C00">LMAX Disruptor RingBuffer · VirtualThread per entity · 55,000 events/sec · Lock-free</text>
 
-  <rect x="270" y="248" width="175" height="82" rx="5" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="357" y="268" font-size="12" font-weight="600" fill="#E65100" text-anchor="middle">EntityPool</text>
-  <text x="357" y="284" font-size="9" fill="#8D6E63" text-anchor="middle">VirtualThread per entity</text>
-  <text x="357" y="298" font-size="9" fill="#8D6E63" text-anchor="middle">Pool max 100,000</text>
-  <text x="357" y="312" font-size="9" fill="#8D6E63" text-anchor="middle">Lock-free per entity</text>
-  <text x="357" y="326" font-size="9" fill="#8D6E63" text-anchor="middle">Auto inject @InjectRa</text>
+  <!-- Core boxes -->
+  <rect x="55" y="282" width="205" height="96" rx="6" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shL)"/>
+  <text x="157" y="304" font-size="13" font-weight="700" fill="#E65100" text-anchor="middle">EventRouter</text>
+  <line x1="75" y1="310" x2="240" y2="310" stroke="#FFE0B2" stroke-width="1"/>
+  <text x="157" y="326" font-size="10" fill="#8D6E63" text-anchor="middle">LMAX Disruptor RingBuffer</text>
+  <text x="157" y="342" font-size="10" fill="#8D6E63" text-anchor="middle">mapEventToSbb lookup</text>
+  <text x="157" y="358" font-size="10" fill="#8D6E63" text-anchor="middle">Buffer size 2048</text>
+  <text x="157" y="374" font-size="10" fill="#8D6E63" text-anchor="middle">6M events/sec burst</text>
 
-  <rect x="465" y="248" width="185" height="82" rx="5" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="557" y="268" font-size="12" font-weight="600" fill="#E65100" text-anchor="middle">IES Dispatcher</text>
-  <text x="557" y="284" font-size="9" fill="#8D6E63" text-anchor="middle">Session convergence</text>
-  <text x="557" y="298" font-size="9" fill="#8D6E63" text-anchor="middle">@InitialEventSelect</text>
-  <text x="557" y="312" font-size="9" fill="#8D6E63" text-anchor="middle">Convergence key → entity</text>
-  <text x="557" y="326" font-size="9" fill="#8D6E63" text-anchor="middle">Same msisdn = same SBB</text>
+  <rect x="278" y="282" width="195" height="96" rx="6" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shL)"/>
+  <text x="375" y="304" font-size="13" font-weight="700" fill="#E65100" text-anchor="middle">EntityPool</text>
+  <line x1="298" y1="310" x2="453" y2="310" stroke="#FFE0B2" stroke-width="1"/>
+  <text x="375" y="326" font-size="10" fill="#8D6E63" text-anchor="middle">VirtualThread per entity</text>
+  <text x="375" y="342" font-size="10" fill="#8D6E63" text-anchor="middle">Pool max 100,000</text>
+  <text x="375" y="358" font-size="10" fill="#8D6E63" text-anchor="middle">Lock-free serial execution</text>
+  <text x="375" y="374" font-size="10" fill="#8D6E63" text-anchor="middle">Auto @InjectRa inject</text>
 
-  <rect x="670" y="248" width="170" height="82" rx="5" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="755" y="268" font-size="12" font-weight="600" fill="#E65100" text-anchor="middle">Facilities</text>
-  <text x="755" y="284" font-size="9" fill="#8D6E63" text-anchor="middle">HashedWheelTimer</text>
-  <text x="755" y="298" font-size="9" fill="#8D6E63" text-anchor="middle">ChildSbb cascade</text>
-  <text x="755" y="312" font-size="9" fill="#8D6E63" text-anchor="middle">JTA (Narayana)</text>
-  <text x="755" y="326" font-size="9" fill="#8D6E63" text-anchor="middle">ActivityContext</text>
+  <rect x="491" y="282" width="195" height="96" rx="6" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shL)"/>
+  <text x="588" y="304" font-size="13" font-weight="700" fill="#E65100" text-anchor="middle">IES Dispatcher</text>
+  <line x1="511" y1="310" x2="666" y2="310" stroke="#FFE0B2" stroke-width="1"/>
+  <text x="588" y="326" font-size="10" fill="#8D6E63" text-anchor="middle">Session convergence</text>
+  <text x="588" y="342" font-size="10" fill="#8D6E63" text-anchor="middle">@InitialEventSelect</text>
+  <text x="588" y="358" font-size="10" fill="#8D6E63" text-anchor="middle">Convergence key → entity</text>
+  <text x="588" y="374" font-size="10" fill="#8D6E63" text-anchor="middle">Same msisdn = same SBB</text>
 
-  <!-- Up arrows: Core → SBB (event delivery) -->
-  <line x1="155" y1="248" x2="155" y2="210" stroke="#1565C0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowUp)"/>
-  <line x1="357" y1="248" x2="357" y2="210" stroke="#1565C0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowUp)"/>
-  <text x="260" y="222" font-size="8" fill="#1565C0" text-anchor="middle">fireEvent() · VirtualThread</text>
+  <rect x="704" y="282" width="196" height="96" rx="6" fill="white" stroke="#FFB74D" stroke-width="1" filter="url(#shL)"/>
+  <text x="802" y="304" font-size="13" font-weight="700" fill="#E65100" text-anchor="middle">Facilities</text>
+  <line x1="724" y1="310" x2="880" y2="310" stroke="#FFE0B2" stroke-width="1"/>
+  <text x="802" y="326" font-size="10" fill="#8D6E63" text-anchor="middle">HashedWheelTimer</text>
+  <text x="802" y="342" font-size="10" fill="#8D6E63" text-anchor="middle">Child SBB cascade</text>
+  <text x="802" y="358" font-size="10" fill="#8D6E63" text-anchor="middle">JTA (Narayana)</text>
+  <text x="802" y="374" font-size="10" fill="#8D6E63" text-anchor="middle">ActivityContext</text>
 
-  <!-- Down arrows: RA → Network (fireEvent path) -->
-  <line x1="125" y1="345" x2="125" y2="390" stroke="#1565C0" stroke-width="2" marker-end="url(#arrowUp)"/>
-  <line x1="375" y1="345" x2="375" y2="390" stroke="#1565C0" stroke-width="2" marker-end="url(#arrowUp)"/>
-  <line x1="625" y1="345" x2="625" y2="390" stroke="#1565C0" stroke-width="2" marker-end="url(#arrowUp)"/>
-  <line x1="800" y1="345" x2="800" y2="390" stroke="#1565C0" stroke-width="2" marker-end="url(#arrowUp)"/>
-  <text x="470" y="378" font-size="9" fill="#1565C0" text-anchor="middle">bytes · parse · classify() · fireEvent(typed event, ACI)</text>
+  <!-- up arrows: core → SBB (event delivery) -->
+  <line x1="157" y1="282" x2="157" y2="238" stroke="#1565C0" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#aup)"/>
+  <line x1="375" y1="282" x2="375" y2="238" stroke="#1565C0" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#aup)"/>
 
-  <!-- =============  RA LAYER  ============= -->
-  <rect x="35" y="395" width="830" height="105" rx="6" fill="url(#raGrad)" stroke="#1E88E5" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="55" y="418" font-size="13" font-weight="700" fill="#1565C0">RESOURCE ADAPTOR LAYER — 3-Port Contract (RaEndpointPort + RaCommandPort + RaBootstrapPort)</text>
-  <text x="55" y="434" font-size="11" fill="#1976D2">Protocol bridge — never contains business logic</text>
+  <rect x="195" y="248" width="220" height="26" rx="5" fill="#E3F2FD" stroke="#90CAF9" stroke-width="1"/>
+  <text x="305" y="266" font-size="11" font-weight="700" fill="#1565C0" text-anchor="middle">▲ fireEvent() · VirtualThread delivers</text>
+
+  <!-- ============ ARROW ZONE: RA → CORE ============ -->
+  <line x1="127" y1="390" x2="127" y2="445" stroke="#1565C0" stroke-width="2.5" marker-end="url(#aup)"/>
+  <line x1="400" y1="390" x2="400" y2="445" stroke="#1565C0" stroke-width="2.5" marker-end="url(#aup)"/>
+  <line x1="680" y1="390" x2="680" y2="445" stroke="#1565C0" stroke-width="2.5" marker-end="url(#aup)"/>
+  <line x1="860" y1="390" x2="860" y2="445" stroke="#1565C0" stroke-width="2.5" marker-end="url(#aup)"/>
+
+  <rect x="280" y="405" width="420" height="30" rx="6" fill="#E3F2FD" stroke="#90CAF9" stroke-width="1"/>
+  <text x="490" y="425" font-size="12" font-weight="700" fill="#1565C0" text-anchor="middle">▲ Bytes → Parse → classify() → fireEvent(Typed Event, ACI)</text>
+
+  <!-- ============ RA LAYER ============ -->
+  <rect x="40" y="452" width="880" height="115" rx="8" fill="url(#ra)" stroke="#1E88E5" stroke-width="1.5" filter="url(#sh)"/>
+
+  <rect x="55" y="459" width="500" height="24" rx="4" fill="#1E88E5" opacity="0.14"/>
+  <text x="70" y="476" font-size="13" font-weight="700" fill="#1565C0">RESOURCE ADAPTOR LAYER — 3-Port Contract</text>
+  <text x="70" y="495" font-size="11" fill="#1976D2">RaEndpointPort + RaCommandPort + RaBootstrapPort · Protocol bridge · No business logic</text>
 
   <!-- RA boxes -->
-  <rect x="60" y="448" width="155" height="40" rx="5" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="137" y="466" font-size="11" font-weight="600" fill="#1565C0" text-anchor="middle">📡 ra-sip-servlet</text>
-  <text x="137" y="480" font-size="8" fill="#78909C" text-anchor="middle">UDP/TCP/TLS · DNS SRV · STUN/ICE</text>
+  <rect x="55" y="510" width="168" height="44" rx="6" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shL)"/>
+  <text x="139" y="529" font-size="12" font-weight="600" fill="#1565C0" text-anchor="middle">📡 ra-sip-servlet</text>
+  <text x="139" y="545" font-size="9" fill="#78909C" text-anchor="middle">UDP/TCP/TLS · DNS · STUN/ICE</text>
 
-  <rect x="230" y="448" width="155" height="40" rx="5" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="307" y="466" font-size="11" font-weight="600" fill="#1565C0" text-anchor="middle">🔗 ra-diameter</text>
-  <text x="307" y="480" font-size="8" fill="#78909C" text-anchor="middle">TCP/SCTP · JDiameter · Cx/Sh/Gx/Ro</text>
+  <rect x="240" y="510" width="168" height="44" rx="6" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shL)"/>
+  <text x="324" y="529" font-size="12" font-weight="600" fill="#1565C0" text-anchor="middle">🔗 ra-diameter</text>
+  <text x="324" y="545" font-size="9" fill="#78909C" text-anchor="middle">TCP/SCTP · Cx/Sh/Gx/Ro</text>
 
-  <rect x="400" y="448" width="155" height="40" rx="5" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="477" y="466" font-size="11" font-weight="600" fill="#1565C0" text-anchor="middle">🌐 ra-http-server</text>
-  <text x="477" y="480" font-size="8" fill="#78909C" text-anchor="middle">JDK HttpServer · HTTP/2</text>
+  <rect x="425" y="510" width="168" height="44" rx="6" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shL)"/>
+  <text x="509" y="529" font-size="12" font-weight="600" fill="#1565C0" text-anchor="middle">🌐 ra-http-server</text>
+  <text x="509" y="545" font-size="9" fill="#78909C" text-anchor="middle">JDK HttpServer · HTTP/2</text>
 
-  <rect x="570" y="448" width="135" height="40" rx="5" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="637" y="466" font-size="11" font-weight="600" fill="#1565C0" text-anchor="middle">⚙️ ra-grpc-client</text>
-  <text x="637" y="480" font-size="8" fill="#78909C" text-anchor="middle">io.grpc · Stub</text>
+  <rect x="610" y="510" width="148" height="44" rx="6" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shL)"/>
+  <text x="684" y="529" font-size="12" font-weight="600" fill="#1565C0" text-anchor="middle">⚙️ ra-grpc-client</text>
+  <text x="684" y="545" font-size="9" fill="#78909C" text-anchor="middle">io.grpc Stub</text>
 
-  <rect x="720" y="448" width="120" height="40" rx="5" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shadowLight)"/>
-  <text x="780" y="466" font-size="11" font-weight="600" fill="#1565C0" text-anchor="middle">🐪 ra-camel</text>
-  <text x="780" y="480" font-size="8" fill="#78909C" text-anchor="middle">Generic bridge</text>
+  <rect x="775" y="510" width="125" height="44" rx="6" fill="white" stroke="#42A5F5" stroke-width="1" filter="url(#shL)"/>
+  <text x="837" y="529" font-size="12" font-weight="600" fill="#1565C0" text-anchor="middle">🐪 ra-camel</text>
+  <text x="837" y="545" font-size="9" fill="#78909C" text-anchor="middle">Generic bridge</text>
 
-  <!-- Down arrows: RA → Network -->
-  <line x1="137" y1="488" x2="137" y2="522" stroke="#FF6B35" stroke-width="1.5" marker-end="url(#arrowDown)"/>
-  <line x1="307" y1="488" x2="307" y2="522" stroke="#FF6B35" stroke-width="1.5" marker-end="url(#arrowDown)"/>
-  <line x1="477" y1="488" x2="477" y2="522" stroke="#FF6B35" stroke-width="1.5" marker-end="url(#arrowDown)"/>
-  <line x1="637" y1="488" x2="637" y2="522" stroke="#FF6B35" stroke-width="1.5" marker-end="url(#arrowDown)"/>
-  <line x1="780" y1="488" x2="780" y2="522" stroke="#FF6B35" stroke-width="1.5" marker-end="url(#arrowDown)"/>
-  <text x="450" y="510" font-size="9" fill="#E65100" text-anchor="middle">sendCommand() · encode protocol · transport.send(bytes, peer)</text>
+  <!-- down arrows: RA → Adapter -->
+  <line x1="139" y1="554" x2="139" y2="598" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="324" y1="554" x2="324" y2="598" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="509" y1="554" x2="509" y2="598" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="684" y1="554" x2="684" y2="598" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <line x1="837" y1="554" x2="837" y2="598" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
 
-  <!-- =============  NETWORK LAYER  ============= -->
-  <rect x="35" y="527" width="830" height="65" rx="6" fill="url(#netGrad)" stroke="#8E24AA" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="55" y="550" font-size="13" font-weight="700" fill="#6A1B9A">NETWORK / ADAPTER LAYER</text>
-  <text x="55" y="566" font-size="11" fill="#7B1FA2">Quarkus CDI · Spring Boot · Embedded Java 25 · GraalVM Native (in progress)</text>
+  <rect x="280" y="569" width="420" height="30" rx="6" fill="#FFF8E1" stroke="#FFB74D" stroke-width="1"/>
+  <text x="490" y="589" font-size="12" font-weight="700" fill="#E65100" text-anchor="middle">▼ sendCommand() · Encode Protocol · Transport.send(bytes, peer)</text>
 
-  <!-- Adapter icons -->
-  <rect x="60" y="576" width="150" height="28" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
-  <text x="135" y="594" font-size="10" font-weight="600" fill="#6A1B9A" text-anchor="middle">☕ Quarkus (★ primary)</text>
+  <!-- ============ ADAPTER LAYER ============ -->
+  <rect x="40" y="605" width="880" height="72" rx="8" fill="url(#net)" stroke="#8E24AA" stroke-width="1.5" filter="url(#sh)"/>
 
-  <rect x="225" y="576" width="150" height="28" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
-  <text x="300" y="594" font-size="10" fill="#8E24AA" text-anchor="middle">🍃 Spring Boot</text>
+  <rect x="55" y="612" width="280" height="24" rx="4" fill="#8E24AA" opacity="0.12"/>
+  <text x="70" y="629" font-size="13" font-weight="700" fill="#6A1B9A">ADAPTER LAYER — Quarkus · Spring · Embedded · GraalVM</text>
 
-  <rect x="390" y="576" width="150" height="28" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
-  <text x="465" y="594" font-size="10" fill="#8E24AA" text-anchor="middle">⚡ Embedded J25</text>
+  <rect x="55" y="643" width="150" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
+  <text x="130" y="659" font-size="10" font-weight="700" fill="#6A1B9A" text-anchor="middle">☕ Quarkus ★</text>
 
-  <rect x="555" y="576" width="130" height="28" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
-  <text x="620" y="594" font-size="10" fill="#8E24AA" text-anchor="middle">📦 Jakarta EE</text>
+  <rect x="218" y="643" width="150" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
+  <text x="293" y="659" font-size="10" fill="#8E24AA" text-anchor="middle">🍃 Spring Boot</text>
 
-  <rect x="700" y="576" width="140" height="28" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
-  <text x="770" y="594" font-size="10" fill="#8E24AA" text-anchor="middle">🔥 GraalVM Native</text>
+  <rect x="381" y="643" width="150" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
+  <text x="456" y="659" font-size="10" fill="#8E24AA" text-anchor="middle">⚡ Embedded J25</text>
 
-  <!-- Legend -->
-  <line x1="55" y1="618" x2="80" y2="618" stroke="#FF6B35" stroke-width="2" marker-end="url(#arrowDown)"/>
-  <text x="88" y="622" font-size="9" fill="#78909C">outbound (SBB→RA→network)</text>
-  <line x1="250" y1="618" x2="275" y2="618" stroke="#1565C0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowUp)"/>
-  <text x="283" y="622" font-size="9" fill="#78909C">inbound (network→RA→SBB)</text>
+  <rect x="544" y="643" width="150" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
+  <text x="619" y="659" font-size="10" fill="#8E24AA" text-anchor="middle">📦 Jakarta EE</text>
+
+  <rect x="707" y="643" width="193" height="22" rx="4" fill="white" stroke="#CE93D8" stroke-width="0.8"/>
+  <text x="803" y="659" font-size="10" fill="#8E24AA" text-anchor="middle">🔥 GraalVM Native (in progress)</text>
+
+  <!-- ============ LEGEND ============ -->
+  <rect x="40" y="687" width="880" height="28" rx="6" fill="#ECEFF1" stroke="#CFD8DC" stroke-width="0.8"/>
+  <line x1="65" y1="701" x2="95" y2="701" stroke="#E65100" stroke-width="2.5" marker-end="url(#adn)"/>
+  <text x="105" y="706" font-size="11" font-weight="600" fill="#546E7A">Outbound: SBB → RA → Network</text>
+  <line x1="330" y1="701" x2="360" y2="701" stroke="#1565C0" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#aup)"/>
+  <text x="370" y="706" font-size="11" font-weight="600" fill="#546E7A">Inbound: Network → RA → SBB</text>
+  <text x="700" y="706" font-size="11" font-weight="600" fill="#FF6B35">micro-jainslee 1.2.0 · jainslee.nhanth87.com</text>
 </svg>
