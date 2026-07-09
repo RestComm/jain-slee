@@ -20,7 +20,7 @@
     </description>
 
     <properties>
-        <ss7.version>9.2.8</ss7.version>
+        <ss7.version>9.2.8-j25</ss7.version>
         <!-- local SCTP project (ethiopia-working-dir/sctp), bumped to Java 25 -->
         <sctp.version>2.0.14</sctp.version>
         <ss7.netty.version>4.2.11.Final</ss7.netty.version>
