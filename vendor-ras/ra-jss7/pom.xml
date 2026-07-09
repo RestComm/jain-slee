@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.microjainslee</groupId>
+        <artifactId>vendor-ras</artifactId>
+        <version>1.2.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>ra-jss7</artifactId>
+    <packaging>jar</packaging>
+    <name>micro-jainslee :: RA jSS7 (Generic)</name>
+    <description>
+        SS7 Resource Adaptor — bridges the RestComm jSS7 stack
+        (SCTP → M3UA → SCCP → TCAP → MAP/CAP/INAP) into the micro-jainslee
+        SLEE via the 3-port contract. Fires typed MAP/CAP events and generic
+        TCAP dialog events; INAP is carried as raw TCAP components (the jSS7
+        INAP module ships codecs/primitives only, no provider stack).
+    </description>
+
+    <properties>
+        <ss7.version>9.2.8</ss7.version>
+        <!-- local SCTP project (ethiopia-working-dir/sctp), bumped to Java 25 -->
+        <sctp.version>2.0.14</sctp.version>
+        <ss7.netty.version>4.2.11.Final</ss7.netty.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-ra-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <!-- ── RestComm jSS7 stack ───────────────────────────────── -->
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.sccp</groupId>
+            <artifactId>sccp-api</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.sccp</groupId>
+            <artifactId>sccp-impl</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.sccp</groupId>
+            <artifactId>sccp-api-ext</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.sccp</groupId>
+            <artifactId>sccp-impl-ext</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.m3ua</groupId>
+            <artifactId>m3ua-api</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.m3ua</groupId>
+            <artifactId>m3ua-impl</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.tcap</groupId>
+            <artifactId>tcap-api</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.tcap</groupId>
+            <artifactId>tcap-impl</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.map</groupId>
+            <artifactId>map-api</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.map</groupId>
+            <artifactId>map-impl</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.cap</groupId>
+            <artifactId>cap-api</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.cap</groupId>
+            <artifactId>cap-impl</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.inap</groupId>
+            <artifactId>inap-api</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.protocols.ss7.inap</groupId>
+            <artifactId>inap-impl</artifactId>
+            <version>${ss7.version}</version>
+        </dependency>
+
+        <!-- ── SCTP transport (Netty) ────────────────────────────── -->
+        <dependency>
+            <groupId>org.mobicents.protocols.sctp</groupId>
+            <artifactId>sctp-api</artifactId>
+            <version>${sctp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.protocols.sctp</groupId>
+            <artifactId>sctp-impl</artifactId>
+            <version>${sctp.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+
