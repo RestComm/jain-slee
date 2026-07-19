@@ -14,7 +14,6 @@
 
 package org.restcomm.protocols.ss7.scheduler.impl;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.protocols.ss7.scheduler.api.TimerCallback;
@@ -28,35 +27,54 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Local {@link TimerScheduler} implementation backed by {@link HashedWheelTimerFacade}.
+ * Local {@link TimerScheduler} implementation backed by {@link AgronaTimerWheelFacade}.
+ *
+ * <p>Also provides constructors accepting the legacy
+ * {@link HashedWheelTimerFacade} for projects that still ship the Netty
+ * hashed-wheel timer on their classpath.
  */
 public class LocalTimerAdapter implements TimerScheduler {
 
     private static final Logger logger = LogManager.getLogger(LocalTimerAdapter.class);
 
-    private HashedWheelTimerFacade wheelTimer;
+    private final Object wheelTimer;
+    private final boolean agronaMode;
     private final String threadNamePrefix;
     private final ConcurrentHashMap<Long, LocalTimerHandle> timersById = new ConcurrentHashMap<Long, LocalTimerHandle>();
     private final ConcurrentHashMap<Long, ConcurrentHashMap<Long, LocalTimerHandle>> timersByDialogId =
             new ConcurrentHashMap<Long, ConcurrentHashMap<Long, LocalTimerHandle>>();
     private volatile boolean started;
 
+    // ── Agrona constructors (preferred) ─────────────────────────────────
+
     public LocalTimerAdapter() {
-        this(null, new HashedWheelTimerFacade());
+        this(null, new AgronaTimerWheelFacade());
     }
 
     public LocalTimerAdapter(String threadNamePrefix) {
-        this(threadNamePrefix, new HashedWheelTimerFacade(
-                new DefaultThreadFactory(threadNamePrefix), 10L, TimeUnit.MILLISECONDS));
+        this(threadNamePrefix, new AgronaTimerWheelFacade());
     }
+
+    public LocalTimerAdapter(AgronaTimerWheelFacade wheelTimer) {
+        this(null, wheelTimer);
+    }
+
+    // ── HashedWheelTimerFacade constructors (backward compat) ───────────
 
     public LocalTimerAdapter(HashedWheelTimerFacade wheelTimer) {
         this(null, wheelTimer);
     }
 
-    private LocalTimerAdapter(String threadNamePrefix, HashedWheelTimerFacade wheelTimer) {
+    LocalTimerAdapter(String threadNamePrefix, HashedWheelTimerFacade wheelTimer) {
         this.threadNamePrefix = threadNamePrefix;
         this.wheelTimer = wheelTimer;
+        this.agronaMode = false;
+    }
+
+    private LocalTimerAdapter(String threadNamePrefix, AgronaTimerWheelFacade wheelTimer) {
+        this.threadNamePrefix = threadNamePrefix;
+        this.wheelTimer = wheelTimer;
+        this.agronaMode = true;
     }
 
     @Override
@@ -69,7 +87,7 @@ public class LocalTimerAdapter implements TimerScheduler {
         timersById.put(record.getTimerId(), handle);
         registerDialogTimer(record.getDialogId(), record.getTimerId(), handle);
 
-        handle.setTimeout(wheelTimer.schedule(new Runnable() {
+        Runnable fireTask = new Runnable() {
             @Override
             public void run() {
                 if (handle.markFired()) {
@@ -82,7 +100,18 @@ public class LocalTimerAdapter implements TimerScheduler {
                     }
                 }
             }
-        }, delayMillis, TimeUnit.MILLISECONDS));
+        };
+
+        Runnable cancelAction;
+        if (agronaMode) {
+            cancelAction = ((AgronaTimerWheelFacade) wheelTimer).schedule(
+                    fireTask, delayMillis, TimeUnit.MILLISECONDS);
+        } else {
+            io.netty.util.Timeout timeout = ((HashedWheelTimerFacade) wheelTimer).schedule(
+                    fireTask, delayMillis, TimeUnit.MILLISECONDS);
+            cancelAction = () -> timeout.cancel();
+        }
+        handle.setCancelAction(cancelAction);
 
         return handle;
     }
@@ -116,9 +145,13 @@ public class LocalTimerAdapter implements TimerScheduler {
             return;
         }
         if (wheelTimer == null) {
-            wheelTimer = createWheel();
+            throw new IllegalStateException("No timer wheel configured");
         }
-        wheelTimer.start();
+        if (agronaMode) {
+            ((AgronaTimerWheelFacade) wheelTimer).start();
+        } else {
+            ((HashedWheelTimerFacade) wheelTimer).start();
+        }
         started = true;
     }
 
@@ -128,22 +161,17 @@ public class LocalTimerAdapter implements TimerScheduler {
             return;
         }
         started = false;
-        wheelTimer.stop();
-        wheelTimer = null;
+        if (agronaMode) {
+            ((AgronaTimerWheelFacade) wheelTimer).stop();
+        } else {
+            ((HashedWheelTimerFacade) wheelTimer).stop();
+        }
         timersById.clear();
         timersByDialogId.clear();
     }
 
     public boolean isStarted() {
         return started;
-    }
-
-    private HashedWheelTimerFacade createWheel() {
-        if (threadNamePrefix != null) {
-            return new HashedWheelTimerFacade(
-                    new DefaultThreadFactory(threadNamePrefix), 10L, TimeUnit.MILLISECONDS);
-        }
-        return new HashedWheelTimerFacade();
     }
 
     private void registerDialogTimer(long dialogId, long timerId, LocalTimerHandle handle) {

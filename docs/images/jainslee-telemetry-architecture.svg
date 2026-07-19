@@ -50,9 +50,9 @@
 
   <!-- ======= BOTTOM SECTION ======= -->
 
-  <!-- jainslee-telemetry-vertx box (Gray) -->
+  <!-- jainslee-monitor box (Gray) -->
   <rect x="270" y="340" width="510" height="62" rx="5" fill="#ECEFF1" stroke="#78909C" stroke-width="1.8"/>
-  <text x="286" y="361" class="title" fill="#37474F">jainslee-telemetry-vertx (GUI — separate module)</text>
+  <text x="286" y="361" class="title" fill="#37474F">jainslee-monitor (GUI — separate module)</text>
   <line x1="280" y1="367" x2="770" y2="367" stroke="#B0BEC5" stroke-width="1"/>
   <text x="298" y="383" class="body" fill="#455A64">GET /telemetry/     → index.html (steampunk dashboard)</text>
   <text x="298" y="397" class="body" fill="#455A64">GET /api/telemetry/ → JSON endpoints</text>

@@ -24,9 +24,12 @@ import java.util.Optional;
  * <p>Resolved at build time by the Quarkus deployment module and consumed by
  * {@link MicroJainsleeProcessor} when scheduling the recorder and synthetic beans.</p>
  *
- * <p>All keys are under the {@code microjainslee.*} prefix, e.g. {@code microjainslee.buffer-size=2048}.</p>
+ * <p>All keys are under the {@code microjainslee.container.*} prefix, e.g.
+ * {@code microjainslee.container.buffer-size=2048}. App-level keys
+ * ({@code microjainslee.ai.*}, {@code microjainslee.telemetry.*}, …) stay outside
+ * this mapping so SmallRye does not reject them as unknown.</p>
  */
-@ConfigMapping(prefix = "microjainslee")
+@ConfigMapping(prefix = "microjainslee.container")
 @ConfigRoot(phase = ConfigPhase.BUILD_TIME)
 public interface MicroJainsleeBuildConfig {
 
@@ -66,10 +69,16 @@ public interface MicroJainsleeBuildConfig {
     @WithDefault("true")
     boolean sbbPerVirtualThread();
 
+    /**
+     * Minimum idle SBB instances kept per SBB type in the type-scoped pool.
+     */
     @WithName("sbb-type-pool-min-idle")
     @WithDefault("0")
     int sbbTypePoolMinIdle();
 
+    /**
+     * Event delivery mode for the EventRouter ({@code sync}, {@code async}, …).
+     */
     @WithName("event-delivery")
     @WithDefault("sync")
     String eventDelivery();
@@ -82,12 +91,13 @@ public interface MicroJainsleeBuildConfig {
     boolean registerSbbTypes();
 
     /**
-     * Whether the deployment processor should scan for {@code @Sbb}-annotated classes and
-     * register synthetic beans for them. Disable for very large code bases where scanning
-     * is too expensive.
+     * Whether to register CDI synthetic beans for {@code @SbbAnnotation} classes.
+     * Default {@code false}: most apps register SBB types on {@code MicroSleeContainer}
+     * with a supplier (constructor collaborators). Enabling this only works for
+     * concrete SBBs with a public no-arg constructor.
      */
     @WithName("deployment.scan.enabled")
-    @WithDefault("true")
+    @WithDefault("false")
     boolean scanEnabled();
 
     /**
@@ -137,9 +147,8 @@ public interface MicroJainsleeBuildConfig {
 
     /**
      * Directory for MMAP off-heap arenas when {@code @OffHeap.filePath}
-     * is empty. Empty → {@code $java.io.tmpdir/slee-offheap}.
+     * is empty. Absent/empty → {@code $java.io.tmpdir/slee-offheap}.
      */
     @WithName("offheap-storage-dir")
-    @WithDefault("")
-    String offHeapStorageDir();
+    Optional<String> offHeapStorageDir();
 }

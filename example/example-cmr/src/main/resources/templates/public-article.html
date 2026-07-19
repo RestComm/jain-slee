@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}} — {{siteName}}</title>
+<style>
+  :root { --ink:#1d1d1f; --muted:#6b6b70; --line:#e6e3dd; --bg:#faf9f7; --accent:#c8102e; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:18px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  a { color:var(--accent); text-decoration:none; }
+  .topbar { border-bottom:1px solid var(--line); }
+  .topbar .wrap { max-width:760px; margin:0 auto; padding:16px 20px; display:flex;
+         justify-content:space-between; align-items:center; }
+  .brand { font:700 20px/1 Georgia,serif; color:var(--ink); }
+  article { max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+  .kicker { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+         color:var(--accent); }
+  h1 { font:700 40px/1.15 Georgia,serif; letter-spacing:-.5px; margin:10px 0 12px; }
+  .meta { color:var(--muted); font-size:14px; margin-bottom:28px; }
+  .cover { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; margin-bottom:32px; }
+  .content { font-size:18px; }
+  .content h2 { font:600 28px/1.3 Georgia,serif; margin:36px 0 12px; }
+  .content h3 { font:600 22px/1.3 Georgia,serif; margin:28px 0 10px; }
+  .content img { max-width:100%; border-radius:10px; }
+  .content pre { background:#1d1d1f; color:#f4f4f4; padding:16px; border-radius:10px;
+         overflow-x:auto; font-size:14px; }
+  .content code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .content blockquote { border-left:4px solid var(--accent); margin:20px 0; padding:4px 20px;
+         color:var(--muted); }
+  .back { display:inline-block; margin-top:40px; font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="topbar"><div class="wrap">
+    <a class="brand" href="/">{{siteName}}</a>
+    <a href="/category/{{categorySlug}}">{{categoryName}}</a>
+  </div></div>
+  <article>
+    <div class="kicker">{{categoryName}}</div>
+    <h1>{{title}}</h1>
+    <div class="meta">{{author}} · {{date}}{{tagsSuffix}}</div>
+    {{{cover}}}
+    <div class="content">{{{body}}}</div>
+    <a class="back" href="/">← Về trang chủ</a>
+  </article>
+</body>
+</html>

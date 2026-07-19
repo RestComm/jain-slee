@@ -14,7 +14,7 @@
     <description>
         Slim vendored copy of jSS7 TimerScheduler (api + impl only).
         Omits legacy protocol task queue and Infinispan HA adapters —
-        micro-jainslee uses LocalTimerAdapter (Netty HashedWheelTimer).
+        micro-jainslee uses LocalTimerAdapter (Agrona DeadlineTimerWheel).
     </description>
 
     <properties>
@@ -25,9 +25,15 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.agrona</groupId>
+            <artifactId>agrona</artifactId>
+            <version>1.21.1</version>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
             <version>${netty.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

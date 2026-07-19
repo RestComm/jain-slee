@@ -37,7 +37,7 @@
         <junit.version>4.13.2</junit.version>
 
         <!-- Structured JSON logging (P1.3) -->
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>2.24.3</log4j.version>
     </properties>
 
     <!-- ============================================================ -->

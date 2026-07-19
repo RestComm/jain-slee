@@ -1,38 +1,53 @@
 package com.example.helloworld.quarkus.sbbs;
 
-import com.example.helloworld.quarkus.bootstrap.HelloWorldContext;
+import com.example.helloworld.quarkus.http.HttpReply;
+import com.example.helloworld.quarkus.http.MonitorHandler;
+
 import com.microjainslee.api.ActivityContextInterface;
 import com.microjainslee.api.RaCommandPort;
-import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.SbbLocalObject;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.SleeEventHandler;
 import com.microjainslee.api.annotations.InjectRa;
-import com.microjainslee.core.MicroSleeContainer;
+import com.microjainslee.ra.httpserver.command.HttpServerCommand;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Minimal SBB that handles HTTP web requests from ra-http-server.
- * Returns a "Hello World" message through the RA command port.
+ * The single HTTP gateway SBB for the HelloWorld template. {@code ra-http-server}
+ * fires one event type ({@link HttpWebRequestEvent}) for every request, and
+ * {@code mapEventToSbb} keys on the event class, so exactly one SBB owns ingress
+ * and dispatches by path:
+ *
+ * <ol>
+ *   <li>{@link MonitorHandler} first — the observability surface
+ *       ({@code /telemetry}, {@code /api/telemetry/*}); it returns empty for
+ *       paths it doesn't own;</li>
+ *   <li>otherwise the app's own "Hello World" response.</li>
+ * </ol>
+ *
+ * <p>The computed {@link HttpReply} is written back through the injected
+ * {@code ra-http-server} command port as an {@code HttpResponseExCommand}. No
+ * Vert.x, no second HTTP server — the whole app lives behind the RA contract.
+ * This is the reference template every micro-jainslee app should copy.</p>
  */
 public final class HelloWorldSbb implements Sbb, SleeEventHandler {
 
     private static final Logger LOG = LogManager.getLogger(HelloWorldSbb.class);
 
-    private final MicroSleeContainer container;
-    private final HelloWorldContext context;
+    private final MonitorHandler monitor;   // nullable — telemetry may be disabled
+
+    /** Injected by the container at activation; matches {@code RaEndpointPort.getRaName()}. */
+    @InjectRa(name = "http-server-ra")
+    private volatile RaCommandPort http;
+
     private volatile SbbLocalObject self;
 
-    /** Injected by container at activation time. Must match {@code RaEndpointPort.getRaName()}. */
-    @InjectRa(name = "http-server-ra")
-    private volatile RaCommandPort httpCommandPort;
-
-    public HelloWorldSbb(MicroSleeContainer container, HelloWorldContext context) {
-        this.container = container;
-        this.context = context;
+    public HelloWorldSbb(MonitorHandler monitor) {
+        this.monitor = monitor;
     }
 
     public void bindSelf(SbbLocalObject self) {
@@ -40,38 +55,49 @@ public final class HelloWorldSbb implements Sbb, SleeEventHandler {
     }
 
     @Override
-    public void sbbCreate() {
-        LOG.debug("HelloWorldSbb created");
-    }
+    public void sbbCreate() { }
 
     @Override
-    public void sbbActivate() {
-        LOG.debug("HelloWorldSbb activated");
-    }
+    public void sbbActivate() { }
 
     @Override
-    public void sbbPassivate() {
-    }
+    public void sbbPassivate() { }
 
     @Override
-    public void sbbRemove() {
-    }
+    public void sbbRemove() { }
 
     @Override
     public void onEvent(SleeEvent event, ActivityContextInterface aci) {
-        if (event instanceof HttpWebRequestEvent req) {
-            onWebRequest(req, aci);
+        if (!(event instanceof HttpWebRequestEvent req)) {
+            return;
         }
+        HttpReply reply;
+        try {
+            reply = dispatch(req);
+        } catch (RuntimeException ex) {
+            LOG.error("[gateway] handler failed for {} {}", req.getMethod(), req.getPath(), ex);
+            reply = HttpReply.html(500, "Internal error");
+        }
+        RaCommandPort port = this.http;
+        if (port == null) {
+            LOG.warn("[gateway] no command port injected — dropping response for {}", req.getPath());
+            return;
+        }
+        port.sendCommand(new HttpServerCommand.HttpResponseExCommand(
+                req.getSessionId(), reply.status(), reply.contentType(),
+                reply.text(), reply.binary(), reply.headers()));
     }
 
-    private void onWebRequest(HttpWebRequestEvent event, ActivityContextInterface aci) {
-        LOG.info("[HelloWorld] web request session={} {} {}",
-                event.getSessionId(), event.getMethod(), event.getPath());
+    private HttpReply dispatch(HttpWebRequestEvent req) {
+        if (monitor != null) {
+            return monitor.handle(req).orElseGet(() -> hello(req));
+        }
+        return hello(req);
+    }
 
-        String userAgent = event.getUserAgent() != null ? event.getUserAgent() : "unknown";
-        LOG.info("[HelloWorld] Hello World {}", userAgent);
-
-        // Complete the session through the context bridge
-        context.completeSession(event.getSessionId(), "Hello World " + userAgent);
+    private HttpReply hello(HttpWebRequestEvent req) {
+        String userAgent = req.getUserAgent() != null ? req.getUserAgent() : "unknown";
+        LOG.info("[HelloWorld] {} {} — Hello World {}", req.getMethod(), req.getPath(), userAgent);
+        return HttpReply.html("hello team, running on Quarkus - nhân");
     }
 }

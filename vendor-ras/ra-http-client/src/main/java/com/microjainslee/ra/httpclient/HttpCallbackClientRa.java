@@ -16,38 +16,39 @@ import com.microjainslee.ra.httpclient.collab.HttpClientSessionStore;
 import com.microjainslee.ra.httpclient.events.HttpCallbackCompletedEvent;
 import com.microjainslee.ra.spi.AbstractResourceAdaptor;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Outbound HTTP callback RA on <b>java.net.http.HttpClient</b> (Java 11+)
- * — non-blocking sends, GraalVM-native ready, zero third-party HTTP
- * dependencies.
+ * Outbound HTTP callback RA on <b>Vert.x {@link WebClient}</b> — non-blocking
+ * sends over a pooled, keep-alive connection manager, the same engine
+ * {@code quarkus-rest-client-reactive} uses. Exposes the full Vert.x client
+ * surface: connect/request timeouts, connection pool size, keep-alive,
+ * redirect following and TLS trust.
  *
- * <p>Delivery policy: POST JSON, up to {@link #setMaxRetries(int)} retries
- * with exponential backoff for connect errors and 5xx responses. 4xx is
- * treated as a permanent receiver error (no retry).
+ * <p>Delivery policy: POST JSON, up to {@link #setMaxRetries(int)} retries with
+ * exponential backoff (scheduled on the Vert.x event loop via
+ * {@code setTimer}) for connect errors and 5xx responses. 4xx is a permanent
+ * receiver error (no retry).</p>
  *
  * <p>On every terminal outcome the RA completes the
  * {@link HttpClientSessionStore} entry and fires an
- * {@link HttpCallbackCompletedEvent} so SBBs can react.
+ * {@link HttpCallbackCompletedEvent} so SBBs can react.</p>
  */
 public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
 
     private static final Logger LOG = LogManager.getLogger(HttpCallbackClientRa.class);
 
-    private HttpClient httpClient;
-    private ScheduledExecutorService scheduler;
+    private Vertx vertx;
+    private WebClient webClient;
     private HttpClientSessionStore sessionStore;
     private RaBootstrapPort bootstrapPort;
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -56,6 +57,10 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
     private int requestTimeoutMs = 15_000;
     private int maxRetries = 2;
     private long retryBackoffMs = 500;
+    private int maxPoolSize = 20;
+    private boolean keepAlive = true;
+    private boolean followRedirects = true;
+    private boolean trustAll = false;
 
     // -- configuration setters ------------------------------------------
 
@@ -63,6 +68,11 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
     public void setRequestTimeoutMs(int ms) { this.requestTimeoutMs = ms; }
     public void setMaxRetries(int n) { this.maxRetries = Math.max(0, n); }
     public void setRetryBackoffMs(long ms) { this.retryBackoffMs = ms; }
+    public void setMaxPoolSize(int n) { this.maxPoolSize = Math.max(1, n); }
+    public void setKeepAlive(boolean keepAlive) { this.keepAlive = keepAlive; }
+    public void setFollowRedirects(boolean follow) { this.followRedirects = follow; }
+    /** Trust all TLS certificates (dev only). */
+    public void setTrustAll(boolean trustAll) { this.trustAll = trustAll; }
 
     public void setSessionStore(HttpClientSessionStore store) { this.sessionStore = store; }
     public void setBootstrapPort(RaBootstrapPort port) { this.bootstrapPort = port; }
@@ -71,18 +81,21 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
 
     @Override
     public void raConfigure() {
-        httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(connectTimeoutMs))
-                .build();
-        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "ra-http-callback-retry");
-            t.setDaemon(true);
-            return t;
-        });
+        vertx = Vertx.vertx();
+        WebClientOptions options = new WebClientOptions()
+                .setConnectTimeout(connectTimeoutMs)
+                .setMaxPoolSize(maxPoolSize)
+                .setKeepAlive(keepAlive)
+                .setFollowRedirects(followRedirects)
+                .setTrustAll(trustAll)
+                .setVerifyHost(!trustAll)
+                .setTcpNoDelay(true);
+        webClient = WebClient.create(vertx, options);
         if (sessionStore == null) {
             sessionStore = new HttpClientSessionStore.InMemoryHttpClientSessionStore();
         }
-        LOG.info("HTTP callback client RA configured (java.net.http.HttpClient, retries={})", maxRetries);
+        LOG.info("HTTP callback client RA configured (Vert.x WebClient, pool={}, retries={})",
+                maxPoolSize, maxRetries);
     }
 
     @Override
@@ -105,11 +118,14 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
     @Override
     public void raUnconfigure() {
         active.set(false);
-        if (scheduler != null) {
-            scheduler.shutdownNow();
-            scheduler = null;
+        if (webClient != null) {
+            webClient.close();
+            webClient = null;
         }
-        httpClient = null;
+        if (vertx != null) {
+            vertx.close();
+            vertx = null;
+        }
         super.raUnconfigure();
     }
 
@@ -128,9 +144,16 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
             LOG.warn("HTTP callback RA not active — callback for session {} dropped", sessionId);
             return;
         }
-        HttpClient client = this.httpClient;
+        WebClient client = this.webClient;
         if (client == null) {
             LOG.warn("HTTP callback RA not configured — callback for session {} dropped", sessionId);
+            return;
+        }
+        try {
+            URI.create(callbackUrl); // fail fast on malformed URL
+        } catch (IllegalArgumentException e) {
+            LOG.warn("HTTP callback RA: invalid URL '{}' for session {}", callbackUrl, sessionId, e);
+            completeWithError(sessionId, 0, "Invalid URL: " + e.getMessage());
             return;
         }
 
@@ -140,25 +163,15 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
         attemptSend(client, sessionId, callbackUrl, json, 0);
     }
 
-    private void attemptSend(HttpClient client, String sessionId, String callbackUrl,
+    private void attemptSend(WebClient client, String sessionId, String callbackUrl,
                              String json, int attempt) {
-        HttpRequest request;
-        try {
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create(callbackUrl))
-                    .timeout(Duration.ofMillis(requestTimeoutMs))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-        } catch (IllegalArgumentException e) {
-            LOG.warn("HTTP callback RA: invalid URL '{}' for session {}", callbackUrl, sessionId, e);
-            completeWithError(sessionId, 0, "Invalid URL: " + e.getMessage());
-            return;
-        }
-
-        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenAccept(res -> {
+        client.postAbs(callbackUrl)
+                .timeout(requestTimeoutMs)
+                .putHeader("Content-Type", "application/json")
+                .sendBuffer(Buffer.buffer(json))
+                .onSuccess(res -> {
                     int status = res.statusCode();
+                    String body = res.bodyAsString();
                     if (status < 500) {
                         if (status >= 400) {
                             LOG.warn("HTTP callback RA: POST {} -> {} for session {} "
@@ -168,22 +181,19 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
                             LOG.info("HTTP callback RA: POST {} -> {} for session {}",
                                     callbackUrl, status, sessionId);
                         }
-                        completeWithSuccess(sessionId, status, res.body());
+                        completeWithSuccess(sessionId, status, body);
                         return;
                     }
                     retryOrGiveUp(client, sessionId, callbackUrl, json, attempt,
-                            "HTTP " + status, status, res.body());
+                            "HTTP " + status, status);
                 })
-                .exceptionally(ex -> {
-                    retryOrGiveUp(client, sessionId, callbackUrl, json, attempt,
-                            ex.getMessage(), 0, null);
-                    return null;
-                });
+                .onFailure(ex ->
+                        retryOrGiveUp(client, sessionId, callbackUrl, json, attempt,
+                                ex.getMessage(), 0));
     }
 
-    private void retryOrGiveUp(HttpClient client, String sessionId, String callbackUrl,
-                               String json, int attempt, String reason,
-                               int lastStatus, String lastBody) {
+    private void retryOrGiveUp(WebClient client, String sessionId, String callbackUrl,
+                               String json, int attempt, String reason, int lastStatus) {
         if (attempt >= maxRetries || !active.get()) {
             LOG.warn("HTTP callback RA: giving up after {} attempt(s) for session {} to {} ({})",
                     attempt + 1, sessionId, callbackUrl, reason);
@@ -194,10 +204,10 @@ public final class HttpCallbackClientRa extends AbstractResourceAdaptor {
         long delay = retryBackoffMs * (1L << attempt); // 500, 1000, 2000, ...
         LOG.info("HTTP callback RA: retry {}/{} in {}ms for session {} ({})",
                 attempt + 1, maxRetries, delay, sessionId, reason);
-        ScheduledExecutorService s = this.scheduler;
-        if (s != null && !s.isShutdown()) {
-            s.schedule(() -> attemptSend(client, sessionId, callbackUrl, json, attempt + 1),
-                    delay, TimeUnit.MILLISECONDS);
+        Vertx v = this.vertx;
+        if (v != null && active.get()) {
+            v.setTimer(delay, id ->
+                    attemptSend(client, sessionId, callbackUrl, json, attempt + 1));
         }
     }
 

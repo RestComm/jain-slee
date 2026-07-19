@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · {{siteName}} Admin</title>
+<style>
+  :root { --ink:#0f1020; --muted:#8a8aa0; --line:#e4e4ee; --bg:#f5f5fa; --accent:#6d5efc; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:#1a1a2e;
+         font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  a { color:var(--accent); text-decoration:none; }
+  header { background:#12132a; color:#fff; }
+  header .wrap { max-width:1100px; margin:0 auto; padding:16px 24px; display:flex;
+         align-items:center; justify-content:space-between; }
+  .logo { font:700 20px/1 Georgia,serif; } .logo span { color:#8f83ff; }
+  header nav a { color:#c9c9de; margin-left:20px; font-size:14px; font-weight:600; }
+  header nav a:hover { color:#fff; }
+  main { max-width:1100px; margin:0 auto; padding:28px 24px 70px; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px;
+         margin-bottom:30px; }
+  .tile { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+  .tile .n { font:700 30px/1 Georgia,serif; }
+  .tile .l { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em;
+         margin-top:6px; }
+  .bar { display:flex; align-items:center; justify-content:space-between; margin:8px 0 14px; }
+  .bar h2 { font-size:18px; margin:0; }
+  .btn { background:var(--accent); color:#fff; padding:9px 16px; border-radius:9px;
+         font-weight:600; font-size:14px; display:inline-block; }
+  .btn.ghost { background:#fff; color:var(--accent); border:1px solid var(--accent); }
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line);
+         border-radius:14px; overflow:hidden; }
+  th,td { text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); font-size:14px; }
+  th { background:#fafafe; color:var(--muted); font-size:12px; text-transform:uppercase;
+         letter-spacing:.05em; }
+  tr:last-child td { border-bottom:none; }
+  .pill { font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; }
+  .pill.PUBLISHED { background:#e5f8ee; color:#137a48; }
+  .pill.DRAFT { background:#f0f0f5; color:#6b6b80; }
+  .pill.SCHEDULED { background:#fff2dd; color:#9a6400; }
+  .pill.ARCHIVED { background:#f5e6e6; color:#8a3a3a; }
+  .upload { background:#fff; border:1px dashed #b9b4f0; border-radius:14px; padding:18px 20px;
+         margin-top:26px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .upload input[type=file] { font-size:14px; }
+</style>
+</head>
+<body>
+  <header><div class="wrap">
+    <div class="logo">{{siteName}}<span>.</span> Admin</div>
+    <nav>
+      <a href="/">↗ Xem site</a>
+      <a href="/admin/article/new">+ Bài mới</a>
+      <a href="http://localhost:8090/telemetry" target="_blank">Telemetry</a>
+      <a href="/admin/logout">Đăng xuất</a>
+    </nav>
+  </div></header>
+  <main>
+    <div class="tiles">{{{tiles}}}</div>
+    <div class="bar">
+      <h2>Bài viết</h2>
+      <a class="btn" href="/admin/article/new">+ Tạo bài mới</a>
+    </div>
+    <table>
+      <thead><tr><th>Tiêu đề</th><th>Chuyên mục</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead>
+      <tbody>{{{rows}}}</tbody>
+    </table>
+    <form class="upload" method="post" action="/admin/upload-md" enctype="multipart/form-data">
+      <strong>Upload Markdown</strong>
+      <span style="color:#8a8aa0;font-size:13px">— .md có YAML front-matter (title, category, tags) → tự tạo bài</span>
+      <input type="file" name="file" accept=".md,.markdown" required>
+      <button class="btn" type="submit">Tải lên &amp; xuất bản</button>
+    </form>
+  </main>
+</body>
+</html>

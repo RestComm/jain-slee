@@ -14,13 +14,13 @@ import com.microjainslee.api.RaCommandPort;
 import com.microjainslee.api.RaEndpointPort;
 import com.microjainslee.api.SleeEvent;
 import com.microjainslee.api.TimerPort;
+import com.microjainslee.core.EventDeliveryMode;
 import com.microjainslee.core.EventRouter;
 import com.microjainslee.core.MicroSleeConfiguration;
 import com.microjainslee.core.MicroSleeContainer;
 import io.quarkus.runtime.RuntimeValue;
+import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Quarkus build-time augmentation recorder for the embedded micro JAIN-SLEE container.
@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 @Recorder
 public class MicroJainsleeRecorder {
 
-    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager.getLogger(MicroJainsleeRecorder.class);
+    private static final org.jboss.logging.Logger LOG = org.jboss.logging.Logger.getLogger(MicroJainsleeRecorder.class);
 
     private static volatile MicroSleeContainer container;
     private static volatile EventRouter eventRouter;
@@ -40,22 +40,37 @@ public class MicroJainsleeRecorder {
     private static volatile com.microjainslee.core.MicroSleeContainer.AcnfBackend acnf;
 
     /**
-     * Build a fresh {@link MicroSleeContainer} using the supplied configuration and stash
-     * it in the static holder for the runtime CDI producer. Called at static-init.
-     *
-     * @param config immutable micro-container configuration resolved at build time
-     * @return runtime handle to the new container
+     * Build a fresh {@link MicroSleeContainer} from primitive build-time settings and stash
+     * it in the static holder. Primitives (not {@link MicroSleeConfiguration}) are passed so
+     * the Quarkus bytecode recorder can serialise the call — the config class has read-only
+     * fields that the recorder cannot reconstruct.
      */
-    public RuntimeValue<MicroSleeContainer> createContainer(MicroSleeConfiguration config) {
-        if (config == null) {
-            config = MicroSleeConfiguration.defaults();
-        }
+    public RuntimeValue<MicroSleeContainer> createContainer(int bufferSize,
+                                                            boolean preferVirtualThreads,
+                                                            int sbbPoolMin,
+                                                            int sbbPoolMax,
+                                                            boolean sbbPerVirtualThread,
+                                                            int sbbTypePoolMinIdle,
+                                                            String eventDelivery,
+                                                            boolean offHeapEnabled,
+                                                            String offHeapStorageDir) {
+        MicroSleeConfiguration config = MicroSleeConfiguration.builder()
+                .eventRouterBufferSize(bufferSize)
+                .preferVirtualThreads(preferVirtualThreads)
+                .sbbPoolMin(sbbPoolMin)
+                .sbbPoolMax(sbbPoolMax)
+                .sbbPerVirtualThread(sbbPerVirtualThread)
+                .sbbTypePoolMinIdle(sbbTypePoolMinIdle)
+                .eventDeliveryMode(EventDeliveryMode.parse(eventDelivery))
+                .offHeapEnabled(offHeapEnabled)
+                .offHeapStorageDir(offHeapStorageDir != null ? offHeapStorageDir : "")
+                .build();
         MicroSleeContainer c = new MicroSleeContainer(config);
         container = c;
         eventRouter = c.getEventRouter();
         timerPort = c.getTimerPort();
         acnf = c.getActivityContextNamingFacility();
-        LOG.info("MicroSleeContainer constructed: bufferSize={}, preferVT={}, sbbPool={}-{}, perVT={}",
+        LOG.infof("MicroSleeContainer constructed: bufferSize=%s, preferVT=%s, sbbPool=%s-%s, perVT=%s",
                 config.getEventRouterBufferSize(), config.isPreferVirtualThreads(),
                 config.getSbbPoolMin(), config.getSbbPoolMax(), config.isSbbPerVirtualThread());
         return new RuntimeValue<MicroSleeContainer>(c);
@@ -64,21 +79,35 @@ public class MicroJainsleeRecorder {
     /** Start the previously-created container. Idempotent. Called at runtime-init. */
     public void startContainer() {
         if (container != null) {
-            LOG.info("Starting MicroSleeContainer (state={})", container.getState());
+            LOG.infof("Starting MicroSleeContainer (state=%s)", container.getState());
             container.start();
-            LOG.info("MicroSleeContainer started (state={})", container.getState());
+            LOG.infof("MicroSleeContainer started (state=%s)", container.getState());
         } else {
-            LOG.warn("startContainer() called but container is null");
+            LOG.warnf("startContainer() called but container is null");
         }
     }
 
     /** Stop the previously-started container. Called from the Quarkus shutdown hook. */
     public void stopContainer() {
         if (container != null) {
-            LOG.info("Stopping MicroSleeContainer (state={})", container.getState());
+            LOG.infof("Stopping MicroSleeContainer (state=%s)", container.getState());
             container.stop();
-            LOG.info("MicroSleeContainer stopped");
+            LOG.infof("MicroSleeContainer stopped");
         }
+    }
+
+    /** Register stopContainer() with the Quarkus runtime shutdown context. */
+    public void registerShutdownHook(ShutdownContext shutdown) {
+        shutdown.addShutdownTask(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    stopContainer();
+                } catch (Throwable t) {
+                    LOG.errorf(t, "MicroSleeContainer shutdown failed: %s", t.getMessage());
+                }
+            }
+        });
     }
 
     /**
@@ -94,7 +123,7 @@ public class MicroJainsleeRecorder {
             try {
                 Class<?> clazz = Class.forName(fqn);
                 if (!com.microjainslee.api.Sbb.class.isAssignableFrom(clazz)) {
-                    LOG.warn("Skipping non-Sbb type {}", fqn);
+                    LOG.warnf("Skipping non-Sbb type %s", fqn);
                     continue;
                 }
                 @SuppressWarnings("unchecked")
@@ -110,9 +139,9 @@ public class MicroJainsleeRecorder {
                         }
                     }
                 });
-                LOG.info("Registered pooled SBB type {}", fqn);
+                LOG.infof("Registered pooled SBB type %s", fqn);
             } catch (ClassNotFoundException e) {
-                LOG.warn("Failed to load SBB class {}: {}", fqn, e.getMessage());
+                LOG.warnf("Failed to load SBB class %s: %s", fqn, e.getMessage());
             }
         }
     }
@@ -133,6 +162,23 @@ public class MicroJainsleeRecorder {
         return new RuntimeValue<com.microjainslee.core.MicroSleeContainer.AcnfBackend>(acnf);
     }
 
+    /** Derive EventRouter from an already-created container RuntimeValue (STATIC_INIT-safe). */
+    public RuntimeValue<EventRouter> eventRouterOf(RuntimeValue<MicroSleeContainer> c) {
+        return new RuntimeValue<EventRouter>(c.getValue().getEventRouter());
+    }
+
+    /** Derive TimerPort from an already-created container RuntimeValue (STATIC_INIT-safe). */
+    public RuntimeValue<TimerPort> timerPortOf(RuntimeValue<MicroSleeContainer> c) {
+        return new RuntimeValue<TimerPort>(c.getValue().getTimerPort());
+    }
+
+    /** Derive ACNF backend from an already-created container RuntimeValue (STATIC_INIT-safe). */
+    public RuntimeValue<com.microjainslee.core.MicroSleeContainer.AcnfBackend> acnfOf(
+            RuntimeValue<MicroSleeContainer> c) {
+        return new RuntimeValue<com.microjainslee.core.MicroSleeContainer.AcnfBackend>(
+                c.getValue().getActivityContextNamingFacility());
+    }
+
     // ──────────────────────────────────────────────────────────
     // GOAL 2 — 3-port local RA registration (recorder)
     // ──────────────────────────────────────────────────────────
@@ -149,11 +195,11 @@ public class MicroJainsleeRecorder {
      */
     public void registerRa(String name, RaEndpointPort endpoint, RaCommandPort command) {
         if (container == null) {
-            LOG.warn("registerRa() called but container is null (name={})", name);
+            LOG.warnf("registerRa() called but container is null (name=%s)", name);
             return;
         }
         if (endpoint == null || command == null) {
-            LOG.warn("registerRa() called with null endpoint or command (name={})", name);
+            LOG.warnf("registerRa() called with null endpoint or command (name=%s)", name);
             return;
         }
         container.registerRa(endpoint, command);
@@ -173,32 +219,32 @@ public class MicroJainsleeRecorder {
      */
     public void registerRaFromClassName(String className) {
         if (container == null) {
-            LOG.warn("registerRaFromClassName() called but container is null (class={})", className);
+            LOG.warnf("registerRaFromClassName() called but container is null (class=%s)", className);
             return;
         }
         if (className == null || className.trim().isEmpty()) {
-            LOG.warn("registerRaFromClassName() called with empty class name");
+            LOG.warnf("registerRaFromClassName() called with empty class name");
             return;
         }
         try {
             Class<?> clazz = Class.forName(className, true,
                     Thread.currentThread().getContextClassLoader());
             if (!RaEndpointPort.class.isAssignableFrom(clazz)) {
-                LOG.warn("Class {} does not implement RaEndpointPort — skipping", className);
+                LOG.warnf("Class %s does not implement RaEndpointPort — skipping", className);
                 return;
             }
             if (!RaCommandPort.class.isAssignableFrom(clazz)) {
-                LOG.warn("Class {} does not implement RaCommandPort — skipping", className);
+                LOG.warnf("Class %s does not implement RaCommandPort — skipping", className);
                 return;
             }
             Object instance = clazz.getDeclaredConstructor().newInstance();
             RaEndpointPort endpoint = (RaEndpointPort) instance;
             RaCommandPort command = (RaCommandPort) instance;
             container.registerRa(endpoint, command);
-            LOG.info("Registered RA from class name: {} (class={})",
+            LOG.infof("Registered RA from class name: %s (class=%s)",
                     endpoint.getRaName(), className);
         } catch (ReflectiveOperationException e) {
-            LOG.warn("Failed to instantiate RA class {}: {}", className, e.getMessage());
+            LOG.warnf("Failed to instantiate RA class %s: %s", className, e.getMessage());
         }
     }
 
@@ -214,28 +260,28 @@ public class MicroJainsleeRecorder {
     @SuppressWarnings("unchecked")
     public void mapEventToSbb(String eventClass, String sbbName) {
         if (container == null) {
-            LOG.warn("mapEventToSbb() called but container is null (event={}, sbb={})", eventClass, sbbName);
+            LOG.warnf("mapEventToSbb() called but container is null (event=%s, sbb=%s)", eventClass, sbbName);
             return;
         }
         if (eventClass == null || eventClass.trim().isEmpty()) {
-            LOG.warn("mapEventToSbb() called with empty event class name (sbb={})", sbbName);
+            LOG.warnf("mapEventToSbb() called with empty event class name (sbb=%s)", sbbName);
             return;
         }
         if (sbbName == null || sbbName.trim().isEmpty()) {
-            LOG.warn("mapEventToSbb() called with empty SBB name (event={})", eventClass);
+            LOG.warnf("mapEventToSbb() called with empty SBB name (event=%s)", eventClass);
             return;
         }
         try {
             Class<?> rawClass = Class.forName(eventClass, true,
                     Thread.currentThread().getContextClassLoader());
             if (!SleeEvent.class.isAssignableFrom(rawClass)) {
-                LOG.warn("Class {} is not a SleeEvent — skipping mapping to SBB {}", eventClass, sbbName);
+                LOG.warnf("Class %s is not a SleeEvent — skipping mapping to SBB %s", eventClass, sbbName);
                 return;
             }
             Class<? extends SleeEvent> eventType = (Class<? extends SleeEvent>) rawClass;
             container.mapEventToSbb(eventType, sbbName);
         } catch (ClassNotFoundException cnfe) {
-            LOG.warn("Event class not found on classpath: {} (sbb={}) — skipping mapping",
+            LOG.warnf("Event class not found on classpath: %s (sbb=%s) — skipping mapping",
                     eventClass, sbbName);
         }
     }

@@ -1,15 +1,9 @@
 package com.microjainslee.telemetry;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.management.NotificationEmitter;
-import javax.management.NotificationListener;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +28,6 @@ public final class AutoReconfigEngine {
     private volatile boolean started;
     private volatile long minEvaluateGapMillis = 30_000L;
     private final AtomicLong lastEvaluateMillis = new AtomicLong();
-    private NotificationListener memoryListener;
 
     public AutoReconfigEngine(SbbCollector sbbCollector,
                                ErrorCollector errorCollector,
@@ -51,25 +44,22 @@ public final class AutoReconfigEngine {
     }
 
     /**
-     * Zero-CPU activation. No timer thread is created; instead the engine
-     * subscribes to JVM memory-pool collection-usage-threshold
-     * notifications (the JVM pushes an event after a GC leaves the tenured
-     * pool above the watermark) and additionally evaluates opportunistically
-     * when telemetry is scraped ({@link #maybeEvaluate()}), throttled to at
-     * most once per {@code interval}. Idle system → zero CPU consumed.
+     * Zero-CPU activation. No timer thread and no JVM/JMX management bean: the
+     * engine evaluates opportunistically when telemetry is scraped
+     * ({@link #maybeEvaluate()}) or when the autonomous guardian pokes
+     * {@link #evaluateNow()}, throttled to at most once per {@code interval}.
+     * Idle system → zero CPU consumed.
      */
     public void start(long interval, TimeUnit unit) {
         if (started) return;
         started = true;
         this.minEvaluateGapMillis = Math.max(1_000L, unit.toMillis(interval));
-        registerMemoryThresholdListener();
-        LOG.info("AutoReconfigEngine armed (event-driven, minGap={} ms, no timer thread)",
+        LOG.info("AutoReconfigEngine armed (scrape-driven, minGap={} ms, no timer thread)",
                 minEvaluateGapMillis);
     }
 
     public void stop() {
         started = false;
-        unregisterMemoryThresholdListener();
     }
 
     /**
@@ -92,47 +82,6 @@ public final class AutoReconfigEngine {
         if (!started) return;
         lastEvaluateMillis.set(System.currentTimeMillis());
         evaluate();
-    }
-
-    private void registerMemoryThresholdListener() {
-        try {
-            for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
-                if (pool.getType() == MemoryType.HEAP
-                        && pool.isCollectionUsageThresholdSupported()
-                        && pool.getUsage() != null && pool.getUsage().getMax() > 0) {
-                    long threshold = (long) (pool.getUsage().getMax() * 0.85);
-                    pool.setCollectionUsageThreshold(threshold);
-                }
-            }
-            NotificationEmitter emitter =
-                    (NotificationEmitter) ManagementFactory.getMemoryMXBean();
-            memoryListener = (notification, handback) -> {
-                // Pushed by the JVM after GC when a pool stays above the
-                // watermark — the only "wakeup" this engine ever gets.
-                if (java.lang.management.MemoryNotificationInfo
-                        .MEMORY_COLLECTION_THRESHOLD_EXCEEDED
-                        .equals(notification.getType())) {
-                    evaluateNow();
-                }
-            };
-            emitter.addNotificationListener(memoryListener, null, null);
-        } catch (RuntimeException e) {
-            LOG.warn("Memory-threshold notifications unavailable ({}); "
-                    + "engine relies on scrape-time maybeEvaluate() only", e.getMessage());
-            memoryListener = null;
-        }
-    }
-
-    private void unregisterMemoryThresholdListener() {
-        NotificationListener listener = this.memoryListener;
-        if (listener != null) {
-            try {
-                ((NotificationEmitter) ManagementFactory.getMemoryMXBean())
-                        .removeNotificationListener(listener);
-            } catch (Exception ignored) {
-            }
-            this.memoryListener = null;
-        }
     }
 
     public boolean isStarted() { return started; }

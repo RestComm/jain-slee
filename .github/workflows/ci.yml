@@ -9,10 +9,10 @@ name: CI
 
 on:
   push:
-    branches: [micro-jainslee, main]
+    branches: [micro-jainslee, micro-jainslee-2, main]
     tags: ['v*']
   pull_request:
-    branches: [micro-jainslee, main]
+    branches: [micro-jainslee, micro-jainslee-2, main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,9 +26,8 @@ jobs:
   # ---------------------------------------------------------------------
   # Job 1 — Build on JDK 25 only
   #
-  # Java 25 is the project's runtime target — it is required to exercise
-  # the Java 25 Virtual Threads backing VirtualThreadSbbEntityPool.
-  # Source/target is still 8; only the runtime JVM is JDK 25.
+  # Java 25 is the project's bytecode and runtime target — required to
+  # exercise Virtual Threads backing VirtualThreadSbbEntityPool.
   # ---------------------------------------------------------------------
   build:
     name: Build (${{ matrix.os }} / JDK ${{ matrix.java }})
@@ -62,14 +61,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2-
 
-      - name: Install micro-jainslee reactor (skip APT chicken-and-egg)
-        # -Dmaven.compiler.proc=none disables annotation processing entirely
-        # so the first build of jainslee-apt does not try to load its own
-        # SPI processor class (which does not exist yet at this point).
-        # Subsequent builds inside the same matrix job use the freshly
-        # installed jar and DO run the processor.
+      - name: Install micro-jainslee reactor
+        # The annotation processor is dependency-free (javac Messager only), so
+        # it instantiates cleanly on the processor path — no proc=none needed.
         run: |
-          mvn -pl jainslee-apt -am install -DskipTests -B -ntp               -Dmaven.compiler.proc=none
+          mvn -pl jainslee-apt -am install -DskipTests -B -ntp
 
       - name: Build + test (micro-jainslee modules)
         run: |
@@ -139,7 +135,7 @@ jobs:
 
       - name: Install micro-jainslee API + APT
         run: |
-          mvn -pl jainslee-apt -am install -DskipTests -B -ntp -Dmaven.compiler.proc=none
+          mvn -pl jainslee-apt -am install -DskipTests -B -ntp
 
       - name: Set up fixture
         run: |

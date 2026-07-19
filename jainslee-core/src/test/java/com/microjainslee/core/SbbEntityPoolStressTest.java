@@ -18,9 +18,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -65,13 +62,10 @@ public class SbbEntityPoolStressTest {
     private static final long HARD_LIMIT_MS = 240_000; // 4 minutes
 
     private VirtualThreadSbbEntityPool pool;
-    private ThreadMXBean threadMx;
-    private MemoryMXBean memMx;
 
     @Before
     public void setUp() {
-        threadMx = ManagementFactory.getThreadMXBean();
-        memMx = ManagementFactory.getMemoryMXBean();
+        // No management beans — heap/thread readings use Runtime / Thread.
     }
 
     @After
@@ -128,7 +122,7 @@ public class SbbEntityPoolStressTest {
         assertEquals("all SBBs must be registered", scale, pool.size());
         assertEquals("all SBBs must be registered (create map)", scale, created.size());
 
-        int liveThreads = threadMx.getThreadCount();
+        int liveThreads = Thread.activeCount();
         long heapDeltaMb = (memAfterCreate - memBefore) / (1024 * 1024);
         LOG.info("[create] {} entities in {} ms ({} ns/op), heap +{} MB, liveThreads={}",
                 scale, TimeUnit.NANOSECONDS.toMillis(tCreate),
@@ -241,7 +235,8 @@ public class SbbEntityPoolStressTest {
     }
 
     private static long usedHeap() {
-        return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+        Runtime rt = Runtime.getRuntime();
+        return rt.totalMemory() - rt.freeMemory();
     }
 
     /**

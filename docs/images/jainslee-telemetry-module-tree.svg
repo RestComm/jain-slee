@@ -27,9 +27,9 @@
   <text x="80" y="248" class="file" fill="#6A1B9A">├── AlarmEngine.java</text>
   <text x="80" y="263" class="file" fill="#6A1B9A">├── AutoReconfigEngine.java</text>
   <text x="80" y="278" class="file" fill="#6A1B9A">└── PrometheusExporter.java</text>
-  <!-- jainslee-telemetry-vertx (Gray) -->
+  <!-- jainslee-monitor (Gray) -->
   <rect x="30" y="294" width="660" height="42" rx="3" fill="#ECEFF1" stroke="#78909C" stroke-width="1.2"/>
-  <text x="46" y="309" class="dir" fill="#37474F">├── jainslee-telemetry-vertx/</text>
+  <text x="46" y="309" class="dir" fill="#37474F">├── jainslee-monitor/</text>
   <text x="262" y="309" class="annote">← NEW MODULE — GUI (deps: vertx-web)</text>
   <text x="64" y="324" class="file" fill="#455A64">├── pom.xml</text>
   <text x="320" y="324" class="file" fill="#455A64">└── src/main/resources/webroot/telemetry/ (index.html, telemetry.js)</text>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Ant wrapper around Maven 3 for example-cmr.
+  Requires: JDK 25, Apache Maven 3.9+, Apache Ant 1.10+.
+-->
+<project name="example-cmr" default="help" basedir="..">
+
+    <property name="example.dir" location="${basedir}"/>
+    <property name="build.dir" location="${basedir}/build"/>
+    <property name="dist.dir" location="${basedir}/dist"/>
+    <property name="reactor.dir" location="${basedir}/../.."/>
+    <property name="mvn.batch" value="-B -ntp"/>
+    <property name="quarkus.skip.off" value="-Dquarkus.build.skip=false"/>
+
+    <property environment="env"/>
+    <condition property="java.home.effective" value="${env.JAVA_HOME}">
+        <and>
+            <isset property="env.JAVA_HOME"/>
+            <not><equals arg1="${env.JAVA_HOME}" arg2=""/></not>
+        </and>
+    </condition>
+    <property name="mise.java.25"
+              location="${user.home}/.local/share/mise/installs/java/zulu-25.34.17.0"/>
+    <condition property="java.home.effective" value="${mise.java.25}">
+        <available file="${mise.java.25}/bin/java"/>
+    </condition>
+    <fail unless="java.home.effective"
+          message="JDK 25 required. Set JAVA_HOME to a JDK 25 install (e.g. mise zulu-25)."/>
+
+    <property name="mvn.exe" value="mvn"/>
+
+    <macrodef name="mvn-at">
+        <attribute name="dir"/>
+        <attribute name="args"/>
+        <sequential>
+            <echo message="JAVA_HOME=${java.home.effective}"/>
+            <echo message="[mvn] @{dir} :: @{args}"/>
+            <exec executable="${mvn.exe}" dir="@{dir}" failonerror="true">
+                <env key="JAVA_HOME" value="${java.home.effective}"/>
+                <env key="PATH" value="${java.home.effective}/bin:${env.PATH}"/>
+                <arg line="${mvn.batch} @{args}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <target name="help">
+        <echo><![CDATA[
+example-cmr — Ant → Maven 3 (JDK 25)
+
+  ant -f build/build.xml install-deps   Install reactor deps to ~/.m2
+  ant -f build/build.xml package        Package Quarkus app
+  ant -f build/build.xml dev            quarkus:dev (site :8082, Quarkus :8081)
+  ant -f build/build.xml run            Run packaged app
+  ant -f build/build.xml all            install-deps + package
+]]></echo>
+    </target>
+
+    <target name="check-java">
+        <exec executable="${java.home.effective}/bin/java" failonerror="true">
+            <arg value="-version"/>
+        </exec>
+    </target>
+
+    <target name="install-deps" depends="check-java"
+            description="mvn install required reactor modules">
+        <mvn-at dir="${reactor.dir}"
+                args="-pl jainslee-api,jainslee-scheduler,jainslee-ra-spi,jainslee-core,jainslee-apt,jainslee-telemetry,jainslee-monitor,jainslee-autonomous,jainslee-ai,jainslee-adapter/adapter-quarkus/runtime,jainslee-adapter/adapter-quarkus/deployment,vendor-ras/ra-http-server,vendor-ras/ra-prometheus-exporter -am install -DskipTests"/>
+    </target>
+
+    <target name="compile" depends="check-java">
+        <mvn-at dir="${example.dir}" args="compile ${quarkus.skip.off}"/>
+    </target>
+
+    <target name="package" depends="check-java">
+        <mvn-at dir="${example.dir}" args="package ${quarkus.skip.off} -DskipTests"/>
+    </target>
+
+    <target name="dist" depends="check-java">
+        <exec executable="${build.dir}/package-dist.sh" dir="${example.dir}" failonerror="true"/>
+    </target>
+
+    <target name="dev" depends="check-java">
+        <mvn-at dir="${example.dir}" args="quarkus:dev ${quarkus.skip.off}"/>
+    </target>
+
+    <target name="run" depends="check-java">
+        <exec executable="${build.dir}/run.sh" dir="${example.dir}" failonerror="true"/>
+    </target>
+
+    <target name="test" depends="check-java">
+        <mvn-at dir="${example.dir}" args="test ${quarkus.skip.off}"/>
+    </target>
+
+    <target name="clean" depends="check-java">
+        <mvn-at dir="${example.dir}" args="clean"/>
+        <delete dir="${dist.dir}" quiet="true"/>
+    </target>
+
+    <target name="all" depends="install-deps,package"/>
+
+</project>

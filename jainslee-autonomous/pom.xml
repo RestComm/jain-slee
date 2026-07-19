@@ -25,9 +25,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!-- version inherited from jainslee-pom dependencyManagement
+                 (${log4j.version}); pinning it here caused a log4j-api/core
+                 skew (FlowMessageFactory.INSTANCE NoSuchFieldError). -->
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.23.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

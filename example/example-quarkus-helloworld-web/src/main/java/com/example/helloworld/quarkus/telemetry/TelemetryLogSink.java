@@ -3,8 +3,9 @@ package com.example.helloworld.quarkus.telemetry;
 import com.microjainslee.telemetry.TelemetryPort;
 import com.microjainslee.telemetry.TelemetryPort.TelemetrySnapshot;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -160,34 +161,35 @@ public final class TelemetryLogSink implements AutoCloseable {
         long totalErrors = snap.sbbs().stream().mapToLong(s -> s.errors()).sum();
         double totalEps = snap.sbbs().stream().mapToDouble(s -> s.eps()).sum();
 
-        JsonArray sbbs = new JsonArray();
-        for (var s : snap.sbbs()) {
-            sbbs.add(new JsonObject()
-                    .put("type", s.sbbType())
-                    .put("active", s.active())
-                    .put("errors", s.errors())
-                    .put("spunks", s.spunks())
-                    .put("eps", round(s.eps()))
-                    .put("p99us", s.p99us()));
-        }
+        ObjectNode o = JSON.createObjectNode();
+        o.put("ts", System.currentTimeMillis());
+        o.put("heapUsedMb", r == null ? 0 : r.heapUsedMb());
+        o.put("heapPct", r == null ? 0 : round(r.heapUsagePercent()));
+        o.put("cpu", r == null ? 0 : round(r.cpuLoad()));
+        o.put("vThreads", r == null ? 0 : r.virtualThreads());
+        o.put("gcMs", r == null ? 0 : r.gcTimeMs());
+        o.put("sbbActive", totalActive);
+        o.put("sbbErrors", totalErrors);
+        o.put("eps", round(totalEps));
+        o.put("spunks", snap.spunks().size());
+        o.put("staleLeaks", snap.stales().stream().filter(s -> s.leaked()).count());
+        o.put("alarms", snap.activeAlarms().size());
+        o.put("autoReconfig", snap.autoReconfigEnabled());
 
-        JsonObject o = new JsonObject()
-                .put("ts", System.currentTimeMillis())
-                .put("heapUsedMb", r == null ? 0 : r.heapUsedMb())
-                .put("heapPct", r == null ? 0 : round(r.heapUsagePercent()))
-                .put("cpu", r == null ? 0 : round(r.cpuLoad()))
-                .put("vThreads", r == null ? 0 : r.virtualThreads())
-                .put("gcMs", r == null ? 0 : r.gcTimeMs())
-                .put("sbbActive", totalActive)
-                .put("sbbErrors", totalErrors)
-                .put("eps", round(totalEps))
-                .put("spunks", snap.spunks().size())
-                .put("staleLeaks", snap.stales().stream().filter(s -> s.leaked()).count())
-                .put("alarms", snap.activeAlarms().size())
-                .put("autoReconfig", snap.autoReconfigEnabled())
-                .put("sbbs", sbbs);
-        return o.encode();
+        ArrayNode sbbs = o.putArray("sbbs");
+        for (var s : snap.sbbs()) {
+            ObjectNode n = sbbs.addObject();
+            n.put("type", s.sbbType());
+            n.put("active", s.active());
+            n.put("errors", s.errors());
+            n.put("spunks", s.spunks());
+            n.put("eps", round(s.eps()));
+            n.put("p99us", s.p99us());
+        }
+        return o.toString();
     }
+
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private static double round(double v) {
         return Math.round(v * 100.0) / 100.0;

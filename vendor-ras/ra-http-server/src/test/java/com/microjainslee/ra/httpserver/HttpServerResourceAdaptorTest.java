@@ -73,7 +73,10 @@ public class HttpServerResourceAdaptorTest {
 
     @Test
     public void getRequestFiresHttpWebRequestEvent() throws Exception {
-        HttpResponse<String> resp = http.send(
+        // The RA holds the response open for the SBB to reply; this test has no
+        // SBB, so we fire-and-forget (sendAsync) and assert the event fired —
+        // a blocking send() would hang forever waiting for a reply.
+        http.sendAsync(
                 HttpRequest.newBuilder()
                         .uri(URI.create("http://127.0.0.1:" + port + "/test/path"))
                         .header("X-Custom", "value1")
@@ -81,9 +84,7 @@ public class HttpServerResourceAdaptorTest {
                         .build(),
                 HttpResponse.BodyHandlers.ofString());
 
-        // The response is sent asynchronously by the SBB (not by the route),
-        // so the HTTP response may be a connection reset or empty since no
-        // SBB sends a reply. What matters is that the event was fired.
+        awaitFireEvent();
         assertEquals(1, endpoint.fireEventCount);
         assertNotNull(endpoint.lastEvent);
         assertTrue(endpoint.lastEvent instanceof HttpWebRequestEvent);
@@ -95,7 +96,7 @@ public class HttpServerResourceAdaptorTest {
 
     @Test
     public void postRequestFiresEventWithBody() throws Exception {
-        HttpResponse<String> resp = http.send(
+        http.sendAsync(
                 HttpRequest.newBuilder()
                         .uri(URI.create("http://127.0.0.1:" + port + "/api/data"))
                         .header("Content-Type", "application/json")
@@ -103,12 +104,20 @@ public class HttpServerResourceAdaptorTest {
                         .build(),
                 HttpResponse.BodyHandlers.ofString());
 
+        awaitFireEvent();
         assertEquals(1, endpoint.fireEventCount);
         assertTrue(endpoint.lastEvent instanceof HttpWebRequestEvent);
         HttpWebRequestEvent evt = (HttpWebRequestEvent) endpoint.lastEvent;
         assertEquals("POST", evt.getMethod());
         assertEquals("/api/data", evt.getPath());
         assertEquals("{\"key\":\"value\"}", evt.getBody());
+    }
+
+    /** Poll until the RA fires the event (dispatched off the Vert.x loop), up to ~2s. */
+    private void awaitFireEvent() throws InterruptedException {
+        for (int i = 0; i < 200 && endpoint.fireEventCount == 0; i++) {
+            Thread.sleep(10);
+        }
     }
 
     @Test
@@ -122,7 +131,7 @@ public class HttpServerResourceAdaptorTest {
                 HttpResponse.BodyHandlers.ofString());
 
         // Wait for the event to be processed
-        Thread.sleep(500);
+        awaitFireEvent();
         assertEquals(1, endpoint.fireEventCount);
 
         // Send response via the RA's sendHttpResponse

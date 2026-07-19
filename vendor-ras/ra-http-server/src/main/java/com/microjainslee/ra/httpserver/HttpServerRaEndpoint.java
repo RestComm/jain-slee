@@ -106,6 +106,11 @@ public final class HttpServerRaEndpoint implements RaEndpointPort, RaCommandPort
                     hr.contentType(), hr.body());
             LOG.debug(() -> "Sent HTTP response via HttpResponseCommand sessionId="
                     + hr.sessionId() + " status=" + hr.statusCode());
+        } else if (command instanceof HttpServerCommand.HttpResponseExCommand hx) {
+            delegate.sendHttpResponse(hx.sessionId(), hx.statusCode(), hx.contentType(),
+                    hx.textBody(), hx.binaryBody(), hx.headers());
+            LOG.debug(() -> "Sent HTTP response via HttpResponseExCommand sessionId="
+                    + hx.sessionId() + " status=" + hx.statusCode());
         } else if (command instanceof HttpServerCommand) {
             LOG.info(() -> "HTTP server RA received command: "
                     + command.getClass().getSimpleName()
@@ -154,15 +159,24 @@ public final class HttpServerRaEndpoint implements RaEndpointPort, RaCommandPort
                     @Override
                     public ActivityContextInterface startActivity(
                             ActivityContextHandle handle, Object activity) {
+                        // Create the per-request activity context so a
+                        // subsequent fireEvent can resolve it by name.
+                        bp.createActivityHandle(handle.getId());
                         return null;
                     }
 
                     @Override
-                    public void endActivity(ActivityContextHandle handle) { }
+                    public void endActivity(ActivityContextHandle handle) {
+                        // Release the per-request activity context so it (and
+                        // any attached SBB entity) does not leak.
+                        bp.endActivity(handle::getId);
+                    }
 
                     @Override
                     public void fireEvent(ActivityContextHandle handle, SleeEvent event) {
-                        ActivityHandle ah = () -> handle.getId();
+                        // Create-then-fire: the activity context must exist
+                        // before the router looks it up (mirrors ra-http-client).
+                        ActivityHandle ah = bp.createActivityHandle(handle.getId());
                         bp.fireEvent(event, ah, null);
                     }
                 };

@@ -93,7 +93,7 @@ example/example-quarkus-sip/
     <!-- Test -->
     <dependency>
         <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-junit5</artifactId>
+        <artifactId>quarkus-junit</artifactId>
         <scope>test</scope>
     </dependency>
 </dependencies>

@@ -200,13 +200,34 @@ Any OpenAI-compatible backend works by changing `base-url`: DeepSeek, OpenAI,
 ### Safety layers (all five from the research spec)
 
 1. **Pre-AI filter** — healthy node (heap<50%, cpu<30%, zero errors/alarms/spunks/leaks) → no LLM call, zero token cost.
-2. **Allow-list** — the AI can only: `TRIGGER_RELIEF`, `ENABLE/DISABLE_AUTO_RECONFIG`, `RAISE_ALARM`, `INVESTIGATE`, `NONE`. Anything else is dropped.
+2. **Allow-list** — the AI can only: `TRIGGER_RELIEF`, `RELEASE_ENTITY` (target must be a leaked-entity id from the snapshot), `ENABLE/DISABLE_AUTO_RECONFIG`, `RAISE_ALARM`, `INVESTIGATE`, `NONE`. Anything else is dropped.
 3. **Confidence gate** — below `confidence-threshold` → advisory only.
 4. **Cooldown** — mutating actions share one cooldown window.
 5. **Circuit breaker** — 3 consecutive endpoint failures → circuit opens, half-opens after 60s; the rule-based guardian keeps running regardless.
 
 A garbled model reply degrades to an "unparsed" analysis with **zero**
 executable recommendations — the parser never throws, the loop never dies.
+
+### The operating model: the agent runs the node, the app holds the remote
+
+The intended production posture is **FULL_AUTO**: hand the node to the agent
+and let the app steer it exclusively through the **`AIAgentControl`**
+interface — the only API an application needs:
+
+```java
+AIAgentControl agent = appAiAgent.engine();
+
+agent.setEnabled(true);              // hand the node over (runtime, no restart)
+agent.setMode(AIMode.FULL_AUTO);     // full trust — or dial back any time
+agent.analyzeNow();                  // force a cycle before a maintenance window
+String brief = agent.report(ReportAudience.BOSS);
+AIAgentEngine.Status s = agent.status();   // cheap — no LLM call
+```
+
+Analysis cadence, guardrails, action execution and circuit breaking are the
+agent's own responsibility and deliberately **not** exposed. The REST surface
+below (used by the Monitoring Window) is just a transport over the same
+interface.
 
 ### Three reports, three voices
 

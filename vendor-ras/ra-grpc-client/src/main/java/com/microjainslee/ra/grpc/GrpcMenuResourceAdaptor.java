@@ -45,6 +45,16 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
     private GrpcActivityContextLookup activityContextLookup;
     private ExecutorService workerPool;
 
+    // ── transport (owned by the RA, never by the app) ──
+    // When a target is configured the RA builds and manages the gRPC
+    // ManagedChannel itself. Applications must NOT create channels; they obtain
+    // this one via channel() and use it only to build their generated stub —
+    // exactly the way an SBB uses an injected RA command port. This keeps all
+    // transport (Netty / connection lifecycle) inside the RA.
+    private String targetHost;
+    private int targetPort = -1;
+    private volatile io.grpc.ManagedChannel channel;
+
     /**
      * Sprint S8 - per-session atomic sequence counter. Populated on
      * first {@link #requestMenu} for a given session; survives until
@@ -65,6 +75,26 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
         this.activityContextLookup = activityContextLookup;
     }
 
+    /**
+     * Configure the upstream gRPC endpoint. When set, the RA owns the
+     * {@link io.grpc.ManagedChannel} (plaintext) for its whole active lifetime;
+     * the application obtains it via {@link #channel()} to build its generated
+     * stub and never creates a channel itself.
+     */
+    public void setTarget(String host, int port) {
+        this.targetHost = host;
+        this.targetPort = port;
+    }
+
+    /**
+     * The RA-managed gRPC channel, or {@code null} when no target was configured
+     * (e.g. a test/stub upstream). Applications use it only to build a generated
+     * stub — {@code SomeServiceGrpc.newBlockingStub(ra.channel())}.
+     */
+    public io.grpc.Channel channel() {
+        return channel;
+    }
+
     @Override
     public void raConfigure() {
         workerPool = Executors.newVirtualThreadPerTaskExecutor();
@@ -73,6 +103,13 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
 
     @Override
     public void raActive() {
+        if (targetHost != null && targetPort > 0 && channel == null) {
+            channel = io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder
+                    .forAddress(targetHost, targetPort)
+                    .usePlaintext()
+                    .build();
+            LOG.info("gRPC menu RA opened channel to {}:{}", targetHost, targetPort);
+        }
         LOG.info("gRPC menu RA active");
     }
 
@@ -86,6 +123,7 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
         if (workerPool != null) {
             workerPool.shutdown();
         }
+        shutdownChannel();
         sequenceCounters.clear();
     }
 
@@ -95,8 +133,17 @@ public final class GrpcMenuResourceAdaptor extends AbstractResourceAdaptor {
             workerPool.shutdownNow();
             workerPool = null;
         }
+        shutdownChannel();
         sequenceCounters.clear();
         super.raUnconfigure();
+    }
+
+    private void shutdownChannel() {
+        io.grpc.ManagedChannel c = this.channel;
+        if (c != null) {
+            c.shutdownNow();
+            this.channel = null;
+        }
     }
 
     /**

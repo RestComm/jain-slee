@@ -7,20 +7,11 @@
 package com.microjainslee.autonomous;
 
 import com.microjainslee.core.MicroSleeContainer;
-import com.microjainslee.core.offheap.OffHeapArena;
+import com.microjainslee.core.offheap.OffHeapSlotArena;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.management.NotificationEmitter;
-import javax.management.NotificationListener;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryNotificationInfo;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryType;
-import java.lang.management.MemoryUsage;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,13 +23,13 @@ import java.util.function.Consumer;
  * Self-protection brain for run-forever deployments (Quarkus/GraalVM
  * native, no restarts, no JVM-flag changes possible).
  *
- * <h2>Zero-CPU design</h2>
- * The guardian owns <b>no thread</b>. It arms the JVM's
- * collection-usage-threshold on the tenured pool; the JVM pushes a JMX
- * notification when a GC finishes with the pool still above the
- * watermark — that push is the only wake-up. Idle system → zero CPU,
- * zero allocation. {@link #checkNow()} exists for opportunistic
- * piggybacking (telemetry scrape) and tests.
+ * <h2>Zero-CPU, zero-dependency design</h2>
+ * The guardian owns <b>no thread</b> and touches <b>no</b>
+ * {@code java.lang.management} / JMX bean (native-image clean). Heap pressure
+ * is read on demand from {@link Runtime} and evaluated only when something
+ * pokes {@link #checkNow()} — the telemetry scrape path and the health
+ * evaluator do exactly that on their existing cadence. Idle system → zero CPU,
+ * zero allocation, no background wake-ups.
  *
  * <h2>Escalation ladder</h2>
  * <pre>
@@ -55,9 +46,6 @@ import java.util.function.Consumer;
 public final class AutonomousGuardian implements AutoCloseable {
 
     private static final Logger LOG = LogManager.getLogger(AutonomousGuardian.class);
-
-    /** JVM memory bean used for heap-usage readings and threshold notifications. */
-    private final MemoryMXBean memoryBean;
 
     /** Registered relief participants consulted under pressure (thread-safe list). */
     private final List<MemoryReliefParticipant> participants = new CopyOnWriteArrayList<>();
@@ -89,10 +77,7 @@ public final class AutonomousGuardian implements AutoCloseable {
      */
     private volatile Runnable pressureEvaluateHook;
 
-    /** JMX notification listener registered with the memory bean (passive, no thread). */
-    private NotificationListener listener;
-
-    /** Whether the guardian is armed (JMX listener registered). */
+    /** Whether the guardian is armed (accepting {@link #checkNow()} evaluations). */
     private volatile boolean started;
 
     /** Monotonic counter of relief-run cycles completed. */
@@ -102,11 +87,6 @@ public final class AutonomousGuardian implements AutoCloseable {
     private volatile PressureLevel lastLevel = PressureLevel.NORMAL;
 
     public AutonomousGuardian() {
-        this(ManagementFactory.getMemoryMXBean());
-    }
-
-    AutonomousGuardian(MemoryMXBean memoryBean) {
-        this.memoryBean = memoryBean;
     }
 
     // ── configuration ───────────────────────────────────────────────
@@ -193,7 +173,7 @@ public final class AutonomousGuardian implements AutoCloseable {
                     return 0;
                 }
                 long moved = 0;
-                for (OffHeapArena arena : container.getSbbEntityPool().getOffHeapArenas()) {
+                for (OffHeapSlotArena arena : container.getSbbEntityPool().getOffHeapArenas()) {
                     if (arena.fragmentationRatio() > 0.25) {
                         moved += arena.compact();
                     }
@@ -206,46 +186,22 @@ public final class AutonomousGuardian implements AutoCloseable {
 
     // ── lifecycle ───────────────────────────────────────────────────
 
-    /** Arm the JVM memory-threshold notification. Creates no thread. */
+    /**
+     * Arm the guardian. Creates no thread and registers no JVM/JMX listener —
+     * evaluation happens when {@link #checkNow()} is poked (telemetry scrape,
+     * health evaluator, or an app on its own cadence).
+     */
     public synchronized void start() {
         if (started) {
             return;
         }
         started = true;
-        try {
-            for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
-                if (pool.getType() == MemoryType.HEAP
-                        && pool.isCollectionUsageThresholdSupported()
-                        && pool.getUsage() != null && pool.getUsage().getMax() > 0) {
-                    pool.setCollectionUsageThreshold(
-                            (long) (pool.getUsage().getMax() * elevatedPercent));
-                }
-            }
-            listener = (notification, handback) -> {
-                if (MemoryNotificationInfo.MEMORY_COLLECTION_THRESHOLD_EXCEEDED
-                        .equals(notification.getType())) {
-                    checkNow();
-                }
-            };
-            ((NotificationEmitter) memoryBean).addNotificationListener(listener, null, null);
-            LOG.info("[autonomous] guardian armed (watermarks {}/{}/{}, no threads)",
-                    elevatedPercent, criticalPercent, emergencyPercent);
-        } catch (RuntimeException e) {
-            LOG.warn("[autonomous] memory notifications unavailable ({}); "
-                    + "guardian works via checkNow() piggybacking only", e.getMessage());
-            listener = null;
-        }
+        LOG.info("[autonomous] guardian armed (watermarks {}/{}/{}, reactive, no threads)",
+                elevatedPercent, criticalPercent, emergencyPercent);
     }
 
     public synchronized void stop() {
         started = false;
-        if (listener != null) {
-            try {
-                ((NotificationEmitter) memoryBean).removeNotificationListener(listener);
-            } catch (Exception ignored) {
-            }
-            listener = null;
-        }
     }
 
     @Override
@@ -317,9 +273,19 @@ public final class AutonomousGuardian implements AutoCloseable {
         return PressureLevel.NORMAL;
     }
 
+    /**
+     * Current heap-usage ratio (0.0–1.0) read from {@link Runtime} — no
+     * management bean. {@code used = total − free}; the ceiling is
+     * {@code maxMemory()} when the JVM defines one, else the current total.
+     */
     private double currentHeapUsageRatio() {
-        MemoryUsage usage = memoryBean.getHeapMemoryUsage();
-        return usage.getMax() > 0 ? (double) usage.getUsed() / usage.getMax() : 0.0;
+        Runtime rt = Runtime.getRuntime();
+        long used = rt.totalMemory() - rt.freeMemory();
+        long max = rt.maxMemory();
+        if (max == Long.MAX_VALUE || max <= 0) {
+            max = rt.totalMemory();
+        }
+        return max > 0 ? (double) used / max : 0.0;
     }
 
     private boolean cooldownPermits(String key, long cooldownMillis) {

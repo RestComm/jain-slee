@@ -16,8 +16,10 @@ import com.microjainslee.api.annotations.InjectRa;
 import com.microjainslee.api.OffHeapBindable;
 import com.microjainslee.api.annotations.OffHeap;
 import com.microjainslee.core.ies.InitialEventSelectorDispatcher;
+import com.microjainslee.core.offheap.AgronaOffHeapArena;
 import com.microjainslee.core.offheap.OffHeapArena;
 import com.microjainslee.core.offheap.OffHeapRuntime;
+import com.microjainslee.core.offheap.OffHeapSlotArena;
 import com.microjainslee.core.removal.EntityRemovalEvent;
 
 import java.lang.reflect.Field;
@@ -202,11 +204,11 @@ public final class VirtualThreadSbbEntityPool {
     // ──────────────────────────────────────────────────────────
 
     /** One arena per @OffHeap-annotated class (the annotation owner). */
-    private final ConcurrentHashMap<Class<?>, OffHeapArena> offHeapArenas =
+    private final ConcurrentHashMap<Class<?>, OffHeapSlotArena> offHeapArenas =
             new ConcurrentHashMap<>();
 
     /** Live arenas — exposed for the autonomous guardian (compaction). */
-    public java.util.Collection<OffHeapArena> getOffHeapArenas() {
+    public java.util.Collection<OffHeapSlotArena> getOffHeapArenas() {
         return java.util.Collections.unmodifiableCollection(offHeapArenas.values());
     }
 
@@ -222,7 +224,7 @@ public final class VirtualThreadSbbEntityPool {
         if (c != null && !c.getConfiguration().isOffHeapEnabled()) {
             return; // fallback-mode SBBs keep working on the heap path
         }
-        OffHeapArena arena = offHeapArenas.computeIfAbsent(owner, this::createArena);
+        OffHeapSlotArena arena = offHeapArenas.computeIfAbsent(owner, this::createArena);
         long base = arena.allocate(sbbId);
         bindable.setEntityId(sbbId);
         bindable.bindSlot(base);
@@ -241,7 +243,7 @@ public final class VirtualThreadSbbEntityPool {
             return;
         }
         bindable.unbindSlot();
-        OffHeapArena arena = offHeapArenas.get(owner);
+        OffHeapSlotArena arena = offHeapArenas.get(owner);
         if (arena != null) {
             arena.free(sbbId);
         }
@@ -256,7 +258,7 @@ public final class VirtualThreadSbbEntityPool {
         return null;
     }
 
-    private OffHeapArena createArena(Class<?> owner) {
+    private OffHeapSlotArena createArena(Class<?> owner) {
         OffHeap ann = owner.getAnnotation(OffHeap.class);
         var layout = OffHeapRuntime.layoutFor(owner);
         Path file = null;
@@ -272,16 +274,31 @@ public final class VirtualThreadSbbEntityPool {
             }
             file = Paths.get(path);
         }
-        OffHeapArena arena = new OffHeapArena(owner.getSimpleName(), layout,
-                ann.maxSlots(), file);
+        // P2: use OffHeapRuntime factory — respects setUseAgrona() toggle
+        OffHeapSlotArena arena;
+        if (file != null) {
+            // MMAP mode: only JDK OffHeapArena supports memory-mapped files
+            arena = new OffHeapArena(owner.getSimpleName(), layout, ann.maxSlots(), file);
+        } else {
+            arena = OffHeapRuntime.newArena(owner.getSimpleName(), layout, ann.maxSlots());
+        }
         // Compaction rebinding: when the guardian compacts the arena, live
         // entities must see their new base address immediately.
-        arena.setSlotMovedListener((entityId, newAddr) -> {
-            SbbEntity entity = entities.get(entityId);
-            if (entity != null && entity.getSbb() instanceof OffHeapBindable ob) {
-                ob.bindSlot(newAddr);
-            }
-        });
+        if (arena instanceof OffHeapArena oa) {
+            oa.setSlotMovedListener((entityId, newAddr) -> {
+                SbbEntity entity = entities.get(entityId);
+                if (entity != null && entity.getSbb() instanceof OffHeapBindable ob) {
+                    ob.bindSlot(newAddr);
+                }
+            });
+        } else if (arena instanceof AgronaOffHeapArena aa) {
+            aa.setSlotMovedListener((entityId, newAddr) -> {
+                SbbEntity entity = entities.get(entityId);
+                if (entity != null && entity.getSbb() instanceof OffHeapBindable ob) {
+                    ob.bindSlot(newAddr);
+                }
+            });
+        }
         return arena;
     }
 
@@ -397,7 +414,13 @@ injectOffHeapForPrebuilt(sbb, sbbId);
 
     public void shutdown() {
         shuttingDown = true;
-        offHeapArenas.values().forEach(OffHeapArena::close);
+        offHeapArenas.values().forEach(arena -> {
+            try {
+                arena.close();
+            } catch (Exception e) {
+                // best-effort arena teardown during shutdown
+            }
+        });
         offHeapArenas.clear();
         for (SbbEntity entity : entities.values()) {
             entity.getSlot().markShutdown();

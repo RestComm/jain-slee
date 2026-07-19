@@ -17,8 +17,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.release>21</maven.compiler.release>
-        <spring-boot.version>3.3.0</spring-boot.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <spring-boot.version>3.5.16</spring-boot.version>
         <microjainslee.version>1.2.0-SNAPSHOT</microjainslee.version>
         <surefire.version>3.5.4</surefire.version>
         <log4j.version>2.23.1</log4j.version>
@@ -120,7 +120,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>25</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>com.microjainslee</groupId>
@@ -152,6 +152,13 @@
                 <configuration>
                     <mainClass>com.example.helloworld.spring.HelloWorldSpringApplication</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

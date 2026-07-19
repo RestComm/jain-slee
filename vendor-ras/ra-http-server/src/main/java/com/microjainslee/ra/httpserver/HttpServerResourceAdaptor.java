@@ -14,19 +14,29 @@ import com.microjainslee.api.SimpleActivityContextHandle;
 import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 import com.microjainslee.ra.spi.AbstractResourceAdaptor;
 
+import com.microjainslee.ra.httpserver.events.HttpUpload;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.http.HttpMethod;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.FileUpload;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -107,7 +117,18 @@ public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
                 .setTcpNoDelay(true)
                 .setCompressionSupported(false);
 
-        server = vertx.createHttpServer(serverOptions).requestHandler(this::route);
+        // vertx-web Router: BodyHandler parses form fields, multipart file
+        // uploads and cookies for us, so SBBs receive them already structured.
+        Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create()
+                .setHandleFileUploads(true)
+                .setDeleteUploadedFilesOnEnd(true)
+                .setBodyLimit(32L * 1024 * 1024));
+        router.get("/health").handler(ctx ->
+                writeJson(ctx.response(), 200, "{\"status\":\"ok\"}"));
+        router.route().handler(this::handle);
+
+        server = vertx.createHttpServer(serverOptions).requestHandler(router);
 
         CountDownLatch bound = new CountDownLatch(1);
         Throwable[] failure = new Throwable[1];
@@ -157,49 +178,57 @@ public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
 
     // ── routing ─────────────────────────────────────────────────────
 
-    private void route(HttpServerRequest req) {
-        String path = req.path();
-        if (req.method() == HttpMethod.GET && "/health".equals(path)) {
-            writeJson(req.response(), 200, "{\"status\":\"ok\"}");
-            return;
-        }
-
-        // For all other requests: read body (if any) and fire generic event
-        req.body().onComplete(bodyRes -> {
-            String body = null;
-            if (bodyRes.succeeded() && bodyRes.result().length() > 0) {
-                body = bodyRes.result().toString(StandardCharsets.UTF_8);
-            }
-            fireHttpRequest(req, body);
-        });
-    }
-
-    // ── SLEE-facing ─────────────────────────────────────────────────
-
     /**
-     * Fires an {@link HttpWebRequestEvent} for the given request, storing the
-     * response handle so the application SBB can reply asynchronously via
-     * {@link #sendHttpResponse(String, int, String, String)}.
+     * Catch-all handler. The {@code BodyHandler} has already parsed the body,
+     * form fields, multipart uploads and cookies; we snapshot them into an
+     * {@link HttpWebRequestEvent} and fire it, storing the pending response so
+     * the SBB can reply via a response command.
      */
-    private void fireHttpRequest(HttpServerRequest req, String body) {
+    private void handle(RoutingContext ctx) {
+        HttpServerRequest req = ctx.request();
         String sessionId = UUID.randomUUID().toString();
-        pendingResponses.put(sessionId, req.response());
+        pendingResponses.put(sessionId, ctx.response());
 
         Map<String, String> headers = new HashMap<>();
         req.headers().forEach(e -> headers.put(e.getKey(), e.getValue()));
 
+        Map<String, String> queryParams = new HashMap<>();
+        ctx.queryParams().forEach(e -> queryParams.put(e.getKey(), e.getValue()));
+
+        Map<String, String> formAttrs = new HashMap<>();
+        req.formAttributes().forEach(e -> formAttrs.put(e.getKey(), e.getValue()));
+
+        Map<String, String> cookies = new HashMap<>();
+        req.cookies().forEach(c -> cookies.put(c.getName(), c.getValue()));
+
+        List<HttpUpload> uploads = new ArrayList<>();
+        for (FileUpload fu : ctx.fileUploads()) {
+            byte[] content = readUpload(fu);
+            uploads.add(new HttpUpload(fu.name(), fu.fileName(), fu.contentType(), content));
+        }
+
+        String body = null;
+        byte[] bytes = null;
+        Buffer buf = ctx.body() != null ? ctx.body().buffer() : null;
+        if (buf != null && buf.length() > 0) {
+            bytes = buf.getBytes();
+            body = buf.toString(StandardCharsets.UTF_8);
+        }
+
         HttpWebRequestEvent event = new HttpWebRequestEvent(
-                sessionId,
-                req.method().name(),
-                req.path(),
-                headers,
-                body);
+                sessionId, req.method().name(), req.path(), headers, body, bytes,
+                queryParams, formAttrs, cookies, uploads);
 
         // fireEvent may briefly block on entity acquisition — keep it off the event loop
         vertx.executeBlocking(() -> {
             endpoint().fireEvent(new SimpleActivityContextHandle(sessionId), event);
             return null;
         }, false).onComplete(res -> {
+            // NOTE: the activity context is ended by the RA endpoint after the
+            // response command is sent (see HttpServerRaEndpoint.sendCommand),
+            // NOT here — event dispatch is asynchronous (Disruptor ring), so
+            // ending the activity on this thread would race the consumer that
+            // still has the request event queued.
             if (res.failed()) {
                 LOG.error("HTTP fireEvent failed session={}", sessionId, res.cause());
                 HttpServerResponse response = pendingResponses.remove(sessionId);
@@ -242,9 +271,85 @@ public final class HttpServerResourceAdaptor extends AbstractResourceAdaptor {
         } else {
             response.end();
         }
+        endRequestActivity(sessionId);
+    }
+
+    /**
+     * Full-fidelity response: arbitrary headers ({@code Set-Cookie},
+     * {@code Location}, {@code Cache-Control}, …) plus a text <i>or</i> binary
+     * body. This is what lets a complete web app (redirects, sessions, static
+     * assets, images) live behind the RA contract instead of app-level Vert.x.
+     *
+     * @param sessionId   session id from the inbound event
+     * @param statusCode  HTTP status
+     * @param contentType Content-Type value (may be null)
+     * @param textBody    UTF-8 text body, or null
+     * @param binaryBody  raw bytes body, or null (takes precedence when both set)
+     * @param headers     extra response headers (may be null)
+     */
+    public void sendHttpResponse(String sessionId, int statusCode, String contentType,
+                                 String textBody, byte[] binaryBody,
+                                 Map<String, String> headers) {
+        HttpServerResponse response = pendingResponses.remove(sessionId);
+        if (response == null) {
+            LOG.warn(() -> "No pending response for sessionId=" + sessionId
+                    + " — may have already been sent or timed out");
+            return;
+        }
+        if (headers != null) {
+            headers.forEach(response::putHeader);
+        }
+        if (contentType != null && !contentType.isEmpty()) {
+            response.putHeader("Content-Type", contentType);
+        }
+        response.setStatusCode(statusCode);
+        if (binaryBody != null) {
+            response.end(Buffer.buffer(binaryBody));
+        } else if (textBody != null) {
+            response.end(textBody);
+        } else {
+            response.end();
+        }
+        endRequestActivity(sessionId);
+    }
+
+    /**
+     * End the per-request activity context after its response has been written.
+     *
+     * <p>Deferred onto the Vert.x event loop on purpose: {@code sendHttpResponse}
+     * is invoked from the SBB on the event-router (Disruptor) consumer thread,
+     * still inside the request event's transaction. Ending the activity there
+     * would fire {@code ActivityEndedEvent} re-entrantly and corrupt that
+     * thread's transaction context ("nested transaction mismatch"). Running it
+     * via {@link io.vertx.core.Vertx#runOnContext} hops off the consumer thread,
+     * so the end is a clean top-level dispatch and the named activity is
+     * released instead of leaking in the naming facility.</p>
+     */
+    private void endRequestActivity(String sessionId) {
+        io.vertx.core.Vertx v = this.vertx;
+        if (v == null || sessionId == null) {
+            return;
+        }
+        v.runOnContext(ignore -> {
+            try {
+                endpoint().endActivity(new SimpleActivityContextHandle(sessionId));
+            } catch (RuntimeException e) {
+                LOG.debug(() -> "endActivity(" + sessionId + ") ignored: " + e.getMessage());
+            }
+        });
     }
 
     // ── helpers ─────────────────────────────────────────────────────
+
+    /** Read an uploaded multipart file (written to disk by BodyHandler) into memory. */
+    private static byte[] readUpload(FileUpload fu) {
+        try {
+            return Files.readAllBytes(Path.of(fu.uploadedFileName()));
+        } catch (Exception e) {
+            LOG.warn("Failed to read uploaded file {}: {}", fu.fileName(), e.getMessage());
+            return new byte[0];
+        }
+    }
 
     private static void writeJson(HttpServerResponse response, int status, String body) {
         response.putHeader("Content-Type", "application/json")

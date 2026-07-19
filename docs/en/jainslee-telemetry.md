@@ -1,6 +1,6 @@
 # jainslee-telemetry — Zero-CPU Observability & Metrics Engine
 
-> **Modules:** `jainslee-telemetry` (+ `jainslee-telemetry-vertx` for HTTP REST API)
+> **Modules:** `jainslee-telemetry` (+ `jainslee-monitor` for HTTP REST API)
 >
 > **Replaces:** JAIN SLEE 1.1 AlarmFacility, UsageFacility, TraceFacility
 >
@@ -373,9 +373,9 @@ by the passive collectors — zero-CPU when not scraped.
 
 ---
 
-## jainslee-telemetry-vertx — HTTP REST Server
+## jainslee-monitor — HTTP REST Server
 
-The `jainslee-telemetry-vertx` module provides a standalone Vert.x HTTP server
+The `jainslee-monitor` module provides a standalone Vert.x HTTP server
 that exposes all telemetry data as REST endpoints — ready for Prometheus scraping,
 dashboard polling, and health checks.
 
@@ -384,7 +384,7 @@ dashboard polling, and health checks.
 ```xml
 <dependency>
     <groupId>com.microjainslee</groupId>
-    <artifactId>jainslee-telemetry-vertx</artifactId>
+    <artifactId>jainslee-monitor</artifactId>
     <version>${microjainslee.version}</version>
 </dependency>
 ```
@@ -465,48 +465,32 @@ router.get("/api/telemetry/metrics").handler(ctx -> ctx.end(telemetry.scrape()))
 vertx.createHttpServer().requestHandler(router).listen(8090);
 ```
 
-> **⚠️ EventRouter feeding — known gap.** The passive SBB/spunk/stale collectors
-> are fed by a one-line `.record()` call from the `EventRouter` after each
-> dispatch (see *Step 3*). That hook is **not yet present in `jainslee-core`**,
-> so today the per-SBB counters read zero while the **ResourceMonitor** (heap,
-> CPU, GC, threads), **AlarmEngine**, **AutoReconfigEngine** and **custom
-> metrics** are fully live. Wiring the EventRouter hook is the single change that
-> lights up the remaining collectors — see the integration point below.
+### Step 3: EventRouter Feeding — DispatchObserver
 
-### Step 3: EventRouter Integration Points
-
-The EventRouter calls into telemetry at two points — after each successful
-
-dispatch and on error:
+The per-SBB collectors are fed straight from the dispatch path through the
+core's **`DispatchObserver`** seam. `jainslee-core` owns the interface (so it
+owes telemetry no dependency); `jainslee-telemetry` ships the bridge that fans
+each delivery outcome out to the right collectors:
 
 ```java
-// In EventRouter.dispatch():
-long start = System.nanoTime();
-long memBefore = Runtime.getRuntime().totalMemory() -
-                 Runtime.getRuntime().freeMemory();
-
-try {
-    entity.submit(() -> sbb.onEvent(event, aci));
-} catch (Throwable t) {
-    if (telemetryPort != null)
-        telemetryPort.errorCollector().record(sbbType, entityId, t);
-    throw t;
-} finally {
-    if (telemetryPort != null) {
-        long latencyNs = System.nanoTime() - start;
-        long memAfter = Runtime.getRuntime().totalMemory() -
-                        Runtime.getRuntime().freeMemory();
-        telemetryPort.sbbCollector()
-            .onEventProcessed(sbbType, entityId, latencyNs,
-                              memAfter - memBefore);
-        telemetryPort.spunkDetector()
-            .onEventProcessed(sbbType, entityId, latencyNs,
-                              memAfter - memBefore);
-        telemetryPort.staleDetector()
-            .trackHeartbeat(entityId, sbbType);
-    }
-}
+// One line in your bootstrap (AppTelemetry.install() already does this):
+container.getEventRouter().setDispatchObserver(
+        new TelemetryDispatchObserver(telemetry));
 ```
+
+What one registration feeds:
+
+| Delivery outcome | Collector updates |
+|------------------|-------------------|
+| `onEvent` returned | `SbbCollector.onEventProcessed` (throughput, p99 latency) + `SpunkDetector` sample + `StaleDetector` heartbeat |
+| `onEvent` threw | `SbbCollector.onError` + `ErrorCollector.record` (ring buffer) + `StaleDetector` heartbeat — an erroring entity shows as an **error storm**, not a leak |
+
+The router notifies the observer on **every** delivery path (inline,
+per-entity virtual thread, ASYNC_COMMIT), measures the wall time actually
+spent inside `onEvent`, and shields itself from a throwing observer.
+When no observer is registered the cost is **one volatile read per delivery**
+— nothing else. Latency is measured on the delivering thread, so p99 numbers
+are the SBB's real processing time, not queue time.
 
 ### Step 4: Verify
 

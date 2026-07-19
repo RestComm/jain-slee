@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Test doubles for exercising the {@code telemetry/} and {@code autonomous/}
- * modules without a running container: a builder for
+ * Test doubles for exercising the {@code telemetry/} module without a running
+ * container: a builder for
  * {@link TelemetryPort.TelemetrySnapshot} and a controllable fake
  * {@link TelemetryPort} backed by a real {@link AlarmEngine} (so alarm
  * assertions are exact).

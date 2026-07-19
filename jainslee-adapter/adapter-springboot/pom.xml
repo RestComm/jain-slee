@@ -26,7 +26,8 @@
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <spring-boot.version>3.3.0</spring-boot.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <spring-boot.version>3.5.16</spring-boot.version>
         <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
     </properties>
@@ -55,13 +56,8 @@
         </dependency>
         <!--
              Test scope: JUnit 4 (NOT 5) + plain Hamcrest matchers, NOT
-             spring-boot-starter-test. The full Spring test slice pulls
-             in @SpringBootTest + ApplicationContextRunner + JUnit
-             Jupiter, but the first one breaks on Java 25 v69 (Spring
-             Boot 3.3.0's ASM can only read up to v65). We test the
-             wiring with plain reflection so no ASM scanning is
-             triggered; the same assertions, no Spring classpath
-             scan. Upgrade to Spring Boot 3.4+ to restore @SpringBootTest.
+             spring-boot-starter-test. Plain reflection avoids pulling in
+             the full Spring test slice while still asserting wiring.
         -->
         <dependency>
             <groupId>junit</groupId>

@@ -40,10 +40,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * autonomous module still gets analysis, alarms and reports, and
  * {@code TRIGGER_RELIEF} recommendations are downgraded to log lines.</p>
  *
- * <p>Runtime control (wired to REST/GUI): {@link #setEnabled(boolean)},
- * {@link #setMode(AIMode)}, {@link #analyzeNow()}, {@link #report(ReportAudience)}.</p>
+ * <p>Runtime control: apps steer the agent exclusively through the
+ * {@link AIAgentControl} interface this engine implements — REST/GUI are just
+ * transports over the same methods.</p>
  */
-public final class AIAgentEngine implements AutoCloseable {
+public final class AIAgentEngine implements AIAgentControl, AutoCloseable {
 
     private static final Logger LOG = LogManager.getLogger(AIAgentEngine.class);
 
@@ -87,6 +88,9 @@ public final class AIAgentEngine implements AutoCloseable {
     private final AtomicReference<AIAnalysis> lastAnalysis = new AtomicReference<>();
     private final String model;
 
+    /** Optional hook for RELEASE_ENTITY — wired to {@code container::releaseEntity}. */
+    private volatile java.util.function.Consumer<String> entityReleaser;
+
     /**
      * Creates the engine. Nothing starts until {@link #start()} is called.
      *
@@ -107,6 +111,18 @@ public final class AIAgentEngine implements AutoCloseable {
         this.enabled = config.enabled();
         this.mode = config.mode();
         this.model = config.model();
+    }
+
+    /**
+     * Wires the RELEASE_ENTITY action to the container (or any releaser).
+     * Without it, RELEASE_ENTITY recommendations downgrade to log lines.
+     *
+     * @param releaser e.g. {@code container::releaseEntity}
+     * @return this engine, for fluent wiring
+     */
+    public AIAgentEngine entityReleaser(java.util.function.Consumer<String> releaser) {
+        this.entityReleaser = releaser;
+        return this;
     }
 
     // ── lifecycle ────────────────────────────────────────────────────
@@ -306,6 +322,22 @@ public final class AIAgentEngine implements AutoCloseable {
             case "DISABLE_AUTO_RECONFIG" -> {
                 telemetry.setAutoReconfigEnabled(false);
                 LOG.warn("[ai] auto-reconfig DISABLED: {}", truncate(rec.reasoning()));
+            }
+            case "RELEASE_ENTITY" -> {
+                var releaser = this.entityReleaser;
+                String target = rec.target();
+                if (releaser == null) {
+                    LOG.warn("[ai] RELEASE_ENTITY recommended but no releaser wired: {}",
+                            truncate(rec.reasoning()));
+                    return;
+                }
+                if (target == null || target.isBlank()) {
+                    LOG.warn("[ai] RELEASE_ENTITY rejected — no target entity id");
+                    return;
+                }
+                releaser.accept(target);
+                LOG.warn("[ai] RELEASE_ENTITY executed for '{}': {}", target,
+                        truncate(rec.reasoning()));
             }
             case "RAISE_ALARM" -> telemetry.alarmEngine().fire(
                     AlarmEngine.TelemetryAlarmLevel.WARNING, "ai-agent",

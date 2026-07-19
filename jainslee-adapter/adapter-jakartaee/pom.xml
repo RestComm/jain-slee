@@ -24,11 +24,12 @@
     </description>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <jakarta.ejb.api.version>4.0.0</jakarta.ejb.api.version>
         <jakarta.annotation.api.version>2.1.1</jakarta.annotation.api.version>
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>2.26.0</log4j.version>
     </properties>
 
     <dependencies>
@@ -75,14 +76,11 @@
 
     <build>
         <plugins>
-            <!-- Java 8 source/target is enforced by the parent, but restated here
-                 so the module is self-describing for IDEs and BOM tools. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <release>25</release>
                 </configuration>
             </plugin>
         </plugins>

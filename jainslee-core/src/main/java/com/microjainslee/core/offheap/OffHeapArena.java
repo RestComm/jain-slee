@@ -39,7 +39,7 @@ import java.util.zip.CRC32;
  * context (the autonomous guardian) — CMP access is single-threaded per
  * entity, but the mover must not race the entity's own thread.</p>
  */
-public final class OffHeapArena implements AutoCloseable {
+public final class OffHeapArena implements OffHeapSlotArena {
 
     private static final Logger LOG = LogManager.getLogger(OffHeapArena.class);
 
@@ -101,6 +101,7 @@ public final class OffHeapArena implements AutoCloseable {
 
     public OffHeapLayout layout() { return layout; }
     public String name() { return name; }
+    public int maxSlots() { return maxSlots; }
     public int occupiedCount() { return slotMap.size(); }
     public int freeListSize() { return freeList.size(); }
     public int highWaterMark() { return nextSlotIndex.get(); }

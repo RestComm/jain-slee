@@ -27,9 +27,11 @@ import com.microjainslee.telemetry.TelemetryPort;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
-import jakarta.annotation.PostConstruct;
+import io.quarkus.runtime.StartupEvent;
+
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +42,9 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Quarkus CDI bootstrap — wires the SIP RA and SIP SBBs
  * into the MicroSleeContainer via the 3-port contract.
+ *
+ * <p>Observes {@link StartupEvent} so this bean is not left lazy: nothing else
+ * injects it, so {@code @PostConstruct} alone would never register the SIP RA.</p>
  */
 @ApplicationScoped
 public final class SipGatewayBootstrap {
@@ -51,9 +56,14 @@ public final class SipGatewayBootstrap {
 
     private volatile SipServletRaEndpoint sipEndpoint;
     private volatile TelemetryPort telemetryPort;
+    private volatile boolean started;
 
-    @PostConstruct
-    void init() {
+    void onStart(@Observes StartupEvent ev) {
+        if (started) {
+            return;
+        }
+        started = true;
+        LOG.info("SIP Gateway bootstrap triggered by StartupEvent");
         if (container.getState() != MicroSleeContainer.State.STARTED) {
             container.start();
         }

@@ -42,6 +42,8 @@ public final class PromptBuilder {
 
                 Allowed actions (anything else is ignored):
                 - TRIGGER_RELIEF          poke the memory guardian to trim caches now
+                - RELEASE_ENTITY          force-release one leaked SBB entity; \
+                "target" MUST be an id from leakedEntityIds
                 - ENABLE_AUTO_RECONFIG    turn the rule-based auto-reconfig engine on
                 - DISABLE_AUTO_RECONFIG   turn it off (e.g. it is oscillating)
                 - RAISE_ALARM             surface a warning to operators
@@ -119,6 +121,9 @@ public final class PromptBuilder {
         }
         o.put("spunkAlerts", snap.spunks().size());
         o.put("leakedEntities", snap.stales().stream().filter(s -> s.leaked()).count());
+        ArrayNode leakedIds = o.putArray("leakedEntityIds");   // targets for RELEASE_ENTITY
+        snap.stales().stream().filter(s -> s.leaked()).limit(20)
+                .forEach(s -> leakedIds.add(s.entityId()));
         o.put("activeAlarms", snap.activeAlarms().size());
         ArrayNode alarms = o.putArray("alarmDetails");
         snap.activeAlarms().stream().limit(10).forEach(a ->

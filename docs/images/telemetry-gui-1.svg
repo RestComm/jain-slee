@@ -82,5 +82,5 @@
   <text x="80" y="447" font-size="9" fill="#c9b37e">Auto-reconfig: [● ON]  Memory warn: [85%]  CPU warn: [80%]  Error storm: [100/min]  Stale warn: [5min]</text>
   
   <!-- Footer -->
-  <text x="400" y="500" text-anchor="middle" font-size="9" fill="#3a3a5a">Steampunk Dashboard — jainslee-telemetry-vertx — 2s polling</text>
+  <text x="400" y="500" text-anchor="middle" font-size="9" fill="#3a3a5a">Steampunk Dashboard — jainslee-monitor — 2s polling</text>
 </svg>

@@ -32,6 +32,7 @@ import com.microjainslee.ra.httpclient.HttpCallbackClientRa;
 import com.microjainslee.ra.httpclient.HttpCallbackRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerRaEndpoint;
 import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
+import com.microjainslee.ra.httpserver.events.HttpWebRequestEvent;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -133,19 +134,10 @@ class SpringUssdSmokeTest {
     // ---- wiring helpers ----
 
     private void wireHttpServerRa() {
+        // HttpServerResourceAdaptor is a thin Vert.x ingress — session / event
+        // factories live in HttpServerSbb (HttpWebRequestEvent → HttpUssdBeginEvent).
         HttpServerResourceAdaptor ra = new HttpServerResourceAdaptor();
         ra.setPort(httpPort);
-        ra.setBeginEventFactory((sid, msisdn, ussd, cbUrl) ->
-                new HttpUssdBeginEvent(sid, msisdn, ussd, cbUrl));
-        ra.setActivityContextFactory((sid, ctx) -> container.createActivityContext(sid));
-        ra.setSessionPreparer((sid, cbUrl, aci) -> {
-            demoContext.storeCallbackUrl(sid, cbUrl);
-            var httpLo = container.acquireEntity(demoContext.httpEntityId(sid), HttpServerSbb.class);
-            httpLo.setPriority(15);
-            HttpServerSbb httpSbb = (HttpServerSbb) httpLo.getSbb();
-            httpSbb.bindSelf(httpLo);
-            container.attach(sid, httpLo);
-        });
         httpEndpoint = new HttpServerRaEndpoint(ra);
         container.registerRa(httpEndpoint, httpEndpoint);
     }
@@ -207,6 +199,7 @@ class SpringUssdSmokeTest {
     }
 
     private void bindEventMappings() {
+        container.mapEventToSbb(HttpWebRequestEvent.class, "HttpServerSbb");
         container.mapEventToSbb(HttpUssdBeginEvent.class, "HttpServerSbb");
         container.mapEventToSbb(Ss7UssdBeginEvent.class, "Ss7UssdIngress");
         container.mapEventToSbb(GrpcMenuRequestEvent.class, "GrpcClientSbb");

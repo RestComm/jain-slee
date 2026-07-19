@@ -4,7 +4,7 @@
 
 package com.example.ussddemo.quarkus.bootstrap;
 
-import com.microjainslee.ra.httpserver.HttpServerSessionStore;
+import com.microjainslee.ra.httpserver.collab.HttpServerSessionStore;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Map;

@@ -3,7 +3,7 @@
     <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
   </defs>
   <rect width="800" height="180" fill="#FAFBFC" rx="8"/>
-  <text x="30" y="28" font-size="14" fill="#333" font-weight="bold">jainslee-telemetry-vertx/</text>
+  <text x="30" y="28" font-size="14" fill="#333" font-weight="bold">jainslee-monitor/</text>
   <line x1="35" y1="38" x2="35" y2="60" stroke="#555" stroke-width="1.2"/>
   <line x1="35" y1="60" x2="70" y2="60" stroke="#555" stroke-width="1.2"/>
   <line x1="70" y1="60" x2="70" y2="75" stroke="#555" stroke-width="1.2"/>

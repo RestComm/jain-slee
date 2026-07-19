@@ -34,10 +34,8 @@ import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
 import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
 import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
 
-import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -66,7 +64,6 @@ public final class EmbeddedUssdBootstrap {
     private HttpServerRaEndpoint httpServerEndpoint;
     private HttpCallbackRaEndpoint httpCallbackEndpoint;
     private GrpcMenuRaEndpoint grpcMenuEndpoint;
-    private ManagedChannel grpcChannel;
 
     public EmbeddedUssdBootstrap(MicroSleeContainer container, UssdDemoRuntime runtime) {
         this.container = container;
@@ -88,7 +85,7 @@ public final class EmbeddedUssdBootstrap {
         if (grpcMenuEndpoint != null) { grpcMenuEndpoint.deactivate(); }
         if (httpCallbackEndpoint != null) { httpCallbackEndpoint.deactivate(); }
         if (httpServerEndpoint != null) { httpServerEndpoint.deactivate(); }
-        if (grpcChannel != null) { grpcChannel.shutdownNow(); grpcChannel = null; }
+        // the gRPC channel is owned + shut down by the RA (deactivate above).
     }
 
     public String tierFor(String msisdn) {
@@ -160,12 +157,16 @@ public final class EmbeddedUssdBootstrap {
     }
 
     private void wireGrpcMenuRa(String host, int port) {
-        grpcChannel = NettyChannelBuilder.forAddress(host, port).usePlaintext().build();
+        GrpcMenuResourceAdaptor ra = new GrpcMenuResourceAdaptor();
+        grpcMenuEndpoint = new GrpcMenuRaEndpoint(ra);
+        // Transport lives in the RA: it owns the ManagedChannel for host:port.
+        // The app only builds its generated stub from the RA-provided channel.
+        grpcMenuEndpoint.setTarget(host, port);
 
         GrpcMenuUpstream upstream = (msisdn, ussdString, sessionId) -> {
             var req = com.example.ussddemo.grpc.proto.MenuRequest.newBuilder()
                     .setMsisdn(msisdn).setUssdString(ussdString).setSessionId(sessionId == null ? "" : sessionId).build();
-            var stub = com.example.ussddemo.grpc.proto.UssdMenuServiceGrpc.newBlockingStub(grpcChannel)
+            var stub = com.example.ussddemo.grpc.proto.UssdMenuServiceGrpc.newBlockingStub(grpcMenuEndpoint.channel())
                     .withDeadlineAfter(5_000, TimeUnit.MILLISECONDS);
             try {
                 var resp = stub.resolveMenu(req);
@@ -198,13 +199,11 @@ public final class EmbeddedUssdBootstrap {
 
         GrpcActivityContextLookup lookup = sessionId -> container.getActivityContextNamingFacility().lookup(sessionId);
 
-        GrpcMenuResourceAdaptor ra = new GrpcMenuResourceAdaptor();
-        grpcMenuEndpoint = new GrpcMenuRaEndpoint(ra);
         grpcMenuEndpoint.setGrpcMenuUpstream(upstream);
         grpcMenuEndpoint.setEventFactory(eventFactory);
         grpcMenuEndpoint.setActivityContextLookup(lookup);
         container.registerRa(grpcMenuEndpoint, grpcMenuEndpoint);
-        LOG.info("gRPC menu RA wired to {}:{}", host, port);
+        LOG.info("gRPC menu RA wired to {}:{} (channel owned by RA)", host, port);
     }
 
     private void wirePrometheusRa() {

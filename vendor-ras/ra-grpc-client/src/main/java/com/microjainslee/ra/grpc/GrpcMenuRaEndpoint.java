@@ -70,6 +70,16 @@ public final class GrpcMenuRaEndpoint implements RaEndpointPort, RaCommandPort {
         delegate.setActivityContextLookup(lookup);
     }
 
+    /** Configure the upstream gRPC endpoint; the RA owns the channel. */
+    public void setTarget(String host, int port) {
+        delegate.setTarget(host, port);
+    }
+
+    /** The RA-managed gRPC channel — apps build their generated stub from this. */
+    public io.grpc.Channel channel() {
+        return delegate.channel();
+    }
+
     // ---- RaEndpointPort ----
 
     @Override

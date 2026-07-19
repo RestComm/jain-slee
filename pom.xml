@@ -67,7 +67,6 @@
         <module>jainslee-adapter</module>
         <module>vendor-ras</module>
         <module>jainslee-telemetry</module>
-        <module>jainslee-telemetry-vertx</module>
         <module>jainslee-monitor</module>
         <module>jainslee-autonomous</module>
         <module>jainslee-ai</module>
@@ -116,7 +115,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.14.0</version>
                 <configuration>
                     <source>25</source>
                     <target>25</target>

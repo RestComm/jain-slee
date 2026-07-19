@@ -15,10 +15,7 @@ import com.microjainslee.api.RaEndpointPort;
 import com.microjainslee.api.TimerPort;
 import com.microjainslee.api.Sbb;
 import com.microjainslee.api.annotations.SbbAnnotation;
-import com.microjainslee.core.EventDeliveryMode;
 import com.microjainslee.core.EventRouter;
-import com.microjainslee.core.InMemoryActivityContextNamingFacility;
-import com.microjainslee.core.MicroSleeConfiguration;
 import com.microjainslee.core.MicroSleeContainer;
 import com.microjainslee.quarkus.MicroJainsleeProducer;
 import com.microjainslee.quarkus.MicroJainsleeRecorder;
@@ -44,7 +41,10 @@ import java.util.Set;
  * Quarkus build-step processor for the micro-jainslee extension.
  */
 public class MicroJainsleeProcessor {
-    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager.getLogger(MicroJainsleeProcessor.class);
+    // jboss-logging only — Log4j2 on the deployment classpath clashes with the
+    // Quarkus Maven plugin realm (NoSuchFieldError on DefaultFlowMessageFactory).
+    private static final org.jboss.logging.Logger LOG =
+            org.jboss.logging.Logger.getLogger(MicroJainsleeProcessor.class);
 
     private static final DotName SBB_ANNOTATION = DotName.createSimple(SbbAnnotation.class.getName());
     private static final String FEATURE_NAME = "micro-jainslee";
@@ -60,28 +60,6 @@ public class MicroJainsleeProcessor {
                 .addBeanClasses(MicroJainsleeProducer.class.getName())
                 .setUnremovable()
                 .build();
-    }
-
-    @BuildStep
-    MicroSleeConfiguration containerConfig(MicroJainsleeBuildConfig config) {
-        return MicroSleeConfiguration.builder()
-                .eventRouterBufferSize(powerOfTwo(config.bufferSize(), "microjainslee.buffer-size"))
-                .preferVirtualThreads(config.preferVirtualThreads())
-                .sbbPoolMin(config.sbbPoolMin())
-                .sbbPoolMax(config.sbbPoolMax())
-                .sbbPerVirtualThread(config.sbbPerVirtualThread())
-                .sbbTypePoolMinIdle(config.sbbTypePoolMinIdle())
-                .eventDeliveryMode(EventDeliveryMode.parse(config.eventDelivery()))
-                .offHeapEnabled(config.offHeapEnabled())
-                .offHeapStorageDir(config.offHeapStorageDir())
-                .build();
-    }
-
-    @BuildStep
-    @Record(ExecutionTime.STATIC_INIT)
-    void installContainer(MicroJainsleeRecorder recorder, MicroSleeConfiguration configuration) {
-        // Recorder stashes the container in its own static fields; no holder needed.
-        recorder.createContainer(configuration);
     }
 
     @BuildStep
@@ -123,67 +101,63 @@ public class MicroJainsleeProcessor {
         return ci.interfaceNames().contains(SBB_INTERFACE);
     }
 
+    /**
+     * Expose the container as a STATIC_INIT synthetic bean so normal {@code @Inject}
+     * into application beans (e.g. bootstrap) resolves at build time.
+     */
     @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
-    SyntheticBeanBuildItem containerSyntheticBean(MicroJainsleeRecorder recorder,
-                                                 MicroSleeConfiguration configuration) {
-        LOG.debug("Registering synthetic bean for MicroSleeContainer (bufferSize={}, sbbPool={}-{}, perVT={})",
-                configuration.getEventRouterBufferSize(),
-                configuration.getSbbPoolMin(), configuration.getSbbPoolMax(),
-                configuration.isSbbPerVirtualThread());
-        return SyntheticBeanBuildItem.configure(MicroSleeContainer.class)
+    @Record(ExecutionTime.STATIC_INIT)
+    void containerAndFacilityBeans(MicroJainsleeRecorder recorder,
+                                   MicroJainsleeBuildConfig buildConfig,
+                                   BuildProducer<SyntheticBeanBuildItem> beans) {
+        int bufferSize = powerOfTwo(buildConfig.bufferSize(), "microjainslee.container.buffer-size");
+        LOG.debugf("Registering synthetic bean for MicroSleeContainer (bufferSize=%s, sbbPool=%s-%s, perVT=%s)",
+                bufferSize,
+                buildConfig.sbbPoolMin(), buildConfig.sbbPoolMax(),
+                buildConfig.sbbPerVirtualThread());
+        io.quarkus.runtime.RuntimeValue<MicroSleeContainer> container =
+                recorder.createContainer(
+                        bufferSize,
+                        buildConfig.preferVirtualThreads(),
+                        buildConfig.sbbPoolMin(),
+                        buildConfig.sbbPoolMax(),
+                        buildConfig.sbbPerVirtualThread(),
+                        buildConfig.sbbTypePoolMinIdle(),
+                        buildConfig.eventDelivery(),
+                        buildConfig.offHeapEnabled(),
+                        buildConfig.offHeapStorageDir().orElse(""));
+        beans.produce(SyntheticBeanBuildItem.configure(MicroSleeContainer.class)
                 .scope(ApplicationScoped.class)
-                .setRuntimeInit()
-                .runtimeValue(recorder.containerRuntimeValue(configuration))
-                .done();
-    }
-
-    @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
-    SyntheticBeanBuildItem eventRouterSyntheticBean(MicroJainsleeRecorder recorder,
-                                                    MicroSleeConfiguration configuration) {
-        LOG.debug("Registering synthetic bean for EventRouter");
-        return SyntheticBeanBuildItem.configure(EventRouter.class)
+                .unremovable()
+                .runtimeValue(container)
+                .done());
+        beans.produce(SyntheticBeanBuildItem.configure(EventRouter.class)
                 .scope(ApplicationScoped.class)
-                .setRuntimeInit()
-                .runtimeValue(recorder.eventRouterRuntimeValue(configuration))
-                .done();
-    }
-
-    @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
-    SyntheticBeanBuildItem timerPortSyntheticBean(MicroJainsleeRecorder recorder,
-                                                  MicroSleeConfiguration configuration) {
-        LOG.debug("Registering synthetic bean for TimerPort");
-        return SyntheticBeanBuildItem.configure(TimerPort.class)
+                .unremovable()
+                .runtimeValue(recorder.eventRouterOf(container))
+                .done());
+        beans.produce(SyntheticBeanBuildItem.configure(TimerPort.class)
                 .scope(ApplicationScoped.class)
-                .setRuntimeInit()
-                .runtimeValue(recorder.timerPortRuntimeValue(configuration))
-                .done();
-    }
-
-    @BuildStep
-    @Record(ExecutionTime.RUNTIME_INIT)
-    SyntheticBeanBuildItem acnfSyntheticBean(MicroJainsleeRecorder recorder,
-                                             MicroSleeConfiguration configuration) {
-        LOG.debug("Registering synthetic bean for InMemoryActivityContextNamingFacility");
-        return SyntheticBeanBuildItem.configure(InMemoryActivityContextNamingFacility.class)
+                .unremovable()
+                .runtimeValue(recorder.timerPortOf(container))
+                .done());
+        beans.produce(SyntheticBeanBuildItem.configure(MicroSleeContainer.AcnfBackend.class)
                 .scope(ApplicationScoped.class)
-                .setRuntimeInit()
-                .runtimeValue(recorder.acnfRuntimeValue(configuration))
-                .done();
+                .unremovable()
+                .runtimeValue(recorder.acnfOf(container))
+                .done());
     }
 
     /**
      * Scan the Jandex index for {@code @SbbAnnotation}-annotated classes and register a
-     * synthetic bean for each. Only runs when {@code microjainslee.deployment.scan.enabled=true}.
+     * synthetic bean for each. Only runs when {@code microjainslee.container.deployment.scan.enabled=true}.
      */
     @BuildStep
     void sbbSyntheticBeans(BuildProducer<SyntheticBeanBuildItem> beans,
                            CombinedIndexBuildItem indexBuildItem,
                            MicroJainsleeBuildConfig config) {
         if (!config.scanEnabled()) {
-            LOG.info("@Sbb scan disabled (microjainslee.deployment.scan.enabled=false)");
+            LOG.info("@Sbb scan disabled (microjainslee.container.deployment.scan.enabled=false)");
             return;
         }
         IndexView index = indexBuildItem.getIndex();
@@ -201,14 +175,32 @@ public class MicroJainsleeProcessor {
             }
             String fqn = ci.name().toString();
             if (!matches(fqn, includes, excludes)) {
-                LOG.debug("Skipping @Sbb (filter mismatch): {}", fqn);
+                LOG.debugf("Skipping @Sbb (filter mismatch): %s", fqn);
+                continue;
+            }
+            if (ci.isAbstract() || ci.isInterface()) {
+                LOG.debugf("Skipping @Sbb CDI synthetic bean for abstract/interface %s "
+                        + "(register via MicroSleeContainer.registerSbbType)", fqn);
                 continue;
             }
             Class<?> beanClass;
             try {
-                beanClass = Class.forName(fqn);
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                if (cl == null) {
+                    cl = MicroJainsleeProcessor.class.getClassLoader();
+                }
+                beanClass = Class.forName(fqn, false, cl);
             } catch (ClassNotFoundException e) {
-                LOG.warn("Failed to load @Sbb class {}: {}", fqn, e.getMessage());
+                LOG.warnf("Failed to load @Sbb class %s on build TCCL — "
+                        + "enable only for app types visible to augmentation, or keep "
+                        + "microjainslee.container.deployment.scan.enabled=false", fqn);
+                continue;
+            }
+            try {
+                beanClass.getConstructor(); // public no-arg only
+            } catch (NoSuchMethodException e) {
+                LOG.debugf("Skipping @Sbb CDI synthetic bean for %s (no public no-arg ctor; "
+                        + "use registerSbbType with a supplier)", fqn);
                 continue;
             }
             beans.produce(SyntheticBeanBuildItem.configure(beanClass)
@@ -216,9 +208,9 @@ public class MicroJainsleeProcessor {
                     .unremovable()
                     .done());
             registered++;
-            LOG.info("Discovered @Sbb {} -> registering synthetic bean", fqn);
+            LOG.infof("Discovered @Sbb %s -> registering synthetic bean", fqn);
         }
-        LOG.info("@Sbb scan complete: {} bean(s) registered", registered);
+        LOG.infof("@Sbb scan complete: %s bean(s) registered", registered);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -246,15 +238,15 @@ public class MicroJainsleeProcessor {
             try {
                 Class<?> clazz = Class.forName(fqn);
                 if (!RaEndpointPort.class.isAssignableFrom(clazz)) {
-                    LOG.warn("Class {} does not implement RaEndpointPort — skipping", fqn);
+                    LOG.warnf("Class %s does not implement RaEndpointPort — skipping", fqn);
                     continue;
                 }
                 if (!RaCommandPort.class.isAssignableFrom(clazz)) {
-                    LOG.warn("Class {} does not implement RaCommandPort — skipping", fqn);
+                    LOG.warnf("Class %s does not implement RaCommandPort — skipping", fqn);
                     continue;
                 }
             } catch (ClassNotFoundException e) {
-                LOG.warn("RA class not found: {} — skipping", fqn);
+                LOG.warnf("RA class not found: %s — skipping", fqn);
                 continue;
             }
             // Safe: passes only the class name string through to the recorder.
@@ -286,7 +278,7 @@ public class MicroJainsleeProcessor {
             }
             int eqIdx = trimmed.indexOf('=');
             if (eqIdx < 1 || eqIdx >= trimmed.length() - 1) {
-                LOG.warn("Invalid event-to-sbb mapping (expected eventClass=sbbName): {}", trimmed);
+                LOG.warnf("Invalid event-to-sbb mapping (expected eventClass=sbbName): %s", trimmed);
                 continue;
             }
             String eventClass = trimmed.substring(0, eqIdx).trim();
@@ -299,16 +291,9 @@ public class MicroJainsleeProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void shutdownContainer(MicroJainsleeRecorder recorder, ShutdownContextBuildItem shutdown) {
         LOG.debug("Wiring shutdown hook for MicroSleeContainer");
-        shutdown.addShutdownTask(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    recorder.stopContainer();
-                } catch (Throwable t) {
-                    LOG.error("MicroSleeContainer shutdown failed: {}", t.getMessage(), t);
-                }
-            }
-        });
+        // Quarkus injects ShutdownContextBuildItem here and passes the runtime
+        // ShutdownContext into the recorder method.
+        recorder.registerShutdownHook(shutdown);
     }
 
     // ----- helpers -----

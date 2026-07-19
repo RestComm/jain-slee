@@ -18,8 +18,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.release>21</maven.compiler.release>
-        <quarkus.platform.version>3.15.1</quarkus.platform.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <quarkus.platform.version>3.37.3</quarkus.platform.version>
         <microjainslee.version>1.2.0-SNAPSHOT</microjainslee.version>
         <surefire.version>3.5.4</surefire.version>
         <quarkus.build.skip>true</quarkus.build.skip>
@@ -73,6 +73,12 @@
             <version>${microjainslee.version}</version>
             <optional>true</optional>
         </dependency>
+        <!-- CDI producers for MicroSleeContainer (required by HelloWorldBootstrap @Inject) -->
+        <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>adapter-quarkus</artifactId>
+            <version>${microjainslee.version}</version>
+        </dependency>
 
         <!-- ra-http-server: HTTP ingress -->
         <dependency>
@@ -81,24 +87,10 @@
             <version>${microjainslee.version}</version>
         </dependency>
 
-        <!-- micro-jainslee telemetry -->
+        <!-- micro-jainslee telemetry + dashboard -->
         <dependency>
             <groupId>com.microjainslee</groupId>
             <artifactId>jainslee-telemetry</artifactId>
-            <version>${microjainslee.version}</version>
-        </dependency>
-
-        <!-- micro-jainslee autonomous: self-healing guardian + health evaluator -->
-        <dependency>
-            <groupId>com.microjainslee</groupId>
-            <artifactId>jainslee-autonomous</artifactId>
-            <version>${microjainslee.version}</version>
-        </dependency>
-
-        <!-- micro-jainslee AI agent: LLM ops advisor (DeepSeek/OpenAI-compatible) -->
-        <dependency>
-            <groupId>com.microjainslee</groupId>
-            <artifactId>jainslee-ai</artifactId>
             <version>${microjainslee.version}</version>
         </dependency>
         <dependency>
@@ -122,7 +114,7 @@
         <!-- Test -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
+            <artifactId>quarkus-junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -139,6 +131,15 @@
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>generate-code</goal>
+                            <goal>generate-code-tests</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <skip>${quarkus.build.skip}</skip>
                 </configuration>
@@ -148,7 +149,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>25</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>com.microjainslee</groupId>

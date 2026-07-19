@@ -54,6 +54,18 @@ public class GuardAndAdvisorTest {
     }
 
     @Test
+    public void releaseEntityIsAllowListedAsMutating() {
+        ActionGuard g = new ActionGuard(0.7);
+        List<Recommendation> recs = List.of(rec("RELEASE_ENTITY", 0.75));
+        assertEquals("FULL_AUTO executes it at threshold",
+                1, g.executable(recs, AIMode.FULL_AUTO).size());
+        assertTrue("SEMI_AUTO holds it below 0.85 (mutating)",
+                g.executable(recs, AIMode.SEMI_AUTO).isEmpty());
+        assertEquals(1, g.executable(List.of(rec("RELEASE_ENTITY", 0.9)),
+                AIMode.SEMI_AUTO).size());
+    }
+
+    @Test
     public void semiAutoRequiresHighConfidenceForMutatingActionsOnly() {
         ActionGuard g = new ActionGuard(0.7);
         List<Recommendation> recs = List.of(
@@ -132,6 +144,28 @@ public class GuardAndAdvisorTest {
         // Open circuit short-circuits: no further transport calls.
         advisor.analyze(AiTestFixtures.unhealthy());
         assertEquals(3, calls.get());
+    }
+
+    @Test
+    public void transientFailuresBelowThresholdResetOnSuccess() {
+        AtomicInteger call = new AtomicInteger();
+        OpenAiCompatAdvisor advisor = new OpenAiCompatAdvisor(cfg(), body -> {
+            // Fail calls 1 and 2, succeed on 3, then keep succeeding.
+            if (call.incrementAndGet() <= 2) {
+                throw new IOException("transient blip " + call.get());
+            }
+            return AiTestFixtures.completion(
+                    "{\"summary\":\"ok\",\"risks\":[],\"recommendations\":[]}");
+        });
+
+        assertFalse(advisor.analyze(AiTestFixtures.unhealthy()).parsed());  // fail 1
+        assertTrue("2 failures < 3 must not open the circuit", advisor.isAvailable());
+        assertFalse(advisor.analyze(AiTestFixtures.unhealthy()).parsed());  // fail 2
+        assertTrue(advisor.isAvailable());
+
+        assertTrue("success clears the streak", advisor.analyze(AiTestFixtures.unhealthy()).parsed());
+        assertTrue(advisor.isAvailable());
+        assertEquals(3, call.get());
     }
 
     @Test

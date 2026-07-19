@@ -13,14 +13,16 @@ package com.microjainslee.api.management;
 /**
  * JAIN-SLEE 1.1 §14 — Management facility marker.
  * <p>
- * <strong>TODO Phase 2:</strong> full MBean wiring via JMX 1.2.1.
- * The interface is intentionally empty in this R&amp;D milestone so that
- * downstream code can already take a {@code Management} dependency and
- * have it resolve once the concrete implementation lands. Embedders
- * should not rely on the marker carrying any methods.
+ * micro-jainslee deliberately does <strong>not</strong> expose management over
+ * JMX/MBeans — that surface is native-image-hostile and has been dropped. The
+ * concrete management surface is plain in-process ports plus the telemetry REST
+ * API (see {@code jainslee-telemetry} / {@code jainslee-monitor}). The interface
+ * is intentionally empty so downstream code can already take a {@code Management}
+ * dependency and have it resolve; embedders should not rely on the marker
+ * carrying any methods.
  *
  * @author Tran Nhan (nhanth87)
  */
 public interface Management {
-    // TODO Phase 2: full MBean via JMX 1.2.1, nevermind
+    // Management is exposed via ports + telemetry REST, not JMX/MBeans.
 }

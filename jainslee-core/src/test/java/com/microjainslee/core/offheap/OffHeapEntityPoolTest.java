@@ -95,8 +95,8 @@ public class OffHeapEntityPoolTest {
         return (SessionSbb) lo.getSbb();
     }
 
-    private OffHeapArena arena() {
-        Collection<OffHeapArena> arenas =
+    private OffHeapSlotArena arena() {
+        Collection<OffHeapSlotArena> arenas =
                 container.getSbbEntityPool().getOffHeapArenas();
         assertEquals(1, arenas.size());
         return arenas.iterator().next();
@@ -176,7 +176,7 @@ public class OffHeapEntityPoolTest {
     @Test
     public void containerStopClosesArenas() throws Exception {
         acquire("s1");
-        OffHeapArena arena = arena();
+        OffHeapSlotArena arena = arena();
         container.stop();
         try {
             arena.allocate("post-stop");

@@ -25,6 +25,7 @@ public final class ActionGuard {
     /** The complete control surface the AI may touch. Deliberately small. */
     public static final Set<String> ALLOWED_ACTIONS = Set.of(
             "TRIGGER_RELIEF",
+            "RELEASE_ENTITY",
             "ENABLE_AUTO_RECONFIG",
             "DISABLE_AUTO_RECONFIG",
             "RAISE_ALARM",

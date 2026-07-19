@@ -16,8 +16,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.release>21</maven.compiler.release>
-        <quarkus.platform.version>3.15.1</quarkus.platform.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <quarkus.platform.version>3.37.3</quarkus.platform.version>
         <microjainslee.version>1.2.0-SNAPSHOT</microjainslee.version>
         <surefire.version>3.5.4</surefire.version>
         <quarkus.build.skip>true</quarkus.build.skip>
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.microjainslee</groupId>
             <artifactId>adapter-quarkus</artifactId>
-            <version>1.1.0</version>
+            <version>${microjainslee.version}</version>
         </dependency>
         <dependency>
             <groupId>com.microjainslee</groupId>
@@ -97,7 +97,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
+            <artifactId>quarkus-junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -127,7 +127,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>25</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>com.microjainslee</groupId>

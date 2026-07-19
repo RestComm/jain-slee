@@ -33,13 +33,9 @@ import static org.junit.Assert.fail;
 
 /**
  * Verifies that the JSR-240 §12 transaction context is correctly scoped
- * via {@link ScopedValue} — the central invariant called out in audit §10
- * — and that two concurrent event deliveries on virtual threads never
- * observe each other's transaction state.
- *
- * <p>Pre-ScopedValue (the old ThreadLocal implementation) this test would
- * fail intermittently: the OS carrier thread could be reused across two
- * VTs and the second one would silently inherit the first's TX context.
+ * via {@link ThreadLocal} and that two concurrent event deliveries never
+ * observe each other's transaction state. ThreadLocal on a virtual thread
+ * is bound to the VT (not the carrier), so it is inherently VT-safe.
  */
 public class ScopedValueTransactionIsolationTest {
 
@@ -136,11 +132,11 @@ public class ScopedValueTransactionIsolationTest {
 
     @Test
     public void currentTransactionIsEmptyOutsideDispatcherScope() {
-        if (ActivityContextTransactionRegistry.CURRENT.isBound()) {
+        if (ActivityContextTransactionRegistry.CURRENT.get() != null) {
             fail("CURRENT unexpectedly bound outside dispatcher scope: "
                     + ActivityContextTransactionRegistry.CURRENT.get());
         }
-        assertFalse(ActivityContextTransactionRegistry.CURRENT.isBound());
+        assertFalse(ActivityContextTransactionRegistry.CURRENT.get() != null);
     }
 
     @Test
@@ -156,7 +152,7 @@ public class ScopedValueTransactionIsolationTest {
 
         Thread.sleep(100L);
 
-        if (ActivityContextTransactionRegistry.CURRENT.isBound()) {
+        if (ActivityContextTransactionRegistry.CURRENT.get() != null) {
             fail("CURRENT leaked across dispatch boundary: "
                     + ActivityContextTransactionRegistry.CURRENT.get());
         }

@@ -13,6 +13,9 @@
     <name>micro-jainslee :: Resource Adaptors</name>
 
     <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <okhttp.version>4.12.0</okhttp.version>
         <!-- gRPC aligned with the examples (grpc-java, netty-shaded transport) -->
         <grpc.version>1.82.1</grpc.version>
@@ -21,7 +24,10 @@
         <vertx.version>4.5.10</vertx.version>
         <!-- Camel 4.8.x = the core under Camel Quarkus 3.15.x (Quarkus 3.15 LTS) -->
         <camel.version>4.8.1</camel.version>
-        <log4j.version>2.23.1</log4j.version>
+        <!-- Must match jainslee-core's log4j (2.24.3). Older 2.23.1 lacks
+             FlowMessageFactory.INSTANCE, so api/core skew → NoSuchFieldError
+             in any RA test that pulls jainslee-core transitively. -->
+        <log4j.version>2.24.3</log4j.version>
     </properties>
 
     <modules>
@@ -46,5 +52,6 @@
         <module>ra-diameter</module>
         <module>ra-camel</module>
         <!-- Phase 3+: <module>ra-map-jss7</module> -->
+        <module>ra-jss7</module>
     </modules>
 </project>

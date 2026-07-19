@@ -67,7 +67,7 @@ public class RaEntityStateMachine {
 
     /**
      * INACTIVE -> ACTIVE.
-     * Called from management (MBean, Quarkus startup, Spring Boot listener).
+     * Called from management (Quarkus startup, Spring Boot listener, admin REST).
      */
     public void activate() {
         transitionLock.lock();

@@ -27,7 +27,31 @@ public final class OffHeapRuntime {
     private static final ConcurrentHashMap<Class<?>, OffHeapLayout> LAYOUTS =
             new ConcurrentHashMap<>();
 
+    /** Toggle Agrona UnsafeBuffer-backed arenas (P2). Default {@code false}
+     *  for backward compatibility with {@link OffHeapArena}. */
+    private static volatile boolean useAgrona = false;
+
     private OffHeapRuntime() {
+    }
+
+    /** Enable or disable Agrona-backed off-heap arenas. Must be called
+     *  before any arena is created through {@link #newArena}. */
+    public static void setUseAgrona(boolean useAgrona) {
+        OffHeapRuntime.useAgrona = useAgrona;
+    }
+
+    /** Create an arena (DIRECT mode) whose backing buffer depends on the
+     *  {@link #setUseAgrona(boolean)} flag.
+     *
+     *  @return an {@link OffHeapArena} when {@code useAgrona == false},
+     *          otherwise an {@link AgronaOffHeapArena} (both implement
+     *          {@link AutoCloseable} and share the same public API)
+     */
+    public static OffHeapSlotArena newArena(String name, OffHeapLayout layout, int maxSlots) {
+        if (useAgrona) {
+            return new AgronaOffHeapArena(name, layout, maxSlots);
+        }
+        return new OffHeapArena(name, layout, maxSlots);
     }
 
     /** The {@code @OffHeap} annotation for the class (walks superclasses). */

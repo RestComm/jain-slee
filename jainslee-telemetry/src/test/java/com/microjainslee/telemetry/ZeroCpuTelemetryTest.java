@@ -50,7 +50,7 @@ public class ZeroCpuTelemetryTest {
         ResourceMonitor.ResourceSnapshot first = monitor.snapshot();
         ResourceMonitor.ResourceSnapshot second = monitor.snapshot();
         // Inside the throttle window the cached instance is served — no
-        // MXBean walk, no allocation.
+        // re-capture, no allocation.
         assertSame(first, second);
     }
 

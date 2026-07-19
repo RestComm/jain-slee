@@ -1,6 +1,6 @@
 # micro-jainslee —  The Fastest Event - Dispatcher Framework
 
-![Java 25 LTS](https://img.shields.io/badge/Java-25_LTS-orange) ![Virtual Threads](https://img.shields.io/badge/Threads-Virtual-green) ![Disruptor](https://img.shields.io/badge/Event%20Bus-LMAX%20Disruptor-red) ![Build](https://img.shields.io/badge/build-passing-brightgreen) ![Tests](https://img.shields.io/badge/tests-394%20pass-blue) ![License](https://img.shields.io/badge/license-Dual_(GPLv3_|_Commercial)-blueviolet)
+![Java 25 LTS](https://img.shields.io/badge/Java-25_LTS-orange) ![Virtual Threads](https://img.shields.io/badge/Threads-Virtual-green) ![Disruptor](https://img.shields.io/badge/Event%20Bus-LMAX%20Disruptor-red) ![Build](https://img.shields.io/badge/build-passing-brightgreen) ![Tests](https://img.shields.io/badge/tests-748%20pass-blue) ![License](https://img.shields.io/badge/license-Dual_(GPLv3_|_Commercial)-blueviolet)
 
 > **The only embeddable JAIN SLEE 1.1 runtime that dispatches 100,000 SBB entity events in under 2 seconds.**
 >
@@ -11,7 +11,7 @@
 
 |                     | micro-jainslee               | Restcomm JAIN SLEE 1.1 |
 | ------------------- | ---------------------------- | ---------------------- |
-| **Lines of code**   | **~17,000** (95% less)       | ~350,000               |
+| **Lines of code**   | **~23,000** core (93% less)  | ~350,000               |
 | **Container**       | **None — embeds in Quarkus** | JBoss/WildFly 10/ XML       |
 | **Startup time**    | **&lt; 2 seconds**           | 30–60 seconds          |
 | **Event bus**       | **LMAX Disruptor (6M ev/s)** | JMX MBeans + JMS       |
@@ -21,7 +21,7 @@
 | **Deployment**      | **1 JAR + mvn quarkus:dev**  | WAR/EAR to app server  |
 ---
 
-> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10× lighter, 100× faster to start, and embeddable anywhere**. We stand on the shoulders of giants (ye!).
+> Restcomm's JAIN SLEE 1.1 master branch is an **excellent, battle-tested implementation** — the gold standard for the spec. micro-jainslee takes the same contract surface and makes it **10× lighter, 100× faster to start, and embeddable anywhere**. We stand on the shoulders of giants (ye! in the memory of Amit/Jean/George/Jaime and Fernando).
 
 ---
 
@@ -35,7 +35,8 @@ or Quarkus application.
 It keeps the proven event-driven, asynchronous, component-based telecom
 programming model alive — **LongLive JAIN SLEE 1.1** — rebuilt from the ground
 up on Virtual Threads + LMAX Disruptor. Cold start under 2 seconds.
-100,000+ events/second on commodity hardware. GraalVM native-image ready.
+100,000+ events/second on commodity hardware. GraalVM native-image is a
+work in progress.
 
 You don't deploy your app onto a SLEE container. You embed the SLEE runtime
 into your app.
@@ -52,9 +53,10 @@ them is **optional** — an app can run with nothing but the core container.
 
 ### `jainslee-autonomous` — the guardian that refuses to let the node die
 
-A **thread-less** self-healing brain. It arms the JVM's own tenured-pool
-collection-usage threshold and stays completely asleep until a GC leaves the
-heap above the watermark — *that push is the only wake-up*. When pressure
+A **thread-less, bean-free** self-healing brain. It reads heap pressure from
+`Runtime` on demand — no `java.lang.management` bean, no JMX — and evaluates
+only when poked: the telemetry scrape and the health evaluator do this on their
+existing cadence, so there is no timer and no background thread. When pressure
 climbs it walks an escalation ladder, and the owner of each piece of state
 decides what is safe to give back:
 
@@ -350,28 +352,28 @@ Prometheus metrics. Steampunk dashboard GUI.
 | Module | Description |
 |--------|-------------|
 | `jainslee-telemetry` | TelemetryPort API + Micrometer implementation (SBB stats, RA stats, error tracking, CPU/memory monitoring, spunk detection, auto-reconfig on memory/load/error thresholds) |
-| `jainslee-telemetry-vertx` | Steampunk dashboard GUI (single index.html + telemetry.js, served via Vert.x StaticHandler) |
+| `jainslee-monitor` | Steampunk dashboard GUI (single index.html + telemetry.js, served via Vert.x StaticHandler) |
 
 | Feature | Description |
 |---------|-------------|
 | SBB Collection | Events/sec, latency (avg/p99), error count, per-type breakdown |
 | RA Collection | State, port, events fired, commands received |
 | Error Tracking | Ring buffer (1000), error rate by type, storm detection |
-| Resource Monitor | CPU, RAM, threads, GC, via single daemon VT (30s interval) |
+| Resource Monitor | RAM (Runtime), CPU + open-FDs via /proc (Linux), threads; lazy capture on read — no daemon thread, no timer, no MXBean |
 | Spunk Detection | Anomalous SBB: blocking >100ms, mem spike >100MB |
 | Stale Detection | Entity idle >5min warning, >30min auto-release |
 | Alarm Engine | INFO/WARNING/CRITICAL/FATAL, acknowledge, history |
-| Auto-Reconfig ⚡ | Memory>85% → halve pool, CPU>80% → reduce threads, Load spike 3× → expand pool, Error storm → suspend SBB |
+| Auto-Reconfig ⚡ | Detect &amp; alarm: heap>95% → guarded `System.gc()` + CRITICAL alarm; heap>85% / CPU>80% / load-spike 3× / error-storm → raise alarm (pool/thread actuation is opt-in, not automatic) |
 
 ```bash
 # Access telemetry dashboard
-open http://localhost:8080/telemetry/
+open http://localhost:8090/telemetry/
 
 # Prometheus metrics
-curl http://localhost:8080/api/telemetry/metrics
+curl http://localhost:8090/api/telemetry/metrics
 
 # Full snapshot
-curl http://localhost:8080/api/telemetry/snapshot
+curl http://localhost:8090/api/telemetry/snapshot
 ```
 
 > 📖 Full guide: [`docs/jainslee-telemetry.md`](docs/jainslee-telemetry.md) · Dashboard: [`docs/telemetry-gui.md`](docs/telemetry-gui.md)

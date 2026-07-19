@@ -48,10 +48,7 @@ import com.microjainslee.telemetry.TelemetryPort;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
-import io.grpc.ManagedChannel;
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -103,7 +100,10 @@ public class UssdDemoBootstrap {
     }
 
     @Bean public GrpcMenuResourceAdaptor grpcMenuRa() {
-        return new GrpcMenuResourceAdaptor();
+        GrpcMenuResourceAdaptor ra = new GrpcMenuResourceAdaptor();
+        // Transport lives in the RA: it owns the ManagedChannel for host:port.
+        ra.setTarget(grpcHost, grpcPort);
+        return ra;
     }
 
     @Bean
@@ -128,13 +128,13 @@ public class UssdDemoBootstrap {
     }
 
     @Bean
-    public GrpcMenuUpstream grpcMenuUpstream() {
-        ManagedChannel ch = NettyChannelBuilder.forAddress(grpcHost, grpcPort).usePlaintext().build();
+    public GrpcMenuUpstream grpcMenuUpstream(GrpcMenuResourceAdaptor ra) {
+        // The RA owns the channel; the app only builds its generated stub from it.
         return (msisdn, ussdString, sessionId) -> {
             var req = com.example.ussddemo.spring.proto.MenuRequest.newBuilder()
                     .setMsisdn(msisdn).setUssdString(ussdString)
                     .setSessionId(sessionId == null ? "" : sessionId).build();
-            var stub = com.example.ussddemo.spring.proto.UssdMenuServiceGrpc.newBlockingStub(ch)
+            var stub = com.example.ussddemo.spring.proto.UssdMenuServiceGrpc.newBlockingStub(ra.channel())
                     .withDeadlineAfter(5_000, TimeUnit.MILLISECONDS);
             try {
                 var resp = stub.resolveMenu(req);
@@ -200,7 +200,8 @@ public class UssdDemoBootstrap {
 
     // ---- private helpers ----
 
-    private void prepareHttpSession(String sid, String cbUrl, ActivityContextInterface aci) {
+    // package-private: called by UssdRestController (same package).
+    void prepareHttpSession(String sid, String cbUrl, ActivityContextInterface aci) {
         storeCallbackUrl(sid, cbUrl);
         SimpleSbbLocalObject httpLo = container.acquireEntity(httpEntityId(sid), HttpServerSbb.class);
         httpLo.setPriority(15);

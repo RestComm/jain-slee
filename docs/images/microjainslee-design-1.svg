@@ -65,7 +65,7 @@
   <text x="140" y="305" text-anchor="middle" font-size="9" fill="#555">Zero-CPU observability + self-healing</text>
 
   <rect x="270" y="275" width="250" height="38" rx="6" fill="#E3F2FD" stroke="#1E88E5" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="395" y="291" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">jainslee-telemetry-vertx</text>
+  <text x="395" y="291" text-anchor="middle" font-size="13" fill="#1565C0" font-weight="bold">jainslee-monitor</text>
   <text x="395" y="305" text-anchor="middle" font-size="9" fill="#555">Steampunk dashboard GUI</text>
 
   <!-- Dependency arrows -->

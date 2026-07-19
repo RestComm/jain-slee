@@ -20,17 +20,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--
-             Quarkus 3.15.1's bundled ASM only supports class file v65
-             (Java 21). Until we bump the Quarkus version, the example
-             module must compile down to v21 bytecode even though the
-             rest of micro-jainslee is Java 25. Source-level Java 25
-             syntax (e.g. ScopedValue) is available via jdk.compiler.
-        -->
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.release>21</maven.compiler.release>
-        <quarkus.platform.version>3.15.1</quarkus.platform.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <quarkus.platform.version>3.37.3</quarkus.platform.version>
         <microjainslee.version>1.2.0-SNAPSHOT</microjainslee.version>
         <surefire.version>3.5.4</surefire.version>
         <grpc.version>1.82.1</grpc.version>
@@ -38,9 +31,6 @@
         <protoc.version>4.35.1</protoc.version>
         <protoc_artifact>com.google.protobuf:protoc:${protoc.version}</protoc_artifact>
         <protoc_grpc_artifact>io.grpc:protoc-gen-grpc-java:${grpc.version}</protoc_grpc_artifact>
-        <!-- Skip the Quarkus build step by default (it's incompatible with
-             Java 25 class files under Quarkus 3.15.1). Override on the
-             CLI to run it: mvn -Dquarkus.build.skip=false test -->
         <quarkus.build.skip>true</quarkus.build.skip>
     </properties>
 
@@ -156,7 +146,7 @@
 
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
+            <artifactId>quarkus-junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -189,18 +179,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <!--
-                    Quarkus 3.15.1's bundled ASM only supports class file v65
-                    (Java 21). The Quarkus build processor therefore cannot
-                    read jainslee-core 1.1.0 (compiled to v69 / Java 25)
-                    even though *our* project sources are compiled to v21
-                    via &lt;release&gt;21&lt;/release&gt;. We work around this by
-                    skipping the Quarkus build step under surefire (test
-                    compilation only) and only running it during `mvn
-                    package`. -Dquarkus.build.skip can be toggled manually.
-                    See README for the runtime path (use Quarkus 3.17+ or
-                    rebuild jainslee-core to v21 for full integration).
-                -->
                 <configuration>
                     <skip>${quarkus.build.skip}</skip>
                 </configuration>
@@ -210,7 +188,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>25</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>com.microjainslee</groupId>

@@ -10,11 +10,13 @@
     </parent>
     <artifactId>jainslee-monitor</artifactId>
     <packaging>jar</packaging>
-    <name>micro-jainslee :: Monitoring Window (Vert.x GUI)</name>
+    <name>micro-jainslee :: Monitor (Vert.x GUI + REST server)</name>
     <description>
-        Steampunk-themed telemetry dashboard served via Vert.x StaticHandler.
-        Single index.html + single telemetry.js — zero build step, zero npm.
-        R&amp;D only.
+        The Monitoring Window: steampunk dashboard (3 tabs — Telemetry /
+        Autonomous / AI Agent; single index.html + monitoring.js, zero build
+        step, zero npm) served via Vert.x StaticHandler, plus
+        TelemetryVertxServer — a reusable standalone Vert.x HTTP server
+        exposing /metrics, snapshot, alarm and health endpoints.
     </description>
 
     <properties>
@@ -26,9 +28,23 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.microjainslee</groupId>
+            <artifactId>jainslee-telemetry</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
             <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
         </dependency>
     </dependencies>
 

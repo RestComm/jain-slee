@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng nhập · {{siteName}} Admin</title>
+<style>
+  :root { --ink:#0f1020; --muted:#8a8aa0; --line:#2a2b45; --bg:#0b0b16; --accent:#6d5efc; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; background:
+         radial-gradient(1200px 600px at 50% -10%, #1a1b33 0%, var(--bg) 60%); color:#ececf5;
+         font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .card { width:min(380px,92vw); background:#12132a; border:1px solid var(--line);
+         border-radius:16px; padding:34px 30px; box-shadow:0 30px 80px rgba(0,0,0,.5); }
+  .logo { font:700 22px/1 Georgia,serif; margin-bottom:4px; }
+  .logo span { color:var(--accent); }
+  .sub { color:var(--muted); font-size:13px; margin-bottom:26px; }
+  label { display:block; font-size:12px; font-weight:600; color:var(--muted);
+         text-transform:uppercase; letter-spacing:.06em; margin:16px 0 6px; }
+  input { width:100%; padding:12px 14px; background:#0c0d1e; border:1px solid var(--line);
+         border-radius:10px; color:#fff; font-size:15px; }
+  input:focus { outline:none; border-color:var(--accent); }
+  button { width:100%; margin-top:24px; padding:12px; background:var(--accent); color:#fff;
+         border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; }
+  button:hover { filter:brightness(1.08); }
+  .err { background:#3a1420; border:1px solid #6b2233; color:#ff9db0; font-size:13px;
+         padding:10px 12px; border-radius:8px; margin-bottom:8px; }
+  .hint { color:var(--muted); font-size:12px; margin-top:18px; text-align:center; }
+</style>
+</head>
+<body>
+  <form class="card" method="post" action="/admin/login">
+    <div class="logo">{{siteName}}<span>.</span> Admin</div>
+    <div class="sub">Content Management Runtime</div>
+    {{{error}}}
+    <label for="u">Tên đăng nhập</label>
+    <input id="u" name="username" autocomplete="username" autofocus>
+    <label for="p">Mật khẩu</label>
+    <input id="p" name="password" type="password" autocomplete="current-password">
+    <button type="submit">Đăng nhập</button>
+    <div class="hint">{{hint}}</div>
+  </form>
+</body>
+</html>

@@ -51,6 +51,21 @@ public class EventRouter {
     private final EventDeliveryMode deliveryMode;
 
     /**
+     * P3 — optional lock-free fan-in gateway for multi-RA deployments.
+     * When non-null, RAs enqueue events through this gateway instead of
+     * publishing directly to the RingBuffer, reducing contention on the
+     * Disruptor under concurrent multi-producer load.
+     */
+    private volatile RaFanInGateway fanInGateway;
+
+    /**
+     * Passive delivery observation (jainslee-telemetry). One volatile read
+     * per delivery when unset — see {@link DispatchObserver} for the
+     * implementation contract.
+     */
+    private volatile DispatchObserver dispatchObserver;
+
+    /**
      * Running count of events skipped because no attached SBB had a matching
      * {@link EventMask}. Exposed via {@link #getSkippedMaskCount()} for
      * diagnostics; never reset.
@@ -360,8 +375,78 @@ public class EventRouter {
     }
 
     public void shutdown() {
+        RaFanInGateway gw = this.fanInGateway;
+        if (gw != null) {
+            gw.stop();
+        }
         disruptor.shutdown();
         executor.shutdown();
+    }
+
+    /**
+     * P3 — bind a fan-in gateway so RAs can enqueue events through a
+     * lock-free {@code ManyToOneConcurrentArrayQueue} instead of publishing
+     * directly to the RingBuffer. The gateway's drainer thread is started
+     * immediately and will batch-publish into {@code this.ringBuffer}.
+     *
+     * <p>Passing {@code null} clears the binding (not typically needed).
+     * Calling this on an already-bound router restarts the drainer against
+     * the new gateway.
+     *
+     * @param gateway the pre-configured fan-in gateway (non-null)
+     */
+    public void bindFanInGateway(RaFanInGateway gateway) {
+        RaFanInGateway old = this.fanInGateway;
+        if (old != null) {
+            old.stop();
+        }
+        this.fanInGateway = gateway;
+        if (gateway != null) {
+            gateway.start(this.ringBuffer);
+            LOG.info("EventRouter bound to fan-in gateway: capacity={} drainBatch={}",
+                    gateway.capacity(), gateway.drainBatchSize());
+        } else {
+            LOG.info("EventRouter fan-in gateway cleared — direct RingBuffer mode");
+        }
+    }
+
+    /**
+     * P3 — returns the currently-bound fan-in gateway, or {@code null}
+     * when the router is operating in direct RingBuffer mode.
+     */
+    public RaFanInGateway getFanInGateway() {
+        return fanInGateway;
+    }
+
+    /** Register (or clear, with {@code null}) the passive delivery observer. */
+    public void setDispatchObserver(DispatchObserver observer) {
+        this.dispatchObserver = observer;
+    }
+
+    /**
+     * Notify the observer of one delivery outcome. Failure-isolated: a
+     * misbehaving observer is logged once per incident and never disturbs
+     * event delivery.
+     */
+    private void observeDelivery(SbbLocalObject localObject, Sbb sbb,
+            long startNanos, Throwable error) {
+        DispatchObserver observer = this.dispatchObserver;
+        if (observer == null) {
+            return;
+        }
+        String sbbType = sbb != null ? sbb.getClass().getSimpleName() : "?";
+        String entityId = localObject != null && localObject.getSbbID() != null
+                ? localObject.getSbbID().getId() : "?";
+        try {
+            if (error == null) {
+                observer.onEventProcessed(sbbType, entityId, System.nanoTime() - startNanos);
+            } else {
+                observer.onDispatchError(sbbType, entityId, error);
+            }
+        } catch (RuntimeException observerBug) {
+            LOG.warn("[EventRouter] dispatch observer threw ({}): {}",
+                    observer.getClass().getSimpleName(), observerBug.getMessage());
+        }
     }
 
     private void dispatch(SleeEvent event, ActivityContextInterface aci) {
@@ -400,20 +485,17 @@ public class EventRouter {
         // alter the logical undo stack semantics. When no JTA context is
         // bound (R&D default) the setter is a no-op and isJtaBacked()=false.
         transaction.setExternalTransactionContext(this.jtaTransactionContext);
-        // ScopedValue.where binds the new transaction to the caller's
-        // structured scope for the duration of this dispatch. The
-        // surrounding code that calls CURRENT.get() (via
-        // currentFor or transaction.recordAttach) will see the value
-        // inside this scope.
+        // Bind the transaction to the current thread for the duration of this
+        // dispatch and restore the prior binding on exit. begin() deliberately
+        // does NOT bind (see ActivityContextTransactionRegistry.begin), so the
+        // "previous" captured here is the real pre-dispatch value (normally
+        // null on a pooled worker), and the finally cleanly removes it —
+        // no transaction leaks into the next event. ThreadLocal on a virtual
+        // thread is VT-safe (bound to the VT, not the carrier).
         final boolean[] failedHolder = new boolean[] { false };
-        ScopedValue.where(ActivityContextTransactionRegistry.CURRENT, transaction)
-                .run(new Runnable() {
-                    @Override
-                    public void run() {
-                        dispatchWithTransaction(event, aci, activityContext,
-                                transaction, failedHolder);
-                    }
-                });
+        ActivityContextTransactionRegistry.runInTransaction(transaction,
+                () -> dispatchWithTransaction(event, aci, activityContext,
+                        transaction, failedHolder));
     }
 
     private void dispatchWithTransaction(SleeEvent event, ActivityContextInterface aci,
@@ -519,10 +601,13 @@ public class EventRouter {
     private boolean deliverEvent(SbbLocalObject localObject, SleeEventHandler handler, Sbb sbb,
             SleeEvent event, ActivityContextInterface aci, SbbTransactionContext transaction) {
         if (deliveryMode == EventDeliveryMode.INLINE || sbbEntityPool == null) {
+            long observeStart = System.nanoTime();
             try {
                 handler.onEvent(event, aci);
+                observeDelivery(localObject, sbb, observeStart, null);
                 return false;
             } catch (Exception e) {
+                observeDelivery(localObject, sbb, observeStart, e);
                 handleSbbException(e, localObject, event, aci, transaction);
                 return true;
             }
@@ -549,10 +634,13 @@ public class EventRouter {
                 return false;
             }
             // Still drop if no snapshot — but the log + metric are in.
+            long observeStart = System.nanoTime();
             try {
                 handler.onEvent(event, aci);
+                observeDelivery(localObject, sbb, observeStart, null);
                 return false;
             } catch (Exception e) {
+                observeDelivery(localObject, sbb, observeStart, e);
                 handleSbbException(e, localObject, event, aci, transaction);
                 return true;
             }
@@ -562,18 +650,17 @@ public class EventRouter {
                 entity.submit(new Runnable() {
                     @Override
                     public void run() {
-                        ScopedValue.where(ActivityContextTransactionRegistry.CURRENT,
-                                transaction).run(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    handler.onEvent(event, aci);
-                                    transaction.commit();
-                                } catch (Exception e) {
-                                    handleSbbException(e, localObject, event, aci, transaction);
-                                } finally {
-                                    ActivityContextTransactionRegistry.clear(transaction);
-                                }
+                        ActivityContextTransactionRegistry.runInTransaction(transaction, () -> {
+                            long observeStart = System.nanoTime();
+                            try {
+                                handler.onEvent(event, aci);
+                                observeDelivery(localObject, sbb, observeStart, null);
+                                transaction.commit();
+                            } catch (Exception e) {
+                                observeDelivery(localObject, sbb, observeStart, e);
+                                handleSbbException(e, localObject, event, aci, transaction);
+                            } finally {
+                                ActivityContextTransactionRegistry.clear(transaction);
                             }
                         });
                     }
@@ -595,17 +682,16 @@ public class EventRouter {
             entity.submit(new Runnable() {
                 @Override
                 public void run() {
-                    ScopedValue.where(ActivityContextTransactionRegistry.CURRENT,
-                            transaction).run(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                handler.onEvent(event, aci);
-                            } catch (Exception e) {
-                                failure.set(e);
-                            } finally {
-                                done.countDown();
-                            }
+                    ActivityContextTransactionRegistry.runInTransaction(transaction, () -> {
+                        long observeStart = System.nanoTime();
+                        try {
+                            handler.onEvent(event, aci);
+                            observeDelivery(localObject, sbb, observeStart, null);
+                        } catch (Exception e) {
+                            observeDelivery(localObject, sbb, observeStart, e);
+                            failure.set(e);
+                        } finally {
+                            done.countDown();
                         }
                     });
                 }
@@ -704,18 +790,6 @@ public class EventRouter {
     private static VirtualThreadSbbEntityPool.SbbEntity findEntity(
             VirtualThreadSbbEntityPool pool, String sbbId, SbbLocalObject localObject) {
         return pool.findEntity(sbbId);
-    }
-
-    private static class EventWrapper {
-        private com.microjainslee.api.SleeEvent event;
-        private ActivityContextInterface aci;
-
-        public void setEvent(com.microjainslee.api.SleeEvent event) { this.event = event; }
-        public void setAci(ActivityContextInterface aci) { this.aci = aci; }
-        public void clear() {
-            this.event = null;
-            this.aci = null;
-        }
     }
 
     /**

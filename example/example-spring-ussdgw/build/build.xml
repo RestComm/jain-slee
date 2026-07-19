@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Ant wrapper around Maven 3 for example-spring-ussdgw.
+  Requires: JDK 25, Apache Maven 3.9+, Apache Ant 1.10+.
+
+  Usage (from this directory, or any cwd with -f):
+    ant -f build/build.xml              # help
+    ant -f build/build.xml install-deps # install micro-jainslee modules to ~/.m2
+    ant -f build/build.xml package      # Spring Boot executable jar → target/
+    ant -f build/build.xml dist         # dir layout → dist/<app>-jainslee/{run.sh,*.jar,lib/}
+    ant -f build/build.xml run          # run packaged app (or ./build/run.sh)
+    ant -f build/build.xml test         # unit tests
+    ant -f build/build.xml clean        # mvn clean (+ dist/)
+    ant -f build/build.xml all          # install-deps + package
+-->
+<project name="example-spring-ussdgw" default="help" basedir="..">
+
+    <property name="example.dir" location="${basedir}"/>
+    <property name="build.dir" location="${basedir}/build"/>
+    <property name="dist.dir" location="${basedir}/dist"/>
+    <property name="reactor.dir" location="${basedir}/../.."/>
+    <property name="mvn.batch" value="-B -ntp"/>
+
+    <!-- JDK 25 only — prefer JAVA_HOME, else local mise zulu-25 -->
+    <property environment="env"/>
+    <condition property="java.home.effective" value="${env.JAVA_HOME}">
+        <and>
+            <isset property="env.JAVA_HOME"/>
+            <not><equals arg1="${env.JAVA_HOME}" arg2=""/></not>
+        </and>
+    </condition>
+    <property name="mise.java.25"
+              location="${user.home}/.local/share/mise/installs/java/zulu-25.34.17.0"/>
+    <condition property="java.home.effective" value="${mise.java.25}">
+        <available file="${mise.java.25}/bin/java"/>
+    </condition>
+    <fail unless="java.home.effective"
+          message="JDK 25 required. Set JAVA_HOME to a JDK 25 install (e.g. mise zulu-25)."/>
+
+    <property name="mvn.exe" value="mvn"/>
+
+    <macrodef name="mvn-at">
+        <attribute name="dir"/>
+        <attribute name="args"/>
+        <sequential>
+            <echo message="JAVA_HOME=${java.home.effective}"/>
+            <echo message="[mvn] @{dir} :: @{args}"/>
+            <exec executable="${mvn.exe}" dir="@{dir}" failonerror="true">
+                <env key="JAVA_HOME" value="${java.home.effective}"/>
+                <env key="PATH" value="${java.home.effective}/bin:${env.PATH}"/>
+                <arg line="${mvn.batch} @{args}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <target name="help">
+        <echo><![CDATA[
+example-spring-ussdgw — Ant → Maven 3 (JDK 25, Spring Boot 3.5)
+
+  ant -f build/build.xml install-deps   Install reactor deps to ~/.m2
+  ant -f build/build.xml compile        Compile example only
+  ant -f build/build.xml package        Package Spring Boot executable jar
+  ant -f build/build.xml dist           Classic dir dist (jar + lib/)
+  ant -f build/build.xml run            Run packaged app
+  ant -f build/build.xml test           Run tests
+  ant -f build/build.xml clean          Clean example
+  ant -f build/build.xml all            install-deps + package
+
+Smoke after start (with grpc-simulator on :9090):
+  curl http://127.0.0.1:8081/health
+]]></echo>
+    </target>
+
+    <target name="check-java">
+        <exec executable="${java.home.effective}/bin/java" failonerror="true">
+            <arg value="-version"/>
+        </exec>
+    </target>
+
+    <target name="install-deps" depends="check-java"
+            description="mvn install required reactor modules">
+        <mvn-at dir="${reactor.dir}"
+                args="-pl jainslee-api,jainslee-scheduler,jainslee-ra-spi,jainslee-core,jainslee-apt,jainslee-telemetry,jainslee-adapter/adapter-springboot,vendor-ras/ra-http-server,vendor-ras/ra-http-client,vendor-ras/ra-grpc-client,vendor-ras/ra-prometheus-exporter -am install -DskipTests"/>
+    </target>
+
+    <target name="compile" depends="check-java"
+            description="Compile example sources">
+        <mvn-at dir="${example.dir}" args="compile"/>
+    </target>
+
+    <target name="package" depends="check-java"
+            description="Package Spring Boot executable jar (target/*.jar)">
+        <mvn-at dir="${example.dir}" args="package -DskipTests"/>
+    </target>
+
+    <target name="dist" depends="check-java"
+            description="Classic dir dist: dist/<app>-jainslee/{run.sh, jar, lib/}">
+        <exec executable="${build.dir}/package-dist.sh" dir="${example.dir}" failonerror="true"/>
+    </target>
+
+    <target name="run" depends="check-java"
+            description="Run packaged Spring Boot app (build/run.sh)">
+        <exec executable="${build.dir}/run.sh" dir="${example.dir}" failonerror="true"/>
+    </target>
+
+    <target name="test" depends="check-java"
+            description="Run surefire tests">
+        <mvn-at dir="${example.dir}" args="test"/>
+    </target>
+
+    <target name="clean" depends="check-java"
+            description="mvn clean + remove dist/">
+        <mvn-at dir="${example.dir}" args="clean"/>
+        <delete dir="${dist.dir}" quiet="true"/>
+    </target>
+
+    <target name="all" depends="install-deps,package"
+            description="install-deps then package"/>
+
+</project>

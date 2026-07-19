@@ -29,8 +29,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,14 +49,14 @@ import java.util.List;
  */
 public class MicroJainsleeProducer {
 
-    private static final Logger LOG = LogManager.getLogger(MicroJainsleeProducer.class);
+    private static final org.jboss.logging.Logger LOG = org.jboss.logging.Logger.getLogger(MicroJainsleeProducer.class);
 
     private MicroSleeContainer container() {
         RuntimeValue<MicroSleeContainer> rv = MicroJainsleeHolder.get();
         if (rv != null) {
             return rv.getValue();
         }
-        LOG.warn("MicroJainsleeHolder empty — falling back to default MicroSleeContainer (unit-test path?)");
+        LOG.warnf("MicroJainsleeHolder empty — falling back to default MicroSleeContainer (unit-test path?)");
         return new MicroSleeContainer();
     }
 
@@ -141,27 +139,21 @@ public class MicroJainsleeProducer {
     // ──────────────────────────────────────────────────────────
 
     /**
-     * GOAL 2 — discover all {@link RaEndpointPort} and {@link RaCommandPort} CDI beans,
-     * pair them by iteration order, and register each pair with the micro-container
-     * via {@link MicroSleeContainer#registerRa(RaEndpointPort, RaCommandPort)}.
-     *
-     * <p>Endpoints are sorted by {@code getRaName()} for deterministic ordering;
-     * commands are sorted by class simple-name. Pairs are formed 1:1 by position.
-     * If the number of commands differs from endpoints, the minimum common count
-     * is registered and a warning is logged.</p>
-     *
-     * <p>This method is annotated {@code @Produces @ApplicationScoped} so the
-     * CDI container eagerly materialises it during startup, triggering the
-     * side-effect of RA registration. User RAs must be annotated with
-     * {@code @ApplicationScoped} (or another bean-defining annotation) to be
-     * discoverable.</p>
+     * Discover CDI {@link RaEndpointPort}/{@link RaCommandPort} beans and register
+     * them on the container. Uses {@code @Observes StartupEvent} (void {@code @Produces}
+     * is illegal in CDI).
      */
-    @Produces
-    @ApplicationScoped
-    public void registerResourceAdaptors(
+    void onStart(@jakarta.enterprise.event.Observes io.quarkus.runtime.StartupEvent ev,
+                 MicroSleeContainer container,
+                 @Any Instance<RaEndpointPort> endpoints,
+                 @Any Instance<RaCommandPort> commands) {
+        registerResourceAdaptors(container, endpoints, commands);
+    }
+
+    private void registerResourceAdaptors(
             MicroSleeContainer container,
-            @Any Instance<RaEndpointPort> endpoints,
-            @Any Instance<RaCommandPort> commands) {
+            Instance<RaEndpointPort> endpoints,
+            Instance<RaCommandPort> commands) {
 
         // Collect into mutable sorted lists.
         List<RaEndpointPort> epList = new ArrayList<RaEndpointPort>();
@@ -169,7 +161,7 @@ public class MicroJainsleeProducer {
             epList.add(ep);
         }
         if (epList.isEmpty()) {
-            LOG.debug("No RaEndpointPort beans discovered; skipping CDI RA registration");
+            LOG.debugf("No RaEndpointPort beans discovered; skipping CDI RA registration");
             return;
         }
         Collections.sort(epList, new Comparator<RaEndpointPort>() {
@@ -194,8 +186,8 @@ public class MicroJainsleeProducer {
 
         int count = Math.min(epList.size(), cmdList.size());
         if (epList.size() != cmdList.size()) {
-            LOG.warn("Mismatch between RaEndpointPort count ({}) and RaCommandPort count ({}); "
-                    + "only {} pair(s) will be registered",
+            LOG.warnf("Mismatch between RaEndpointPort count (%s) and RaCommandPort count (%s); "
+                    + "only %s pair(s) will be registered",
                     epList.size(), cmdList.size(), count);
         }
 
@@ -204,16 +196,16 @@ public class MicroJainsleeProducer {
             RaCommandPort command = cmdList.get(i);
             try {
                 container.registerRa(endpoint, command);
-                LOG.info("Registered RA via CDI: {} (endpoint={}, command={})",
+                LOG.infof("Registered RA via CDI: %s (endpoint=%s, command=%s)",
                         endpoint.getRaName(),
                         endpoint.getClass().getSimpleName(),
                         command.getClass().getSimpleName());
             } catch (RuntimeException re) {
-                LOG.error("Failed to register RA [{}]: {}",
-                        endpoint.getRaName(), re.getMessage(), re);
+                LOG.errorf(re, "Failed to register RA [%s]: %s",
+                        endpoint.getRaName(), re.getMessage());
             }
         }
-        LOG.info("CDI RA registration complete: {} pair(s) registered", count);
+        LOG.infof("CDI RA registration complete: %s pair(s) registered", count);
     }
 
     private static Object resolveMeterRegistry() {

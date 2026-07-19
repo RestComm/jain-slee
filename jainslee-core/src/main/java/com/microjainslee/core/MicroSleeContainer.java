@@ -1132,6 +1132,28 @@ public final class MicroSleeContainer {
      * @param endpoint the RA endpoint port (lifecycle owner)
      * @param command  the RA command port (used by SBBs to send outbound commands)
      */
+    /**
+     * Convenience registration for RA endpoints that also implement
+     * {@link RaCommandPort} (e.g. {@code PrometheusRaEndpoint},
+     * {@code HttpServerRaEndpoint}, {@code GrpcMenuRaEndpoint}) — the common
+     * case where a single object owns both the lifecycle and the outbound
+     * command surface. Endpoints without a command surface are registered with
+     * a no-op command port.
+     *
+     * @param endpoint the RA endpoint port (lifecycle owner)
+     */
+    public void registerRa(RaEndpointPort endpoint) {
+        if (endpoint == null) {
+            throw new IllegalArgumentException("endpoint is required");
+        }
+        RaCommandPort command = (endpoint instanceof RaCommandPort cp)
+                ? cp
+                : cmd -> LOG.debug("RA {} has no command port; dropping command {}",
+                        endpoint.getRaName(),
+                        cmd == null ? "null" : cmd.getClass().getSimpleName());
+        registerRa(endpoint, command);
+    }
+
     public void registerRa(RaEndpointPort endpoint, RaCommandPort command) {
         if (endpoint == null || command == null) {
             throw new IllegalArgumentException("endpoint and command are required");

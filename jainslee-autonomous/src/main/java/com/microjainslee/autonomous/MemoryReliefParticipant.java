@@ -19,8 +19,14 @@ package com.microjainslee.autonomous;
 @FunctionalInterface
 public interface MemoryReliefParticipant {
 
-    /** Stable name for logs/metrics. */
-    String name();
+    /**
+     * Stable name for logs/metrics. Defaults to the implementation class
+     * name so lambdas can register with just {@link #relieve(PressureLevel)};
+     * named participants should override for readable logs.
+     */
+    default String name() {
+        return getClass().getSimpleName();
+    }
 
     /**
      * Release what is appropriate for {@code level}.

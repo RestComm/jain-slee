@@ -50,6 +50,14 @@ public class AIAgentEngineTest {
         @Override public boolean isAvailable() { return true; }
     }
 
+    private static void await(java.util.function.BooleanSupplier done) throws Exception {
+        long deadline = System.currentTimeMillis() + 2_000;
+        while (!done.getAsBoolean() && System.currentTimeMillis() < deadline) {
+            Thread.sleep(10);
+        }
+        assertTrue("condition not reached within 2s", done.getAsBoolean());
+    }
+
     private static AIAgentConfig config(AIMode mode, long cooldownSeconds) {
         return AIAgentConfig.fromProperties(Map.of(
                 "microjainslee.ai.enabled", "true",
@@ -82,6 +90,41 @@ public class AIAgentEngineTest {
         assertFalse(AIAgentEngine.isObviouslyHealthy(AiTestFixtures.unhealthy()));
         assertFalse("errors alone break 'obviously healthy'",
                 AIAgentEngine.isObviouslyHealthy(AiTestFixtures.snapshot(30, 0.1, 5)));
+    }
+
+    @Test
+    public void preFilterBoundariesAreExact() {
+        // heap == 50, cpu == 0.30, or any error/alarm/spunk/leak → not "obviously healthy".
+        assertTrue(AIAgentEngine.isObviouslyHealthy(AiTestFixtures.snapshot(49.9, 0.29, 0)));
+        assertFalse("heap at the 50% edge is not healthy",
+                AIAgentEngine.isObviouslyHealthy(AiTestFixtures.snapshot(50.0, 0.29, 0)));
+        assertFalse("cpu at the 0.30 edge is not healthy",
+                AIAgentEngine.isObviouslyHealthy(AiTestFixtures.snapshot(49.9, 0.30, 0)));
+    }
+
+    @Test
+    public void enabledLoopSkipsTheAdvisorWhileHealthy() throws Exception {
+        ScriptedAdvisor advisor = new ScriptedAdvisor();
+        var port = new AiTestFixtures.FakePort(AiTestFixtures.healthy());
+        AIAgentConfig cfg = AIAgentConfig.fromProperties(Map.of(
+                "microjainslee.ai.enabled", "true",
+                "microjainslee.ai.api-key", "sk-test",
+                "microjainslee.ai.interval-seconds", "1")::get);
+        try (AIAgentEngine engine = new AIAgentEngine(cfg, advisor, port, null)) {
+            engine.start();
+            long deadline = System.currentTimeMillis() + 1_000;
+            while (engine.status().cycles() < 2 && System.currentTimeMillis() < deadline) {
+                Thread.sleep(10);
+            }
+            assertTrue("loop must have cycled", engine.status().cycles() >= 2);
+            assertEquals("healthy node must never reach the advisor", 0, advisor.analyzeCalls.get());
+            assertTrue("cycles must be counted as skipped-healthy",
+                    engine.status().skippedHealthy() >= 2);
+
+            // Flip to unhealthy → next cycle calls the advisor.
+            port.current = AiTestFixtures.unhealthy();
+            await(() -> advisor.analyzeCalls.get() >= 1);
+        }
     }
 
     @Test
@@ -151,6 +194,63 @@ public class AIAgentEngineTest {
                 advisor, port, null)) {
             engine.analyzeNow();   // must not throw
             assertEquals("no guardian → nothing executed", 0, engine.status().actionsExecuted());
+        }
+    }
+
+    // ── RELEASE_ENTITY ───────────────────────────────────────────────
+
+    @Test
+    public void releaseEntityExecutesThroughTheWiredReleaser() {
+        java.util.List<String> released = new java.util.concurrent.CopyOnWriteArrayList<>();
+        ScriptedAdvisor advisor = new ScriptedAdvisor(
+                new Recommendation("RELEASE_ENTITY", "HelloWorld/leaked-1", "idle 40min", 0.95));
+        var port = new AiTestFixtures.FakePort(AiTestFixtures.unhealthy());
+        try (AIAgentEngine engine = new AIAgentEngine(config(AIMode.FULL_AUTO, 0),
+                advisor, port, null).entityReleaser(released::add)) {
+            engine.analyzeNow();
+            assertEquals(List.of("HelloWorld/leaked-1"), released);
+            assertEquals(1, engine.status().actionsExecuted());
+        }
+    }
+
+    @Test
+    public void releaseEntityWithoutTargetOrReleaserIsRejected() {
+        java.util.List<String> released = new java.util.concurrent.CopyOnWriteArrayList<>();
+        ScriptedAdvisor advisor = new ScriptedAdvisor(
+                new Recommendation("RELEASE_ENTITY", "", "no target given", 0.95));
+        var port = new AiTestFixtures.FakePort(AiTestFixtures.unhealthy());
+        try (AIAgentEngine engine = new AIAgentEngine(config(AIMode.FULL_AUTO, 0),
+                advisor, port, null).entityReleaser(released::add)) {
+            engine.analyzeNow();
+            assertTrue("blank target must be rejected", released.isEmpty());
+            assertEquals(0, engine.status().actionsExecuted());
+        }
+        // No releaser wired at all → downgrades to a log line, never throws.
+        ScriptedAdvisor advisor2 = new ScriptedAdvisor(
+                new Recommendation("RELEASE_ENTITY", "e1", "leak", 0.95));
+        try (AIAgentEngine engine = new AIAgentEngine(config(AIMode.FULL_AUTO, 0),
+                advisor2, port, null)) {
+            engine.analyzeNow();
+            assertEquals(0, engine.status().actionsExecuted());
+        }
+    }
+
+    // ── AIAgentControl facade ────────────────────────────────────────
+
+    @Test
+    public void engineIsUsableThroughTheControlInterfaceAlone() {
+        ScriptedAdvisor advisor = new ScriptedAdvisor();
+        var port = new AiTestFixtures.FakePort(AiTestFixtures.unhealthy());
+        try (AIAgentEngine engine = new AIAgentEngine(config(AIMode.ADVISORY, 0),
+                advisor, port, null)) {
+            AIAgentControl control = engine;   // apps see only this surface
+            control.setEnabled(true);
+            control.setMode(AIMode.FULL_AUTO);
+            assertEquals(AIMode.FULL_AUTO, control.mode());
+            assertNotNull(control.analyzeNow());
+            assertNotNull(control.lastAnalysis());
+            assertTrue(control.status().enabled());
+            assertEquals("report for DEV", control.report(ReportAudience.DEV));
         }
     }
 

@@ -14,7 +14,6 @@
 
 package org.restcomm.protocols.ss7.scheduler.impl;
 
-import io.netty.util.Timeout;
 import org.restcomm.protocols.ss7.scheduler.api.TimerHandle;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,18 +28,18 @@ public class LocalTimerHandle implements TimerHandle {
     private static final int STATE_FIRED = 2;
 
     private final AtomicInteger state = new AtomicInteger(STATE_PENDING);
-    private volatile Timeout timeout;
+    private volatile Runnable cancelAction;
 
-    void setTimeout(Timeout timeout) {
-        this.timeout = timeout;
+    void setCancelAction(Runnable cancelAction) {
+        this.cancelAction = cancelAction;
     }
 
     @Override
     public void cancel() {
         if (state.compareAndSet(STATE_PENDING, STATE_CANCELLED)) {
-            Timeout current = timeout;
+            Runnable current = cancelAction;
             if (current != null) {
-                current.cancel();
+                current.run();
             }
         }
     }

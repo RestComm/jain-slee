@@ -31,9 +31,11 @@ import com.microjainslee.ra.httpserver.HttpServerResourceAdaptor;
 import com.microjainslee.ra.prometheus.PrometheusResourceAdaptor;
 import com.microjainslee.ra.prometheus.PrometheusRaEndpoint;
 
-import jakarta.annotation.PostConstruct;
+import io.quarkus.runtime.StartupEvent;
+
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
@@ -51,6 +53,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * {@code RaEndpointPort}/{@code RaCommandPort} adapters.
  * Implements {@link UssdDemoContext} so SBBs can call back without
  * static references.</p>
+ *
+ * <p>Observes {@link StartupEvent} so RA wiring is not deferred to first REST
+ * hit (lazy {@code @ApplicationScoped} + {@code @PostConstruct} alone is unsafe).</p>
  */
 @ApplicationScoped
 public final class UssdDemoBootstrap implements UssdDemoContext {
@@ -75,14 +80,24 @@ public final class UssdDemoBootstrap implements UssdDemoContext {
     private volatile AutonomousGuardian guardian;
     private volatile HttpServerRaEndpoint httpEndpoint;
     private volatile GrpcMenuRaEndpoint grpcEndpoint;
+    private volatile boolean started;
 
     /** Actual HTTP RA endpoint (bound port via {@code httpEndpoint().port()}). */
     public HttpServerRaEndpoint httpEndpoint() {
         return httpEndpoint;
     }
 
-    @PostConstruct
+    void onStart(@Observes StartupEvent ev) {
+        LOG.info("USSD Quarkus bootstrap triggered by StartupEvent");
+        init();
+    }
+
+    /** Wired by {@link #onStart}; also used by unit/smoke tests (no CDI). */
     void init() {
+        if (started) {
+            return;
+        }
+        started = true;
         if (container.getState() != MicroSleeContainer.State.STARTED) {
             container.start();
         }

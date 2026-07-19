@@ -13,8 +13,14 @@ import java.util.function.LongSupplier;
  * <p>Snapshots are captured <i>lazily on read</i> ({@link #snapshot()}),
  * throttled by a minimum capture interval (default 5 s). Between reads the
  * monitor consumes exactly zero CPU and allocates nothing. A Prometheus
- * scrape every 15–30 s therefore drives at most one cheap MXBean read per
- * scrape; with no scrapers attached the monitor is completely idle.</p>
+ * scrape every 15–30 s therefore drives at most one cheap capture per scrape;
+ * with no scrapers attached the monitor is completely idle.</p>
+ *
+ * <p><b>No management beans.</b> Heap comes from {@link Runtime}; CPU load and
+ * open-fd count are read from {@code /proc} on Linux (native-image clean, no
+ * {@code java.lang.management} / {@code com.sun.management}). On non-Linux hosts
+ * those two fields report {@code -1}. GC counters are not collected without a
+ * management bean and report {@code 0}.</p>
  *
  * <p>The old fixed-rate captured history is preserved: every actual
  * capture is appended to the ring buffer, so history density follows real
@@ -119,14 +125,7 @@ public final class ResourceMonitor {
         long heapUsed = rt.totalMemory() - rt.freeMemory();
         long heapMax = rt.maxMemory();
 
-        double cpuLoad = -1.0;
-        try {
-            var bean = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
-            if (bean instanceof com.sun.management.OperatingSystemMXBean osBean) {
-                cpuLoad = osBean.getCpuLoad();
-                if (cpuLoad < 0) cpuLoad = osBean.getProcessCpuLoad();
-            }
-        } catch (Exception ignored) { }
+        double cpuLoad = readCpuLoadFromProc(); // 0.0–1.0, or -1 off Linux
 
         int activeThreads = Thread.activeCount();
         long vtCount;
@@ -136,20 +135,9 @@ public final class ResourceMonitor {
             vtCount = -1;
         }
 
+        // GC counters require a management bean, which we no longer use.
         long gcCount = 0, gcTimeMs = 0;
-        try {
-            for (var gcBean : java.lang.management.ManagementFactory.getGarbageCollectorMXBeans()) {
-                gcCount += gcBean.getCollectionCount();
-                gcTimeMs += gcBean.getCollectionTime();
-            }
-        } catch (Exception ignored) { }
-
-        long openFds = -1;
-        try {
-            openFds = java.lang.management.ManagementFactory.getOperatingSystemMXBean()
-                    instanceof com.sun.management.UnixOperatingSystemMXBean unix
-                    ? unix.getOpenFileDescriptorCount() : -1;
-        } catch (Exception ignored) { }
+        long openFds = countOpenFds(); // /proc/self/fd on Linux, else -1
 
         return new ResourceSnapshot(
                 heapUsed / (1024 * 1024), heapMax / (1024 * 1024),
@@ -158,5 +146,80 @@ public final class ResourceMonitor {
                 activeThreads, (int) vtCount, gcCount, gcTimeMs, openFds,
                 System.currentTimeMillis()
         );
+    }
+
+    // ── /proc-based readings (Linux) — no java.lang.management dependency ──
+
+    /** Previous aggregate CPU jiffies for delta-based load; -1 until first read. */
+    private volatile long prevCpuTotal = -1L;
+    private volatile long prevCpuIdle = -1L;
+
+    /**
+     * Whole-machine CPU load as a fraction (0.0–1.0) from {@code /proc/stat},
+     * computed as the busy-jiffie delta between successive captures. Returns
+     * {@code -1} on the first capture (no baseline yet) and on any non-Linux
+     * host or read error.
+     */
+    private double readCpuLoadFromProc() {
+        java.nio.file.Path stat = java.nio.file.Path.of("/proc/stat");
+        if (!java.nio.file.Files.exists(stat)) {
+            return -1.0;
+        }
+        try {
+            String cpuLine = null;
+            for (String line : java.nio.file.Files.readAllLines(stat)) {
+                if (line.startsWith("cpu ")) {
+                    cpuLine = line;
+                    break;
+                }
+            }
+            if (cpuLine == null) {
+                return -1.0;
+            }
+            String[] f = cpuLine.trim().split("\\s+");
+            long total = 0;
+            for (int i = 1; i < f.length; i++) {
+                total += Long.parseLong(f[i]);
+            }
+            // idle = idle(4th) + iowait(5th) fields after the "cpu" label
+            long idle = Long.parseLong(f[4]) + (f.length > 5 ? Long.parseLong(f[5]) : 0);
+
+            long prevTotal = prevCpuTotal;
+            long prevIdle = prevCpuIdle;
+            prevCpuTotal = total;
+            prevCpuIdle = idle;
+            if (prevTotal < 0) {
+                return -1.0; // first sample — need a delta
+            }
+            long totalDelta = total - prevTotal;
+            long idleDelta = idle - prevIdle;
+            if (totalDelta <= 0) {
+                return -1.0;
+            }
+            double load = 1.0 - ((double) idleDelta / totalDelta);
+            return load < 0 ? 0.0 : Math.min(load, 1.0);
+        } catch (Exception ignored) {
+            return -1.0;
+        }
+    }
+
+    /**
+     * Open file-descriptor count from {@code /proc/self/fd} on Linux; {@code -1}
+     * on other platforms or on error.
+     */
+    private static long countOpenFds() {
+        java.nio.file.Path fd = java.nio.file.Path.of("/proc/self/fd");
+        if (!java.nio.file.Files.isDirectory(fd)) {
+            return -1;
+        }
+        try (var stream = java.nio.file.Files.newDirectoryStream(fd)) {
+            long count = 0;
+            for (var ignored : stream) {
+                count++;
+            }
+            return count;
+        } catch (Exception ignored) {
+            return -1;
+        }
     }
 }

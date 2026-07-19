@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{heading}} · {{siteName}} Admin</title>
+<style>
+  :root { --muted:#8a8aa0; --line:#e4e4ee; --bg:#f5f5fa; --accent:#6d5efc; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:#1a1a2e;
+         font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  a { color:var(--accent); text-decoration:none; }
+  header { background:#12132a; color:#fff; }
+  header .wrap { max-width:900px; margin:0 auto; padding:16px 24px; display:flex;
+         align-items:center; justify-content:space-between; }
+  .logo { font:700 20px/1 Georgia,serif; } .logo span { color:#8f83ff; }
+  main { max-width:900px; margin:0 auto; padding:28px 24px 70px; }
+  h1 { font:700 26px/1.2 Georgia,serif; margin:0 0 22px; }
+  form.card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:26px 28px; }
+  label { display:block; font-size:12px; font-weight:700; color:var(--muted);
+         text-transform:uppercase; letter-spacing:.05em; margin:18px 0 6px; }
+  input,select,textarea { width:100%; padding:11px 13px; border:1px solid var(--line);
+         border-radius:10px; font-size:15px; font-family:inherit; background:#fff; }
+  input:focus,select:focus,textarea:focus { outline:none; border-color:var(--accent); }
+  textarea { min-height:340px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+         font-size:14px; line-height:1.6; resize:vertical; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .actions { margin-top:26px; display:flex; gap:12px; }
+  button { padding:12px 22px; border:none; border-radius:10px; font-size:15px; font-weight:600;
+         cursor:pointer; }
+  .primary { background:var(--accent); color:#fff; }
+  .secondary { background:#fff; color:var(--muted); border:1px solid var(--line); }
+  .help { color:var(--muted); font-size:12px; margin-top:4px; }
+</style>
+</head>
+<body>
+  <header><div class="wrap">
+    <div class="logo">{{siteName}}<span>.</span> Admin</div>
+    <a href="/admin/dashboard">← Dashboard</a>
+  </div></header>
+  <main>
+    <h1>{{heading}}</h1>
+    <form class="card" method="post" action="{{action}}">
+      <input type="hidden" name="id" value="{{id}}">
+      <label for="title">Tiêu đề</label>
+      <input id="title" name="title" value="{{title}}" required>
+      <div class="row">
+        <div>
+          <label for="category">Chuyên mục (slug)</label>
+          <input id="category" name="category" value="{{category}}" placeholder="news">
+        </div>
+        <div>
+          <label for="tags">Tags (phẩy)</label>
+          <input id="tags" name="tags" value="{{tags}}" placeholder="java, slee">
+        </div>
+      </div>
+      <label for="status">Trạng thái</label>
+      <select id="status" name="status">{{{statusOptions}}}</select>
+      <label for="content">Nội dung (Markdown)</label>
+      <textarea id="content" name="content" placeholder="# Tiêu đề&#10;&#10;Viết bằng **Markdown**…">{{content}}</textarea>
+      <div class="help">Ảnh: dùng cú pháp <code>![alt](/media/&lt;file&gt;)</code> — upload ảnh ở dashboard trước.</div>
+      <div class="actions">
+        <button class="primary" type="submit">Lưu &amp; xuất bản</button>
+        <a class="secondary" style="display:inline-flex;align-items:center" href="/admin/dashboard">Huỷ</a>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
